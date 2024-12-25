@@ -1,80 +1,65 @@
 
-from CFG import Assignment, Command, Node
-from pycparser import c_ast
+from typing import Set
+from Lattices.Powerset import Powerset
+from cfg.Expression import ID, BinExpression, Expression, UnaryExpression
+from analysis.Analysis import Analysis
 
 
-def check_occurence(expr: c_ast.Node, lvalue):
-    if isinstance(expr, c_ast.ID):
-        return expr.name == lvalue
-    elif isinstance(expr, c_ast.BinaryOp):
+def check_occurence(expr: Expression, lvalue: Expression):
+    if isinstance(expr, ID):
+        return expr == lvalue
+    elif isinstance(expr, BinExpression):
         return check_occurence(expr.left, lvalue) or check_occurence(expr.right, lvalue)
-    elif isinstance(expr, c_ast.UnaryOp):
+    elif isinstance(expr, UnaryExpression):
         return check_occurence(expr.expr, lvalue)
     else:
         return False
 
 
-class AvailableExpressions:
+class AvailableExpressions(Analysis[Set[Expression]]):
 
     def __init__(self):
-        pass
+        super().__init__(Powerset[Expression]())
 
-    def init(self):
+    def name(self):
+        return "AE"
+
+    def get_bottom(self) -> Set[Expression]:
         return set()
 
-    def skip(self, x: tuple):
+    def skip(self, x: Set[Expression]) -> Set[Expression]:
         return x
 
-    def assignment(self, expr: Assignment, A: set):
-        Acpy = A.copy()
+    def assignment(self, lhs: Expression, rhs: Expression, A: Set[Expression]) -> Set[Expression]:
+        A.add(rhs)
 
-        lhs = expr.lhs
-        rhs = expr.rhs
-
-        Acpy.add(rhs)
-
-        filtered = set([x for x in Acpy if not check_occurence(x, lhs)])
+        filtered = set([x for x in A if not check_occurence(x, lhs)])
 
         return filtered
 
-    def loads(self, expr: c_ast.Node, A: set):
-        Acpy = A.copy()
+    def loads(self, lhs: Expression, rhs: Expression, A: Set[Expression]) -> Set[Expression]:
 
-        lhs = expr.lhs
-        rhs = expr.rhs
+        A.add(rhs)
 
-        Acpy.add(rhs)
-
-        filtered = set([x for x in Acpy if not check_occurence(x, lhs)])
+        filtered = set([x for x in A if not check_occurence(x, lhs)])
 
         return filtered
 
-    def stores(self, expr: c_ast.Node, A: set):
-        e1 = expr.expr1
-        e2 = expr.expr2
+    def stores(self, lhs: Expression, rhs: Expression, A: Set[Expression]) -> Set[Expression]:
+        e1 = lhs
+        e2 = rhs
 
-        new_A = A.copy().add(e1).add(e2)
+        A.add(e1)
+        A.add(e2)
 
-        return new_A
+        return A
 
-    def Pos(self, expr: c_ast.Node, A: set):
-        return A.copy().add(expr)
+    def Pos(self, expr: Expression, A: Set[Expression]) -> Set[Expression]:
+        A.add(expr)
 
-    def Neg(self, expr: c_ast.Node, A: set):
-        return A.copy().add(expr)
+        return A
 
-    def transfer(self, command: Command, A: set):
-        if command.type == 'skip':
-            return self.skip(A)
-        elif command.type == 'assignment':
-            return self.assignment(command.expr, A)
-        elif command.type == 'load':
-            return self.loads(command.expr, A)
-        elif command.type == 'store':
-            return self.stores(command.expr, A)
-        elif command.type == 'Pos':
-            return self.Pos(command.expr, A)
-        elif command.type == 'Neg':
-            return self.Neg(command.expr, A)
-        else:
-            raise ValueError(f"Unknown command type: {command.type}")
+    def Neg(self, expr: Expression, A: Set[Expression]) -> Set[Expression]:
+        A.add(expr)
+
+        return A

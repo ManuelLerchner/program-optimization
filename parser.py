@@ -1,6 +1,9 @@
+from typing import Optional
 from pycparser import c_parser, c_ast
 
-from CFG import CFG, Command, Node
+from cfg.CFG import CFG, Command, Node
+from cfg.Command import AssignmentCommand, NegCommand, SkipCommand, PosCommand
+from cfg.Expression import ID, convertToExpr
 
 
 class Parser:
@@ -10,10 +13,6 @@ class Parser:
         self.node_counter = 0
         self.only_func = only_func
 
-    def get_new_node(self, prefix="node"):
-        self.node_counter += 1
-        return Node(self.node_counter, prefix)
-
     def parse(self):
         with open(self.filename) as f:
             content = f.read()
@@ -21,80 +20,74 @@ class Parser:
         parser = c_parser.CParser()
         ast = parser.parse(content)
 
-        start_node = self.get_new_node("START")
-        end_node = self.get_new_node("END")
-
         self.cfg = CFG()
-        self.visit(ast, start_node, end_node)
+
+        assert isinstance(ast, c_ast.FileAST)
+
+        for decl in ast.ext:
+            self.visit(decl, None)
 
         return self.cfg
 
-    def visit(self, node, entry_node, exit_node):
-        if node is None:
-            return entry_node, exit_node
+    def visit(self, ast_node: c_ast.Node, entry_node: Node, exit_node: Optional[Node] = None) -> Node | None:
 
-        if isinstance(node, c_ast.FileAST):
-            current_entry = entry_node
-            for decl in node.ext:
-                current_exit = self.get_new_node("decl")
-                self.visit(decl, current_entry, current_exit)
-                current_entry = current_exit
-            self.cfg.add_edge(current_entry, exit_node, Command("skip"))
+        if isinstance(ast_node, c_ast.FuncDef):
+            name = ast_node.decl.name
 
-        elif isinstance(node, c_ast.FuncDef):
+            entry_node, exit_node = Node.make_function_nodes(name)
+            out = self.visit(ast_node.body, entry_node, exit_node)
 
-            func_entry = self.get_new_node("func_entry")
-            func_exit = self.get_new_node("func_exit")
+            return out
 
-            self.cfg.add_edge(entry_node, func_entry,
-                              Command("function_entry", node.decl))
+        elif isinstance(ast_node, c_ast.Compound):
+            current: Node = entry_node
+            for stmt in ast_node.block_items or []:
+                out = self.visit(stmt, current, exit_node)
+                if out is not None:
+                    current = out
 
-            if self.only_func and node.decl.name == self.only_func:
-                # reset the cfg
-                self.cfg = CFG()
+            # self.cfg.add_edge(current, exit_node, SkipCommand())
 
-            self.visit(node.body, func_entry, func_exit)
-            self.cfg.add_edge(func_exit, exit_node, Command("skip"))
+            return current
 
-            self.cfg.finalize()
+        elif isinstance(ast_node, c_ast.If):
+            true_entry, false_entry = Node.make_if_nodes()
 
-        elif isinstance(node, c_ast.Compound):
-            current_entry = entry_node
-            for stmt in node.block_items or []:
-                current_exit = self.get_new_node("stmt")
-                self.visit(stmt, current_entry, current_exit)
-                current_entry = current_exit
-            self.cfg.add_edge(current_entry, exit_node, Command("skip"))
-
-        elif isinstance(node, c_ast.If):
-            true_entry = self.get_new_node("if_true")
-            false_entry = self.get_new_node("if_false")
+            cond_expr = convertToExpr(ast_node.cond)
 
             self.cfg.add_edge(entry_node, true_entry,
-                              Command("Pos", node.cond))
+                              PosCommand(cond_expr))
             self.cfg.add_edge(entry_node, false_entry,
-                              Command("Neg", node.cond))
+                              NegCommand(cond_expr))
 
-            self.visit(node.iftrue, true_entry, exit_node)
+            out_true = self.visit(ast_node.iftrue, true_entry, exit_node)
+            out_false = self.visit(ast_node.iffalse, false_entry, exit_node)
 
-            if node.iffalse:
-                self.visit(node.iffalse, false_entry, exit_node)
-            else:
-                self.cfg.add_edge(false_entry, exit_node,
-                                  Command("empty_else"))
+            if exit_node is None:
+                exit_node = Node.make_skip_node()
 
-        elif isinstance(node, c_ast.Assignment) or isinstance(node, c_ast.Decl):
-            stmt_node = self.get_new_node("assign")
-            self.cfg.add_edge(entry_node, stmt_node,
-                              Command("assignment", node))
-            self.cfg.add_edge(stmt_node, exit_node, Command("skip"))
+            self.cfg.add_edge(out_true, exit_node, SkipCommand())
+            self.cfg.add_edge(out_false, exit_node, SkipCommand())
 
-        elif isinstance(node, c_ast.Return):
-            stmt_node = self.get_new_node("return")
-            self.cfg.add_edge(entry_node, stmt_node,
-                              Command("return", node.expr))
-            self.cfg.add_edge(stmt_node, exit_node, Command("skip"))
+            return exit_node
 
-        else:
-            self.cfg.add_edge(entry_node, exit_node,
-                              Command("", node))
+        elif isinstance(ast_node, c_ast.Assignment):
+            node = Node.make_stmt_node()
+
+            self.cfg.add_edge(entry_node, node, AssignmentCommand(
+                convertToExpr(ast_node.lvalue), convertToExpr(ast_node.rvalue)))
+
+            return node
+
+        elif isinstance(ast_node, c_ast.Decl):
+            if ast_node.init is None:
+                return None
+
+            node = Node.make_stmt_node()
+
+            self.cfg.add_edge(entry_node, node, AssignmentCommand(ID(
+                ast_node.name), convertToExpr(ast_node.init)))
+
+            return node
+
+        raise NotImplementedError(ast_node)
