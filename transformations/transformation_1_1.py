@@ -4,11 +4,17 @@ from typing import Any
 from analysis.available_expr import AvailableExpressions
 from cfg.cfg import CFG
 from cfg.command import AssignmentCommand, LoadsCommand, NegCommand, PosCommand, StoresCommand
-from cfg.expression import ID
+from cfg.expression import ID, Expression
 from transformations.transformation import Transformation
 
 
 class Transformation_1_1(Transformation):
+
+    @staticmethod
+    def introduce_register(expr: Expression) -> ID:
+        reg = ID(f"T_{expr.to_short_string()}")
+        reg.is_register = True
+        return reg
 
     def name(self) -> str:
         return "Transformation 1.1"
@@ -37,7 +43,7 @@ class Transformation_1_1(Transformation):
 
                 if not AvailableExpressions.is_worthwile_storing(expr):
                     continue
-                T_e = ID(f"T_{expr.to_short_string()}")
+                T_e = Transformation_1_1.introduce_register(expr)
 
                 ass1 = AssignmentCommand(T_e, expr)
                 ass2 = AssignmentCommand(lval, T_e)
@@ -51,7 +57,7 @@ class Transformation_1_1(Transformation):
                 U = edge.source
                 V = edge.dest
                 expr = edge.command.expr
-                T_e = ID(f"T_{expr.to_short_string()}")
+                T_e = Transformation_1_1.introduce_register(expr)
 
                 if not AvailableExpressions.is_worthwile_storing(expr):
                     continue
@@ -86,7 +92,7 @@ class Transformation_1_1(Transformation):
                 if not AvailableExpressions.is_worthwile_storing(expr):
                     continue
 
-                T_e = ID(f"T_{expr.to_short_string()}")
+                T_e = Transformation_1_1.introduce_register(expr)
 
                 ass1 = AssignmentCommand(T_e, expr)
                 ass2 = LoadsCommand(lval, T_e)
@@ -105,8 +111,8 @@ class Transformation_1_1(Transformation):
                 if not AvailableExpressions.is_worthwile_storing(lhs) or not AvailableExpressions.is_worthwile_storing(rhs):
                     continue
 
-                T_lhs = ID(f"T_{lhs.to_short_string()}")
-                T_rhs = ID(f"T_{rhs.to_short_string()}")
+                T_lhs = Transformation_1_1.introduce_register(lhs)
+                T_rhs = Transformation_1_1.introduce_register(rhs)
 
                 ass1 = AssignmentCommand(T_lhs, lhs)
                 ass2 = AssignmentCommand(T_rhs, rhs)

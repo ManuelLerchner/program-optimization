@@ -89,11 +89,13 @@ class CFG:
         dot = graphviz.Digraph()
         for edge in self.edges:
             # set label to empty string
-            src = str(edge.source)
-            dest = str(edge.dest)
-            # node1 = dot.node(src, label="")
-            # node2 = dot.node(dest, label="")
-            dot.edge(src, dest, label=str(edge.command))
+            src = edge.source
+            dest = edge.dest
+            dot.node(src.name, label=str(src))
+            dot.node(dest.name, label=str(dest))
+
+            dot.edge(src.name, dest.name, label=str(edge.command))
+
         return dot
 
     def render(self, filename):

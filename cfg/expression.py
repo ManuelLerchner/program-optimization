@@ -56,6 +56,8 @@ class ID(Expression):
         return self.name
 
     def __eq__(self, other):
+        if not isinstance(other, ID):
+            return False
         return self.name == other.name
 
     def to_short_string(self) -> str:

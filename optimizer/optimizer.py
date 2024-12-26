@@ -24,7 +24,12 @@ class Optimizer:
                 print(f"{BColors.WARNING}Running analysis:{BColors.ENDC} {
                     BColors.OKCYAN}{step.name()}{BColors.ENDC}")
 
+                step.cfg = self.cfg
+
+                step.prepare()
                 A = FixpointSolver.solve(self.cfg, step, debug=debug)
+                step.finish()
+
                 analyses_results[step.name()] = A
 
                 if debug:
