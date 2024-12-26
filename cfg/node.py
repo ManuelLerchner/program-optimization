@@ -11,9 +11,10 @@ class Node:
 
     def __str__(self):
 
-        values = [f"{key}={value}" for key, value in self.annotations.items()]
+        values = "\n".join(
+            [f"{key}={value}" for key, value in self.annotations.items()])
 
-        return f"{self.name} {values}" if self.annotations else self.name
+        return f"{self.name}\n{values}" if self.annotations else self.name
 
     def __hash__(self):
         return hash(self.name)

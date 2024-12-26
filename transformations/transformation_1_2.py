@@ -1,6 +1,7 @@
 
 
 from typing import Any
+from analysis.analysis import Analysis
 from analysis.available_expr import AvailableExpressions
 from cfg.cfg import CFG
 from cfg.command import AssignmentCommand, SkipCommand
@@ -11,6 +12,9 @@ class Transformation_1_2(Transformation):
 
     def name(self) -> str:
         return "Transformation 1.2"
+
+    def dependencies(self) -> list[Analysis]:
+        return [AvailableExpressions()]
 
     def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
         """

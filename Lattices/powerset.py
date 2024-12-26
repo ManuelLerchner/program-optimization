@@ -3,7 +3,7 @@ from typing import Set
 from Lattices.completeLattice import CompleteLattice
 
 
-class Powerset[T](CompleteLattice[Set[T]]):
+class Powerset[T](CompleteLattice[Set[T]], Set[T]):
     def top(self) -> Set[T]:
         raise NotImplementedError
 
@@ -30,9 +30,6 @@ class Powerset[T](CompleteLattice[Set[T]]):
 
     def copy(self, a):
         return a.copy()
-
-    def __hash__(self) -> int:
-        return hash(str(self))
 
     def show(self, a: Set[T]) -> str:
         return str(a)

@@ -1,5 +1,6 @@
 
-from typing import Set, Tuple
+from typing import Dict, Set, Tuple
+import typing
 from Lattices.completeLattice import CompleteLattice
 from Lattices.powerset import Powerset
 from Lattices.tupleLattice import NamedTupleLattice
@@ -25,9 +26,9 @@ def get_exprs(expr: Command) -> Set[Expression]:
         raise Exception("Unknown command")
 
 
-class Superfluous(Analysis[Tuple[Set[ID]]]):
+class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
 
-    def __init__(self, entries: dict[Expression, Powerset[ID]] = {}):
+    def __init__(self, entries: Dict[Expression, Powerset[ID]] = {}):
         lattice: CompleteLattice = NamedTupleLattice[Expression, Powerset[ID]](
             entries)
         super().__init__(lattice, 'forward')
@@ -45,37 +46,45 @@ class Superfluous(Analysis[Tuple[Set[ID]]]):
         self.lattice = NamedTupleLattice[Expression, Powerset[ID]](entries)
 
     def name(self):
-        return "SM"
+        return "ExprStores"
 
-    def skip(self, x: Tuple[Set[ID]]) -> Tuple[Set[ID]]:
+    def skip(self, x: Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:
         return x
 
-    def assignment(self, lhs: Expression, rhs: Expression, A: Tuple[Set[ID]]) -> Tuple[Set[ID]]:
+    def assignment(self, lhs: Expression, rhs: Expression, A: Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:
+
+        if not isinstance(lhs, ID):
+            return A
 
         if isinstance(rhs, ID):
             for expr in A:
+                rhs_isin = rhs in A[expr]
+
                 A[expr].discard(lhs)
 
-                if rhs in A[expr]:
+                if rhs_isin:
                     A[expr].add(lhs)
 
         if isinstance(rhs, Constant):
             for expr in A:
                 if expr == rhs:
-                    A[rhs].add(lhs)
+                    A[expr].add(lhs)
                 else:
-                    A[rhs].discard(lhs)
+                    A[expr].discard(lhs)
 
         if isinstance(rhs, BinExpression) or isinstance(rhs, UnaryExpression):
             for expr in A:
                 if expr == rhs:
-                    A[rhs] = {lhs}
+                    A[expr] = typing.cast(Powerset[ID], {lhs})
                 else:
-                    A[rhs].discard(lhs)
+                    A[expr].discard(lhs)
 
         return A
 
-    def loads(self, lhs: Expression, rhs: Expression, A: Tuple[Set[ID]]) -> Tuple[Set[ID]]:
+    def loads(self, lhs: Expression, rhs: Expression, A: Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:
+        if not isinstance(lhs, ID):
+            return A
+
         for expr in A:
 
             if isinstance(rhs, Constant):
@@ -83,31 +92,31 @@ class Superfluous(Analysis[Tuple[Set[ID]]]):
 
             if isinstance(rhs, BinExpression) or isinstance(rhs, UnaryExpression):
                 if expr == rhs:
-                    A[rhs] = {}
+                    A[expr] = typing.cast(Powerset[ID], {})
                 else:
-                    A[rhs].discard(lhs)
+                    A[expr].discard(lhs)
 
         return A
 
-    def stores(self, lhs: Expression, rhs: Expression, A: Tuple[Set[ID]]) -> Tuple[Set[ID]]:
+    def stores(self, lhs: Expression, rhs: Expression,  A: Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:
         for expr in A:
 
             if isinstance(rhs, BinExpression) or isinstance(rhs, UnaryExpression):
                 if expr == rhs or expr == lhs:
-                    A[rhs] = {}
+                    A[expr] = typing.cast(Powerset[ID], {})
 
         return A
 
-    def Pos(self, expr: Expression, A: Tuple[Set[ID]]) -> Tuple[Set[ID]]:
+    def Pos(self, expr: Expression, A:  Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:
         for e in A:
             if e == expr:
-                A[e] = {}
+                A[e] = typing.cast(Powerset[ID], {})
 
         return A
 
-    def Neg(self, expr: Expression, A: Tuple[Set[ID]]) -> Tuple[Set[ID]]:
+    def Neg(self, expr: Expression, A:  Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:
         for e in A:
             if e == expr:
-                A[e] = {}
+                A[e] = typing.cast(Powerset[ID], {})
 
         return A

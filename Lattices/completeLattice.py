@@ -34,7 +34,3 @@ class CompleteLattice[T](ABC):
     @abstractmethod
     def show(self, a: T) -> str:
         pass
-
-    @abstractmethod
-    def __hash__(self) -> int:
-        pass

@@ -14,6 +14,9 @@ class Transformation_2(Transformation):
     def name(self) -> str:
         return "Transformation 2"
 
+    def dependencies(self):
+        return [TrueLiveVariables()]
+
     def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
         """
         Transformation 1.2

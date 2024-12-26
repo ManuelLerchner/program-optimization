@@ -37,6 +37,3 @@ class NamedTupleLattice(Generic[A, T], CompleteLattice[dict[A, T]]):
         for k, v in a.items():
             ret += f"{str(k)}: {self.entries[k].show(v)}\n"
         return ret
-
-    def __hash__(self) -> int:
-        return hash(str(self))

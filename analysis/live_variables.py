@@ -23,7 +23,7 @@ class LiveVariables(GenKill[Expression]):
         super().__init__(Powerset[Expression](), 'backward')
 
     def name(self):
-        return "LV"
+        return "LiveVar"
 
     def gen_kill_skip(self, A) -> tuple[Set[Expression], Set[Expression]]:
         return set(), set()

@@ -8,9 +8,9 @@ from util.bcolors import BColors
 
 
 class Optimizer:
-    def __init__(self, cfg: CFG, steps: List[Analysis | Transformation]):
+    def __init__(self, cfg: CFG, transformations: List[Transformation]):
         self.cfg = cfg
-        self.steps = steps
+        self.transformations = transformations
 
     def optimize(self, debug=False) -> CFG:
 
@@ -18,40 +18,40 @@ class Optimizer:
 
         self.cfg.render(f"{self.cfg.path}/{self.cfg.filename}/initial")
 
-        for i, step in enumerate(self.steps):
+        for i, trans in enumerate(self.transformations):
 
-            if isinstance(step, Analysis):
+            print(f"{BColors.WARNING}Running transformation:{BColors.ENDC} {
+                BColors.OKCYAN}{trans.name()}{BColors.ENDC}")
+
+            for analyses in trans.dependencies():
                 print(f"{BColors.WARNING}Running analysis:{BColors.ENDC} {
-                    BColors.OKCYAN}{step.name()}{BColors.ENDC}")
+                    BColors.OKCYAN}{trans.name()}{BColors.ENDC}")
 
-                step.cfg = self.cfg
+                analyses.cfg = self.cfg
 
-                step.prepare()
-                A = FixpointSolver.solve(self.cfg, step, debug=debug)
-                step.finish()
+                analyses.prepare()
+                A = FixpointSolver.solve(self.cfg, analyses, debug=debug)
+                analyses.finish()
 
-                analyses_results[step.name()] = A
+                analyses_results[analyses.name()] = A
 
                 if debug:
                     print(f"{BColors.WARNING}Analysis results for {
-                          step.name()}{BColors.ENDC}")
+                        analyses.name()}{BColors.ENDC}")
 
                 for node, state in A.items():
 
                     if debug:
-                        print(f"{node.name:>15} {BColors.OKBLUE}{str(
-                            node.annotations[step.name()][node]):^20}{BColors.ENDC} ===> {BColors.OKGREEN}{str(state):^20}{BColors.ENDC}")
+                        print(f"{node.name:>15} {
+                            BColors.OKGREEN}{
+                            str(state):^20}{BColors.ENDC}")
 
-                    node.annotations[step.name()] = state
+                    node.annotations[analyses.name()] = state
 
-            elif isinstance(step, Transformation):
-                print(f"{BColors.WARNING}Running transformation:{BColors.ENDC} {
-                    BColors.OKCYAN}{step.name()}{BColors.ENDC}")
-
-                self.cfg = step.transform(self.cfg, analyses_results)
+            self.cfg = trans.transform(self.cfg, analyses_results)
 
             self.cfg.render(
-                f"{self.cfg.path}/{self.cfg.filename}/step_{i+1}_{step.name()}")
+                f"{self.cfg.path}/{self.cfg.filename}/step_{i+1}_{trans.name()}")
 
             print()
 

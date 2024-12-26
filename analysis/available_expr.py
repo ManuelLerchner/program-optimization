@@ -22,7 +22,7 @@ class AvailableExpressions(Analysis[Set[Expression]]):
         super().__init__(Powerset[Expression](), 'forward')
 
     def name(self):
-        return "AE"
+        return "AvailExpr"
 
     @staticmethod
     def is_worthwile_storing(expr: Expression) -> bool:

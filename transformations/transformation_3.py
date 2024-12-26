@@ -3,7 +3,7 @@
 from typing import Any
 from analysis.available_expr import AvailableExpressions
 from analysis.live_variables import LiveVariables
-from analysis.superfluous import Superfluous
+from analysis.expression_stores import ExprStores
 from analysis.true_live_variables import TrueLiveVariables
 from cfg.cfg import CFG
 from cfg.command import AssignmentCommand, LoadsCommand, PosCommand, SkipCommand, StoresCommand
@@ -17,13 +17,16 @@ class Transformation_3(Transformation):
     def name(self) -> str:
         return "Transformation 3"
 
+    def dependencies(self):
+        return [ExprStores()]
+
     def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
         """
         Transformation 3
         e -> sigma(e)
         """
 
-        V = analyses_results[Superfluous().name()]
+        V = analyses_results[ExprStores().name()]
 
         edge_copy = cfg.edges.copy()
 
@@ -35,8 +38,7 @@ class Transformation_3(Transformation):
                     # check if attribute is a register
 
                     return Transformation_1_1.introduce_register(expr)
-                else:
-                    return var
+            return var
 
         for edge in edge_copy:
             U = edge.source

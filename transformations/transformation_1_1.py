@@ -1,6 +1,7 @@
 
 
 from typing import Any
+import typing
 from analysis.available_expr import AvailableExpressions
 from cfg.cfg import CFG
 from cfg.command import AssignmentCommand, LoadsCommand, NegCommand, PosCommand, StoresCommand
@@ -13,7 +14,8 @@ class Transformation_1_1(Transformation):
     @staticmethod
     def introduce_register(expr: Expression) -> ID:
         reg = ID(f"T_{expr.to_short_string()}")
-        reg.is_register = True
+
+        typing.cast(Any, reg).is_register = True
         return reg
 
     def name(self) -> str:
