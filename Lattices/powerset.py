@@ -25,6 +25,9 @@ class Powerset[T](CompleteLattice[Set[T]]):
     def eq(self, a: Set[T], b: Set[T]) -> bool:
         return a == b
 
+    def diff(self, a: Set[T], b: Set[T]) -> Set[T]:
+        return a.difference(b)
+
     def copy(self, a):
         return a.copy()
 

@@ -1,11 +1,13 @@
 from typing import Any
+from collections import defaultdict
 
 
 class Node:
 
     def __init__(self, name: str):
         self.name = name
-        self.annotations: dict[str, Any] = {}
+        self.annotations: defaultdict[str, dict[Node, Any]] = defaultdict(
+            lambda: (defaultdict(lambda: "TOP")))
 
     def __str__(self):
 

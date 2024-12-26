@@ -10,6 +10,7 @@ class CFG:
 
     def __init__(self) -> None:
         self.edges: list[Edge] = []
+        self.path = None
         self.filename = None
 
         self.function_counter = 0
@@ -18,6 +19,7 @@ class CFG:
         self.stores_counter = 0
         self.skip_counter = 0
         self.if_counter = 0
+        self.loop_counter = 0
 
     def make_function_nodes(self, name: str):
         self.function_counter += 1
@@ -48,6 +50,13 @@ class CFG:
         false_entry = Node(f"if_false_{self.if_counter}")
 
         return true_entry, false_entry
+
+    def make_loop_nodes(self):
+        self.loop_counter += 1
+        loop_entry = Node(f"loop_{self.loop_counter}_entry")
+        loop_exit = Node(f"loop_{self.loop_counter}_exit")
+
+        return loop_entry, loop_exit
 
     def add_edge(self, source: Node, dest: Node, command: Command):
         edge = Edge(source, dest, command)

@@ -2,8 +2,9 @@ from typing import Optional
 from pycparser import c_parser, c_ast
 
 from cfg.cfg import CFG, Node
-from cfg.command import AssignmentCommand, NegCommand, SkipCommand, PosCommand
+from cfg.command import AssignmentCommand, LoadsCommand, NegCommand, SkipCommand, PosCommand, StoresCommand
 from cfg.expression import ID, convertToExpr
+from transformations.transformation_1 import RemoveSKIP
 
 
 class Parser:
@@ -27,9 +28,10 @@ class Parser:
         for decl in ast.ext:
             self.visit(decl, None)
 
-        self.cfg.filename = self.filename
+        self.cfg.path = "/".join(self.filename.split("/")[:-1])
+        self.cfg.filename = self.filename.split("/")[-1].split(".")[0]
 
-        return self.cfg
+        return RemoveSKIP().transform(self.cfg, {})
 
     def visit(self, ast_node: c_ast.Node, entry_node: Node, exit_node: Optional[Node] = None) -> Node | None:
 
@@ -74,10 +76,21 @@ class Parser:
             return exit_node
 
         elif isinstance(ast_node, c_ast.Assignment):
-            node = self.cfg.make_stmt_node()
+            command: AssignmentCommand | LoadsCommand | StoresCommand
+            if (type(ast_node.lvalue) == c_ast.ArrayRef) and ast_node.lvalue.name.name == "M":
+                command = StoresCommand(convertToExpr(
+                    ast_node.lvalue.subscript), convertToExpr(ast_node.rvalue))
+                node = self.cfg.make_stores_node()
+            elif (type(ast_node.rvalue) == c_ast.ArrayRef) and ast_node.rvalue.name.name == "M":
+                command = LoadsCommand(convertToExpr(
+                    ast_node.lvalue), convertToExpr(ast_node.rvalue.subscript))
+                node = self.cfg.make_loads_node()
+            else:
+                command = AssignmentCommand(convertToExpr(
+                    ast_node.lvalue), convertToExpr(ast_node.rvalue))
+                node = self.cfg.make_stmt_node()
 
-            self.cfg.add_edge(entry_node, node, AssignmentCommand(
-                convertToExpr(ast_node.lvalue), convertToExpr(ast_node.rvalue)))
+            self.cfg.add_edge(entry_node, node, command)
 
             return node
 
@@ -85,11 +98,37 @@ class Parser:
             if ast_node.init is None:
                 return None
 
-            node = self.cfg.make_stmt_node()
+            if (type(ast_node.init) == c_ast.ArrayRef) and ast_node.init.name.name == "M":
+                command = LoadsCommand(convertToExpr(
+                    c_ast.ID(ast_node.name)), convertToExpr(ast_node.init.subscript))
+                node = self.cfg.make_stores_node()
+            elif (type(ast_node.init) == c_ast.ArrayRef) and ast_node.init.name.name == "M":
+                command = StoresCommand(convertToExpr(
+                    c_ast.ID(ast_node.name)), convertToExpr(ast_node.init.subscript))
+                node = self.cfg.make_loads_node()
+            else:
+                command = AssignmentCommand(convertToExpr(
+                    c_ast.ID(ast_node.name)), convertToExpr(ast_node.init))
+                node = self.cfg.make_stmt_node()
 
-            self.cfg.add_edge(entry_node, node, AssignmentCommand(ID(
-                ast_node.name), convertToExpr(ast_node.init)))
+            self.cfg.add_edge(entry_node, node, command)
 
             return node
+
+        elif isinstance(ast_node, c_ast.While):
+            loop_entry, loop_exit = self.cfg.make_loop_nodes()
+
+            cond_expr = convertToExpr(ast_node.cond)
+
+            out = self.visit(ast_node.stmt, loop_entry, loop_exit)
+
+            self.cfg.add_edge(entry_node, loop_entry,
+                              PosCommand(cond_expr))
+            self.cfg.add_edge(entry_node, loop_exit,
+                              NegCommand(cond_expr))
+
+            self.cfg.add_edge(out, entry_node, SkipCommand())
+
+            return loop_exit
 
         raise NotImplementedError(ast_node)
