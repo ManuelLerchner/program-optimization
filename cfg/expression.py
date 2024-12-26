@@ -1,9 +1,28 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pycparser import c_ast
 
 
-class Expression:
-    pass
+class Expression(ABC):
+
+    @abstractmethod
+    def to_short_string(self) -> str:
+        pass
+
+
+def op_to_shortstring(op: str):
+    if op == "+":
+        return "p"
+    elif op == "-":
+        return "m"
+    elif op == "*":
+        return "t"
+    elif op == "/":
+        return "d"
+    elif op == "%":
+        return "mod"
+
+    return op
 
 
 @dataclass
@@ -18,6 +37,9 @@ class Constant(Expression):
 
     def __eq__(self, other):
         return self.value == other.value
+
+    def to_short_string(self) -> str:
+        return str(self.value)
 
     def __hash__(self):
         return hash(self.value)
@@ -35,6 +57,9 @@ class ID(Expression):
 
     def __eq__(self, other):
         return self.name == other.name
+
+    def to_short_string(self) -> str:
+        return self.name
 
     def __hash__(self):
         return hash(self.name)
@@ -54,11 +79,14 @@ class UnaryExpression(Expression):
     def __eq__(self, other):
         return self.op == other.op and self.expr == other.expr
 
+    def to_short_string(self) -> str:
+        return f"{op_to_shortstring(self.op)}{self.expr.to_short_string()}"
+
     def __hash__(self):
         return hash(self.op) + hash(self.expr)
 
 
-@dataclass
+@ dataclass
 class BinExpression(Expression):
     left: c_ast.Node
     op: str
@@ -72,6 +100,9 @@ class BinExpression(Expression):
 
     def __hash__(self):
         return hash(self.left) + hash(self.op) + hash(self.right)
+
+    def to_short_string(self) -> str:
+        return f"{self.left.to_short_string()}{op_to_shortstring(self.op)}{self.right.to_short_string()}"
 
     def __eq__(self, other):
         return self.left == other.left and self.op == other.op and self.right == other.right

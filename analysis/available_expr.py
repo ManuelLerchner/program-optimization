@@ -1,8 +1,8 @@
 
 from typing import Set
-from Lattices.Powerset import Powerset
-from cfg.Expression import ID, BinExpression, Expression, UnaryExpression
-from analysis.Analysis import Analysis
+from Lattices.powerset import Powerset
+from cfg.expression import ID, BinExpression, Constant, Expression, UnaryExpression
+from analysis.analysis import Analysis
 
 
 def check_occurence(expr: Expression, lvalue: Expression):
@@ -24,14 +24,20 @@ class AvailableExpressions(Analysis[Set[Expression]]):
     def name(self):
         return "AE"
 
-    def get_bottom(self) -> Set[Expression]:
-        return set()
+    @staticmethod
+    def is_worthwile_storing(expr: Expression) -> bool:
+        if isinstance(expr, ID) or isinstance(expr, Constant):
+            return False
+
+        return True
 
     def skip(self, x: Set[Expression]) -> Set[Expression]:
         return x
 
     def assignment(self, lhs: Expression, rhs: Expression, A: Set[Expression]) -> Set[Expression]:
-        A.add(rhs)
+
+        if self.is_worthwile_storing(rhs):
+            A.add(rhs)
 
         filtered = set([x for x in A if not check_occurence(x, lhs)])
 
@@ -39,7 +45,8 @@ class AvailableExpressions(Analysis[Set[Expression]]):
 
     def loads(self, lhs: Expression, rhs: Expression, A: Set[Expression]) -> Set[Expression]:
 
-        A.add(rhs)
+        if self.is_worthwile_storing(rhs):
+            A.add(rhs)
 
         filtered = set([x for x in A if not check_occurence(x, lhs)])
 
@@ -49,17 +56,22 @@ class AvailableExpressions(Analysis[Set[Expression]]):
         e1 = lhs
         e2 = rhs
 
-        A.add(e1)
-        A.add(e2)
+        if self.is_worthwile_storing(e1):
+            A.add(e1)
+        if self.is_worthwile_storing(e2):
+            A.add(e2)
 
         return A
 
     def Pos(self, expr: Expression, A: Set[Expression]) -> Set[Expression]:
-        A.add(expr)
+
+        if self.is_worthwile_storing(expr):
+            A.add(expr)
 
         return A
 
     def Neg(self, expr: Expression, A: Set[Expression]) -> Set[Expression]:
-        A.add(expr)
+        if self.is_worthwile_storing(expr):
+            A.add(expr)
 
         return A

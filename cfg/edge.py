@@ -1,5 +1,5 @@
-from cfg.Node import Node
-from cfg.Command import Command
+from cfg.node import Node
+from cfg.command import Command
 
 
 class Edge:

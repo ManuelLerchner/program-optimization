@@ -1,8 +1,6 @@
 from abc import abstractmethod
-from typing import Optional
 
-from cfg.Expression import Expression
-from cfg.Node import Node
+from cfg.expression import Expression
 
 
 class Command:

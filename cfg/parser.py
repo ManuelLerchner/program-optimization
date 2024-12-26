@@ -1,9 +1,9 @@
 from typing import Optional
 from pycparser import c_parser, c_ast
 
-from cfg.CFG import CFG, Command, Node
-from cfg.Command import AssignmentCommand, NegCommand, SkipCommand, PosCommand
-from cfg.Expression import ID, convertToExpr
+from cfg.cfg import CFG, Node
+from cfg.command import AssignmentCommand, NegCommand, SkipCommand, PosCommand
+from cfg.expression import ID, convertToExpr
 
 
 class Parser:
@@ -27,6 +27,8 @@ class Parser:
         for decl in ast.ext:
             self.visit(decl, None)
 
+        self.cfg.filename = self.filename
+
         return self.cfg
 
     def visit(self, ast_node: c_ast.Node, entry_node: Node, exit_node: Optional[Node] = None) -> Node | None:
@@ -34,10 +36,10 @@ class Parser:
         if isinstance(ast_node, c_ast.FuncDef):
             name = ast_node.decl.name
 
-            entry_node, exit_node = Node.make_function_nodes(name)
+            entry_node, exit_node = self.cfg.make_function_nodes(name)
             out = self.visit(ast_node.body, entry_node, exit_node)
 
-            return out
+            return exit_node
 
         elif isinstance(ast_node, c_ast.Compound):
             current: Node = entry_node
@@ -51,7 +53,7 @@ class Parser:
             return current
 
         elif isinstance(ast_node, c_ast.If):
-            true_entry, false_entry = Node.make_if_nodes()
+            true_entry, false_entry = self.cfg.make_if_nodes()
 
             cond_expr = convertToExpr(ast_node.cond)
 
@@ -64,7 +66,7 @@ class Parser:
             out_false = self.visit(ast_node.iffalse, false_entry, exit_node)
 
             if exit_node is None:
-                exit_node = Node.make_skip_node()
+                exit_node = self.cfg.make_skip_node()
 
             self.cfg.add_edge(out_true, exit_node, SkipCommand())
             self.cfg.add_edge(out_false, exit_node, SkipCommand())
@@ -72,7 +74,7 @@ class Parser:
             return exit_node
 
         elif isinstance(ast_node, c_ast.Assignment):
-            node = Node.make_stmt_node()
+            node = self.cfg.make_stmt_node()
 
             self.cfg.add_edge(entry_node, node, AssignmentCommand(
                 convertToExpr(ast_node.lvalue), convertToExpr(ast_node.rvalue)))
@@ -83,7 +85,7 @@ class Parser:
             if ast_node.init is None:
                 return None
 
-            node = Node.make_stmt_node()
+            node = self.cfg.make_stmt_node()
 
             self.cfg.add_edge(entry_node, node, AssignmentCommand(ID(
                 ast_node.name), convertToExpr(ast_node.init)))

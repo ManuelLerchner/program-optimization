@@ -1,26 +1,21 @@
-from cfg.CFG import CFG
 from analysis.available_expr import AvailableExpressions
-from parser import Parser
-from solver.Fixpoint import FixpointSolver
-from solver.Solver import Solver
-from pycparser.c_generator import CGenerator
+from optimizer.optimizer import Optimizer
+from cfg.parser import Parser
+
+from transformations.transformation_1 import RemoveSKIP
+from transformations.transformation_1_1 import Transformation_1_1
+from transformations.transformation_1_2 import Transformation_1_2
 
 
 def main():
     p = Parser('examples/entry.c', only_func='main')
 
     cfg = p.parse()
-    cfg.render('examples/entry_cfg')
 
-    analysis = AvailableExpressions()
+    opt = Optimizer(cfg, [
+                    Transformation_1_1(), AvailableExpressions(), Transformation_1_2(), RemoveSKIP()])
 
-    states = FixpointSolver.solve(cfg, analysis)
-
-    for node, state in states.items():
-        node.annotations[analysis.name()] = state
-        print(node)
-
-    cfg.render('examples/entry_cfg_annotated')
+    opt.optimize()
 
 
 if __name__ == '__main__':

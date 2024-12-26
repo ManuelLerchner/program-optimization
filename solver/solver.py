@@ -1,7 +1,7 @@
 from abc import abstractmethod
-from analysis.Analysis import Analysis
-from cfg.CFG import CFG
-from cfg.Node import Node
+from analysis.analysis import Analysis
+from cfg.cfg import CFG
+from cfg.node import Node
 
 
 class Solver[T]:

@@ -1,7 +1,7 @@
-from analysis.Analysis import Analysis
-from cfg.CFG import CFG
-from cfg.Node import Node
-from solver.Solver import Solver
+from analysis.analysis import Analysis
+from cfg.cfg import CFG
+from cfg.node import Node
+from solver.solver import Solver
 
 
 class FixpointSolver(Solver):

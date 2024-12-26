@@ -1,6 +1,6 @@
 
 from typing import Set
-from Lattices.CompleteLattice import CompleteLattice
+from Lattices.completeLattice import CompleteLattice
 
 
 class Powerset[T](CompleteLattice[Set[T]]):

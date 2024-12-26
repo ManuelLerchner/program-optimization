@@ -1,11 +1,10 @@
 
 from abc import ABC, abstractmethod
-from typing import Generic, Protocol, TypeVar
-from pycparser import c_ast
+from typing import Generic, TypeVar
 
-from Lattices.CompleteLattice import CompleteLattice
-from cfg.Command import Command, SkipCommand, AssignmentCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand
-from cfg.Expression import Expression
+from Lattices.completeLattice import CompleteLattice
+from cfg.command import Command, SkipCommand, AssignmentCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand
+from cfg.expression import Expression
 
 
 T = TypeVar('T')
