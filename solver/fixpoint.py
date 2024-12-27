@@ -53,11 +53,7 @@ class FixpointSolver(Solver):
 
         lattice = analysis.lattice
 
-        edges = sort_edges(analysis.type, cfg)
-
-        for edge in edges:
-            states[edge.source] = analysis.lattice.bot()
-            states[edge.dest] = analysis.lattice.bot()
+        edges = sort_edges(analysis.direction, cfg)
 
         changed = True
         iterations = 1
@@ -67,21 +63,31 @@ class FixpointSolver(Solver):
                 print(f"{BColors.WARNING}Iteration {iterations}{BColors.ENDC}")
 
             for edge in edges:
-                src, dest = (edge.source, edge.dest) if analysis.type == 'forward' else (
+                src, dest = (edge.source, edge.dest) if analysis.direction == 'forward' else (
                     edge.dest, edge.source)
-                dest_state, source_state = states[dest], states[src]
 
-                new_state = lattice.join(
-                    dest_state, analysis.transfer(source_state, edge.command))
+                if src not in states:
+                    if analysis.type == 'may':
+                        states[src] = lattice.bot()
+                    else:
+                        states[src] = lattice.top()
 
-                if debug:
-                    Solver.print_edge(
-                        analysis, edge, source_state, dest_state, new_state)
+                source_state = states[src]
 
-                if not lattice.eq(new_state, dest_state):
-                    changed = True
+                new_state = analysis.transfer(source_state, edge.command)
+
+                # if there is already a state for the destination node we need to join the new state with the existing one
+
+                if dest in states:
+                    new_state = lattice.join(states[dest], new_state)
+
+                    if not lattice.eq(new_state, states[dest]):
+                        changed = True
 
                 states[dest] = new_state
+                if debug:
+                    Solver.print_edge(
+                        analysis, edge, source_state, states[dest], new_state)
 
             iterations += 1
 

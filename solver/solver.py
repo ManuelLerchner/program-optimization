@@ -13,7 +13,7 @@ class Solver[T]:
 
     @staticmethod
     def print_edge(analysis: Analysis[T], edge: Edge, source_state: T, dest_state: T, new_state: T):
-        if (analysis.type == 'forward'):
+        if (analysis.direction == 'forward'):
             print(Solver.PRINT_TEMPLATE_FORWARDS.format(
                 BColors.okblue(str(edge.source.name)),
                 BColors.okgreen(str(source_state)),
@@ -22,7 +22,7 @@ class Solver[T]:
                 BColors.okgreen(str(dest_state)),
                 BColors.okgreen(str(new_state)))
             )
-        elif (analysis.type == 'backward'):
+        elif (analysis.direction == 'backward'):
             print(Solver.PRINT_TEMPLATE_BACKWARDS.format(
                 BColors.okblue(edge.dest.name),
                 BColors.okgreen(str(new_state)),

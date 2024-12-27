@@ -13,8 +13,9 @@ T = TypeVar('T')
 
 class Analysis(Generic[T], ABC):
 
-    def __init__(self, lattice: CompleteLattice[T], type: Literal['forward', 'backward']):
+    def __init__(self, lattice: CompleteLattice[T], direction: Literal['forward', 'backward'], type: Literal['may', 'must']):
         self.lattice = lattice
+        self.direction = direction
         self.type = type
         self.cfg: CFG | None = None
 

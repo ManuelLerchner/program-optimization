@@ -10,6 +10,7 @@ from transformations.transformation_1_1 import Transformation_1_1
 from transformations.transformation_1_2 import Transformation_1_2
 from transformations.transformation_2 import Transformation_2
 from transformations.transformation_3 import Transformation_3
+from transformations.transformation_4 import Transformation_4
 
 
 def main():
@@ -28,8 +29,11 @@ def main():
     # Optimizer(Parser('examples/superflous.c', only_func='main').parse(), [
     #     Transformation_1_1(), Transformation_3(), Transformation_2(), RemoveSKIP()]).optimize(debug=True)
 
-    Optimizer(Parser('examples/decr.c', only_func='main').parse(), [
-        Transformation_1_1(), Transformation_1_2(), Transformation_3(), Transformation_2(),          RemoveSKIP()]).optimize(debug=True)
+    # Optimizer(Parser('examples/decr.c', only_func='main').parse(), [
+    #     Transformation_1_1(), Transformation_1_2(), Transformation_3(), Transformation_2(),          RemoveSKIP()]).optimize(debug=True)
+
+    Optimizer(Parser('examples/constant_propagation.c', only_func='main').parse(), [
+        Transformation_4(), RemoveSKIP()]).optimize(debug=True)
 
 
 if __name__ == '__main__':

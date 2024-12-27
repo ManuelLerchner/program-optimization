@@ -31,7 +31,7 @@ class Parser:
         self.cfg.path = "/".join(self.filename.split("/")[:-1])
         self.cfg.filename = self.filename.split("/")[-1].split(".")[0]
 
-        return RemoveSKIP().transform(self.cfg, {})
+        return self.cfg
 
     def visit(self, ast_node: c_ast.Node, entry_node: Node, exit_node: Optional[Node] = None) -> Node | None:
 
@@ -57,6 +57,8 @@ class Parser:
         elif isinstance(ast_node, c_ast.If):
             true_entry, false_entry = self.cfg.make_if_nodes()
 
+            combine_node = self.cfg.make_skip_node()
+
             cond_expr = convertToExpr(ast_node.cond)
 
             self.cfg.add_edge(entry_node, true_entry,
@@ -64,16 +66,19 @@ class Parser:
             self.cfg.add_edge(entry_node, false_entry,
                               NegCommand(cond_expr))
 
-            out_true = self.visit(ast_node.iftrue, true_entry, exit_node)
-            out_false = self.visit(ast_node.iffalse, false_entry, exit_node)
+            out_true = self.visit(ast_node.iftrue, true_entry, combine_node)
 
-            if exit_node is None:
-                exit_node = self.cfg.make_skip_node()
+            if ast_node.iffalse is not None:
+                out_false = self.visit(
+                    ast_node.iffalse, false_entry, combine_node)
 
-            self.cfg.add_edge(out_true, exit_node, SkipCommand())
-            self.cfg.add_edge(out_false, exit_node, SkipCommand())
+                self.cfg.add_edge(out_false, combine_node, SkipCommand())
+            else:
+                self.cfg.add_edge(false_entry, combine_node, SkipCommand())
 
-            return exit_node
+            self.cfg.add_edge(out_true, combine_node, SkipCommand())
+
+            return combine_node
 
         elif isinstance(ast_node, c_ast.Assignment):
             command: AssignmentCommand | LoadsCommand | StoresCommand
