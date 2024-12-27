@@ -20,7 +20,7 @@ def vars(expr: Expression) -> Set[Expression]:
 class LiveVariables(GenKill[Expression]):
 
     def __init__(self):
-        super().__init__(Powerset[Expression](), 'backward', 'may')
+        super().__init__(Powerset[Expression](), 'backward', 'bot')
 
     def name(self):
         return "LiveVar"

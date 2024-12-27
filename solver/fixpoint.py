@@ -67,7 +67,7 @@ class FixpointSolver(Solver):
                     edge.dest, edge.source)
 
                 if src not in states:
-                    if analysis.type == 'may':
+                    if analysis.start == 'bot':
                         states[src] = lattice.bot()
                     else:
                         states[src] = lattice.top()

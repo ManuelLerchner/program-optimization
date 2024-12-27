@@ -19,7 +19,7 @@ def check_occurence(expr: Expression, lvalue: Expression):
 class AvailableExpressions(Analysis[Set[Expression]]):
 
     def __init__(self):
-        super().__init__(Powerset[Expression](), 'forward', 'must')
+        super().__init__(Powerset[Expression](), 'forward', 'bot')
 
     def name(self):
         return "AvailExpr"

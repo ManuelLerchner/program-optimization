@@ -31,7 +31,7 @@ class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
     def __init__(self, entries: Dict[Expression, Powerset[ID]] = {}):
         lattice: CompleteLattice = NamedTupleLattice[Expression, Powerset[ID]](
             entries)
-        super().__init__(lattice, 'forward', 'must')
+        super().__init__(lattice, 'forward', 'bot')
 
     def prepare(self):
         expressions = set()

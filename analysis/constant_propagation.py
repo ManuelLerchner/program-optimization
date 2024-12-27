@@ -95,7 +95,7 @@ def get_vars_command(command: Command) -> Set[Expression]:
 class ConstantPropagation(Analysis[DLatticeElement]):
 
     def __init__(self):
-        super().__init__(DLattice(), 'forward', "must")
+        super().__init__(DLattice(), 'forward', "top")
 
     def name(self):
         return "ConstantPropagation"

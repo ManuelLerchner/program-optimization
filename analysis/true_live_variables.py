@@ -10,7 +10,7 @@ from analysis.live_variables import vars
 class TrueLiveVariables(GenKill[Expression]):
 
     def __init__(self):
-        super().__init__(Powerset[Expression](), 'backward', 'may')
+        super().__init__(Powerset[Expression](), 'backward', 'bot')
 
     def name(self):
         return "TrueLiveVar"

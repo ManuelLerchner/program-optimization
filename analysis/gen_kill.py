@@ -10,9 +10,11 @@ from cfg.expression import Expression
 
 class GenKill[T](Analysis[Set[T]]):
 
-    def __init__(self, lattice: Powerset[T], type: Literal['forward', 'backward']):
+    def __init__(self, lattice: Powerset[T], direction: Literal['forward', 'backward'],
+                 start: Literal['bot', 'top']):
         self.lattice: Powerset[T] = lattice
-        self.type = type
+        self.direction = direction
+        self.start = start
 
     def name(self) -> str:
         return self.__class__.__name__
