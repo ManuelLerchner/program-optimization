@@ -26,7 +26,7 @@ class Optimizer:
 
             for analyses in trans.dependencies():
                 print(f"{BColors.WARNING}Running analysis:{BColors.ENDC} {
-                    BColors.OKCYAN}{trans.name()}{BColors.ENDC}")
+                    BColors.OKCYAN}{analyses.name()}{BColors.ENDC}")
 
                 analyses.cfg = self.cfg
 
