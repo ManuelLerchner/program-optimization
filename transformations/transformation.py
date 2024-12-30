@@ -13,7 +13,7 @@ class Transformation(ABC):
         return []
 
     @abstractmethod
-    def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
+    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         pass
 
     @abstractmethod

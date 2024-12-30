@@ -14,7 +14,7 @@ class Optimizer:
 
     def optimize(self, debug=False) -> CFG:
 
-        analyses_results: dict[str, Any] = {}
+        analyses_results: dict[Analysis, Any] = {}
 
         self.cfg.render(f"{self.cfg.path}/{self.cfg.filename}/initial")
 
@@ -33,7 +33,7 @@ class Optimizer:
                 A = FixpointSolver.solve(self.cfg, analyses, debug=debug)
                 analyses.finish()
 
-                analyses_results[analyses.name()] = A
+                analyses_results[analyses] = A
 
                 if debug:
                     print(f"{BColors.WARNING}Analysis results for {
@@ -44,9 +44,9 @@ class Optimizer:
                     if debug:
                         print(f"{node.name:>15} {
                             BColors.OKGREEN}{
-                            str(state):^20}{BColors.ENDC}")
+                            analyses.lattice.show(state):^20}{BColors.ENDC}")
 
-                    node.annotations[analyses.name()] = state
+                    node.annotations[analyses] = state
 
             self.cfg = trans.transform(self.cfg, analyses_results)
 

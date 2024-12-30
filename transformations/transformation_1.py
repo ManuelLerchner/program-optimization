@@ -1,6 +1,7 @@
 
 
 from typing import Any
+from analysis.analysis import Analysis
 from cfg.cfg import CFG
 from cfg.command import SkipCommand
 from transformations.transformation import Transformation
@@ -11,7 +12,7 @@ class RemoveSKIP(Transformation):
     def name(self) -> str:
         return "RemoveSKIP"
 
-    def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
+    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         """
         Transformation 1.1
         ;  -->  [delete]

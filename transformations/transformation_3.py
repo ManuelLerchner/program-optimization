@@ -1,6 +1,7 @@
 
 
 from typing import Any
+from analysis.analysis import Analysis
 from analysis.available_expr import AvailableExpressions
 from analysis.live_variables import LiveVariables
 from analysis.expression_stores import ExprStores
@@ -18,15 +19,16 @@ class Transformation_3(Transformation):
         return "Transformation 3"
 
     def dependencies(self):
-        return [ExprStores()]
+        self.ES = ExprStores()
+        return [self.ES]
 
-    def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
+    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         """
         Transformation 3
         e -> sigma(e)
         """
 
-        V = analyses_results[ExprStores().name()]
+        V = analyses_results[self.ES]
 
         edge_copy = cfg.edges.copy()
 

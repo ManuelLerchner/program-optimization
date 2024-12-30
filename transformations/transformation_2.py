@@ -1,6 +1,7 @@
 
 
 from typing import Any
+from analysis.analysis import Analysis
 from analysis.available_expr import AvailableExpressions
 from analysis.live_variables import LiveVariables
 from analysis.true_live_variables import TrueLiveVariables
@@ -15,19 +16,17 @@ class Transformation_2(Transformation):
         return "Transformation 2"
 
     def dependencies(self):
-        return [TrueLiveVariables()]
+        self.LV = TrueLiveVariables()
+        return [self.LV]
 
-    def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
+    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         """
         Transformation 1.2
         x = e  --> NOP   if x not in L
         x = M[e] --> NOP if x not in L
         """
 
-        source = LiveVariables().name() if LiveVariables(
-        ).name() in analyses_results else TrueLiveVariables().name()
-
-        L = analyses_results[source]
+        L = analyses_results[self.LV]
 
         edge_copy = cfg.edges.copy()
 

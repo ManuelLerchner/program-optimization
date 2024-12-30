@@ -1,18 +1,15 @@
 
-from typing import Dict, Literal, Set
+from typing import Callable, Dict, Literal, Set
 from Lattices.powerset import Powerset
 from cfg.command import Command, AssignmentCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand, SkipCommand
 from cfg.expression import ID, BinExpression, Constant, Expression, UnaryExpression
 from analysis.analysis import Analysis
-from Lattices.ZFlat import DLattice, DLatticeElement, IntegerLattice
+from Lattices.ZFlat import DLattice, DLatticeElement, IntegerLatticeElement, IntegerLattice
 
 
-def abstract_eval(expr: Expression, A: Dict[ID, int | Literal['⊥', '⊤']]) -> DLatticeElement:
+def abstract_eval(expr: Expression, A: Callable[[ID], IntegerLatticeElement]) -> IntegerLatticeElement:
     if isinstance(expr, ID):
-        if expr in A:
-            return A[expr]
-        else:
-            return "⊤"
+        return A(expr)
 
     if isinstance(expr, Constant):
         return int(expr.value)
@@ -34,7 +31,7 @@ def abstract_eval(expr: Expression, A: Dict[ID, int | Literal['⊥', '⊤']]) ->
         if expr.op == '*':
             return left * right
         if expr.op == '/':
-            return left / right
+            return left // right
 
         if expr.op == '<':
             return 1 if left < right else 0
@@ -50,16 +47,20 @@ def abstract_eval(expr: Expression, A: Dict[ID, int | Literal['⊥', '⊤']]) ->
             return 1 if left != right else 0
 
     if isinstance(expr, UnaryExpression):
-        operand = abstract_eval(expr.operand, A)
+        e = abstract_eval(expr.expr, A)
 
-        if operand == "⊥":
+        if e == "⊥":
             return "⊥"
 
-        if operand == "⊤":
+        if e == "⊤":
             return "⊤"
 
         if expr.op == '-':
-            return -operand
+            return -e
+        if expr.op == '!':
+            return 1 if e == 0 else 0
+
+    raise Exception("Unknown expression")
 
     return "⊤"
 
@@ -77,13 +78,13 @@ def get_vars(expression: Expression) -> Set[ID]:
     raise Exception("Unknown expression")
 
 
-def get_vars_command(command: Command) -> Set[Expression]:
+def get_vars_command(command: Command) -> Set[ID]:
     if isinstance(command, SkipCommand):
         return set()
     if isinstance(command, AssignmentCommand):
         return get_vars(command.lvalue) | get_vars(command.expr)
     if isinstance(command, LoadsCommand):
-        return get_vars(command.expr) | get_vars(command.rvalue)
+        return get_vars(command.expr) | get_vars(command.var)
     if isinstance(command, StoresCommand):
         return get_vars(command.lhs) | get_vars(command.rhs)
     if isinstance(command, PosCommand):
@@ -91,11 +92,20 @@ def get_vars_command(command: Command) -> Set[Expression]:
     if isinstance(command, NegCommand):
         return get_vars(command.expr)
 
+    raise Exception("Unknown command")
+
 
 class ConstantPropagation(Analysis[DLatticeElement]):
 
     def __init__(self):
-        super().__init__(DLattice(), 'forward', "top")
+        super().__init__(DLattice({}), 'forward', "top")
+
+    def prepare(self):
+        vars = set()
+        for edge in self.cfg.edges:
+            vars |= get_vars_command(edge.command)
+
+        self.lattice = DLattice(vars)
 
     def name(self):
         return "ConstantPropagation"
@@ -110,9 +120,7 @@ class ConstantPropagation(Analysis[DLatticeElement]):
         if not isinstance(lhs, ID):
             return A
 
-        A[lhs] = abstract_eval(rhs, A)
-
-        return A
+        return lambda x: abstract_eval(rhs, A) if x == lhs else A(x)
 
     def loads(self, lhs: Expression, rhs: Expression, A: DLatticeElement) -> DLatticeElement:
         if A == "⊥":
@@ -121,7 +129,7 @@ class ConstantPropagation(Analysis[DLatticeElement]):
         if not isinstance(lhs, ID):
             return A
 
-        A[lhs] = "⊤"
+        return lambda x: "⊤" if x == lhs else A(x)
 
     def stores(self, lhs: Expression, rhs: Expression, A: DLatticeElement) -> DLatticeElement:
         if A == "⊥":

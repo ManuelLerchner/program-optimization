@@ -1,6 +1,7 @@
+import functools
 from typing import Dict, Tuple, Literal, Union, Callable
 from abc import ABC, abstractmethod
-
+from functools import partial
 from Lattices.completeLattice import CompleteLattice
 from cfg.expression import ID
 
@@ -52,100 +53,69 @@ class IntegerLattice(CompleteLattice[IntegerLatticeElement]):
     @staticmethod
     def show(a: IntegerLatticeElement) -> str:
         return str(a)
-    
+
     @staticmethod
     def of_bool(b: bool) -> IntegerLatticeElement:
         return 1 if b else 0
 
 
-DLatticeElement = Union[Dict[ID,
-                             IntegerLatticeElement], Literal["⊥"]]
+DLatticeElement = Union[Callable[[ID],
+                                 IntegerLatticeElement], Literal["⊥"]]
 
 
 class DLattice(CompleteLattice[DLatticeElement]):
-    @staticmethod
-    def top() -> DLatticeElement:
-        return {}  # Empty dict represents top (all undefined)
 
-    @staticmethod
-    def bot() -> DLatticeElement:
+    def __init__(self, vars: set[ID]):
+        self.vars = vars
+
+    def top(self) -> DLatticeElement:
+        return lambda _: "⊤"
+
+    def bot(self) -> DLatticeElement:
         return "⊥"  # Bottom element
 
-    @staticmethod
-    def join(a: DLatticeElement, b: DLatticeElement) -> DLatticeElement:
+    def join(self, a: DLatticeElement, b: DLatticeElement) -> DLatticeElement:
         if a == "⊥":
             return b
         if b == "⊥":
             return a
 
-        result = {}
-        # Get all keys from both dictionaries
-        all_keys = set(a.keys()) | set(b.keys())
+        # return new function that returns the join of the two functions
 
-        for k in all_keys:
-            # If key only in one dict, use ⊤ for other
-            a_val = a.get(k, "⊤")
-            b_val = b.get(k, "⊤")
-            # Use integer lattice join for the values
-            result[k] = IntegerLattice.join(a_val, b_val)
+        return lambda x: IntegerLattice.join(a(x), b(x))
 
-        return result
+    def meet(self, a: DLatticeElement, b: DLatticeElement) -> DLatticeElement:
 
-    @staticmethod
-    def meet(a: DLatticeElement, b: DLatticeElement) -> DLatticeElement:
         if a == "⊥" or b == "⊥":
             return "⊥"
 
-        result = {}
-        # Get all keys from both dictionaries
-        all_keys = set(a.keys()) | set(b.keys())
+        # return new function that returns the meet of the two functions
+        return lambda x: IntegerLattice.meet(a(x), b(x))
 
-        for k in all_keys:
-            # If key only in one dict, use ⊤ for other
-            a_val = a.get(k, "⊤")
-            b_val = b.get(k, "⊤")
-            # Use integer lattice meet for the values
-            result[k] = IntegerLattice.meet(a_val, b_val)
-
-        return result
-
-    @staticmethod
-    def leq(a: DLatticeElement, b: DLatticeElement) -> bool:
+    def leq(self, a: DLatticeElement, b: DLatticeElement) -> bool:
         if a == "⊥":
             return True
         if b == "⊥":
             return False
 
-        # Check that all values in a are less than or equal to corresponding values in b
-        for k, a_val in a.items():
-            b_val = b.get(k, "⊤")
-            if not IntegerLattice.leq(a_val, b_val):
-                return False
-        return True
+        return all(IntegerLattice.leq(a(k), b(k)) for k in self.vars)
 
-    @staticmethod
-    def eq(a: DLatticeElement, b: DLatticeElement) -> bool:
+    def eq(self, a: DLatticeElement, b: DLatticeElement) -> bool:
         if a == "⊥" or b == "⊥":
             return a == b
 
-        if set(a.keys()) != set(b.keys()):
-            return False
+        return all(IntegerLattice.eq(a(k), b(k)) for k in self.vars)
 
-        # Both are dicts, compare each value
-        for k in a.keys():
-            if not a[k] == b[k]:  # Use direct comparison since values are immutable
-                return False
-        return True
-
-    @staticmethod
-    def copy(a: DLatticeElement) -> DLatticeElement:
+    def copy(self, a: DLatticeElement) -> DLatticeElement:
         if a == "⊥":
             return "⊥"
-        return {k: IntegerLattice.copy(v) for k, v in a.items()}
 
-    @staticmethod
-    def show(a: DLatticeElement) -> str:
+        def result(x): return a(x)
+
+        return result
+
+    def show(self, a: DLatticeElement) -> str:
         if a == "⊥":
             return "⊥"
-        items = [f"{k}: {IntegerLattice.show(v)}" for k, v in a.items()]
-        return "{" + ", ".join(items) + "}"
+
+        return "{" + ", ".join(f"{k.name} ⟶ {IntegerLattice.show(a(k))}" for k in self.vars) + "}"

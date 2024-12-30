@@ -2,6 +2,7 @@
 
 from typing import Any
 from Lattices.ZFlat import DLattice
+from analysis.analysis import Analysis
 from analysis.available_expr import AvailableExpressions
 from analysis.constant_propagation import ConstantPropagation, abstract_eval
 from analysis.live_variables import LiveVariables
@@ -9,7 +10,7 @@ from analysis.expression_stores import ExprStores
 from analysis.true_live_variables import TrueLiveVariables
 from cfg.cfg import CFG
 from cfg.command import AssignmentCommand, LoadsCommand, NegCommand, PosCommand, SkipCommand, StoresCommand
-from cfg.expression import BinExpression, UnaryExpression
+from cfg.expression import BinExpression, Constant, UnaryExpression
 from transformations.transformation import Transformation
 from transformations.transformation_1_1 import Transformation_1_1
 
@@ -20,15 +21,17 @@ class Transformation_4(Transformation):
         return "Transformation 4"
 
     def dependencies(self):
-        return [ConstantPropagation()]
+        self.CP = ConstantPropagation()
+        return [self.CP]
 
-    def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
+    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         """
         Transformation 4
         bot -> delete[node]
         """
 
-        D = analyses_results[ConstantPropagation().name()]
+        lattice = self.CP.lattice
+        D = analyses_results[self.CP]
 
         for node in cfg.get_nodes():
             if D[node] == '⊥':
@@ -45,7 +48,7 @@ class Transformation_4(Transformation):
             if type(edge.command) == PosCommand:
                 expr = edge.command.expr
 
-                if not DLattice.eq(D[U], '⊥') and not abstract_eval(expr, D[U]) in [0, '⊤']:
+                if not lattice.eq(D[U], '⊥') and not abstract_eval(expr, D[U]) in [0, '⊤']:
 
                     x = abstract_eval(expr, D[U])
                     edge.command = SkipCommand()
@@ -53,13 +56,13 @@ class Transformation_4(Transformation):
             elif type(edge.command) == NegCommand:
                 expr = edge.command.expr
 
-                if not DLattice.eq(D[U], '⊥') and abstract_eval(expr, D[U]) == 0:
+                if not lattice.eq(D[U], '⊥') and abstract_eval(expr, D[U]) == 0:
                     edge.command = SkipCommand()
 
             elif type(edge.command) == AssignmentCommand:
                 rhs = edge.command.expr
 
-                if not DLattice.eq(D[U], '⊥'):
+                if not lattice.eq(D[U], '⊥'):
                     simplified_rhs = abstract_eval(rhs, D[U])
 
                     if simplified_rhs == '⊤' or simplified_rhs == '⊥':
@@ -67,6 +70,6 @@ class Transformation_4(Transformation):
 
                     if simplified_rhs != '⊥':
                         edge.command = AssignmentCommand(
-                            edge.command.lvalue, simplified_rhs)
+                            edge.command.lvalue, Constant(simplified_rhs))
 
         return cfg

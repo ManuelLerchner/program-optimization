@@ -2,6 +2,7 @@
 
 from typing import Any
 import typing
+from analysis.analysis import Analysis
 from analysis.available_expr import AvailableExpressions
 from cfg.cfg import CFG
 from cfg.command import AssignmentCommand, LoadsCommand, NegCommand, PosCommand, StoresCommand
@@ -21,7 +22,7 @@ class Transformation_1_1(Transformation):
     def name(self) -> str:
         return "Transformation 1.1"
 
-    def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
+    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         """
         Transformation 1.1
         x = e  -->  T_e=e; x = T_e

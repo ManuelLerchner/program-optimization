@@ -14,15 +14,16 @@ class Transformation_1_2(Transformation):
         return "Transformation 1.2"
 
     def dependencies(self) -> list[Analysis]:
-        return [AvailableExpressions()]
+        self.AE = AvailableExpressions()
+        return [self.AE]
 
-    def transform(self, cfg: CFG, analyses_results: dict[str, Any]) -> CFG:
+    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         """
         Transformation 1.2
         T_e = e  --> NOP   if e in A
         """
 
-        A = analyses_results[AvailableExpressions().name()]
+        A = analyses_results[self.AE]
 
         edge_copy = cfg.edges.copy()
 
