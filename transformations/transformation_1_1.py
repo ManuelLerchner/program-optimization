@@ -1,12 +1,14 @@
 
 
-from typing import Any
 import typing
-from analysis.analysis import Analysis
-from analysis.available_expr import AvailableExpressions
+from typing import Any
+
+from analyses.analysis import Analysis
+from analyses.available_expr import AvailableExpressions
 from cfg.cfg import CFG
-from cfg.command import AssignmentCommand, LoadsCommand, NegCommand, PosCommand, StoresCommand
-from cfg.expression import ID, Expression
+from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
+                             PosCommand, StoresCommand)
+from cfg.IMP.expression import ID, Expression
 from transformations.transformation import Transformation
 
 

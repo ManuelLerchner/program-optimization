@@ -1,8 +1,9 @@
 
-from typing import List, Any
-from analysis.analysis import Analysis
+from typing import Any, List
+
+from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from solver.fixpoint import FixpointSolver
+from optimizer.solver.round_robin import RoundRobinSolver
 from transformations.transformation import Transformation
 from util.bcolors import BColors
 
@@ -14,7 +15,7 @@ class Optimizer:
 
     def optimize(self, debug=False) -> CFG:
 
-        analyses_results: dict[Analysis, Any] = {}
+        analyses_results: dict[Analysis, dict[CFG.Node, Any]] = {}
 
         self.cfg.render(f"{self.cfg.path}/{self.cfg.filename}/initial")
 
@@ -29,9 +30,7 @@ class Optimizer:
 
                 analyses.cfg = self.cfg
 
-                analyses.prepare()
-                A = FixpointSolver.solve(self.cfg, analyses, debug=debug)
-                analyses.finish()
+                A = RoundRobinSolver.solve(self.cfg, analyses, debug=debug)
 
                 analyses_results[analyses] = A
 

@@ -1,18 +1,17 @@
 
 from typing import Set
-from Lattices.powerset import Powerset
-from analysis.gen_kill import GenKill
-from cfg.expression import ID, BinExpression, Constant, Expression, UnaryExpression
-from analysis.analysis import Analysis
+
+from cfg.IMP.expression import ID, BinExpression, Expression, UnaryExpression
+from analyses.gen_kill_analysis import GenKill
 
 
-def vars(expr: Expression) -> Set[Expression]:
+def variables_in_expression(expr: Expression) -> Set[Expression]:
     if isinstance(expr, ID):
         return {expr}
     elif isinstance(expr, BinExpression):
-        return vars(expr.left) | vars(expr.right)
+        return variables_in_expression(expr.left) | variables_in_expression(expr.right)
     elif isinstance(expr, UnaryExpression):
-        return vars(expr.expr)
+        return variables_in_expression(expr.expr)
     else:
         return set()
 
@@ -20,7 +19,7 @@ def vars(expr: Expression) -> Set[Expression]:
 class LiveVariables(GenKill[Expression]):
 
     def __init__(self):
-        super().__init__(Powerset[Expression](), 'backward', 'bot')
+        super().__init__('backward', 'bot')
 
     def name(self):
         return "LiveVar"
@@ -30,17 +29,17 @@ class LiveVariables(GenKill[Expression]):
 
     def gen_kill_assignment(self, lhs: Expression, rhs: Expression, A) -> tuple[Set[Expression], Set[Expression]]:
         d: Set[Expression] = {lhs} if isinstance(lhs, ID) else set()
-        return vars(rhs), d
+        return variables_in_expression(rhs), d
 
     def gen_kill_loads(self, lhs: Expression, rhs: Expression, A) -> tuple[Set[Expression], Set[Expression]]:
         d: Set[Expression] = {lhs} if isinstance(lhs, ID) else set()
-        return vars(rhs), d
+        return variables_in_expression(rhs), d
 
     def gen_kill_stores(self, lhs: Expression, rhs: Expression, A) -> tuple[Set[Expression], Set[Expression]]:
-        return vars(rhs) | vars(lhs), set()
+        return variables_in_expression(rhs) | variables_in_expression(lhs), set()
 
     def gen_kill_Pos(self, expr: Expression, A) -> tuple[Set[Expression], Set[Expression]]:
-        return vars(expr), set()
+        return variables_in_expression(expr), set()
 
     def gen_kill_Neg(self, expr: Expression, A) -> tuple[Set[Expression], Set[Expression]]:
-        return vars(expr), set()
+        return variables_in_expression(expr), set()

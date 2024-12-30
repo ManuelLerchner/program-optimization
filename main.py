@@ -1,19 +1,16 @@
-from analysis.available_expr import AvailableExpressions
-from analysis.live_variables import LiveVariables
-from analysis.expression_stores import ExprStores
-from analysis.true_live_variables import TrueLiveVariables
-from optimizer.optimizer import Optimizer
 from cfg.parser import Parser
-
+from optimizer.optimizer import Optimizer
 from transformations.transformation_1 import RemoveSKIP
-from transformations.transformation_1_1 import Transformation_1_1
-from transformations.transformation_1_2 import Transformation_1_2
-from transformations.transformation_2 import Transformation_2
-from transformations.transformation_3 import Transformation_3
+
 from transformations.transformation_4 import Transformation_4
 
 
 def main():
+
+    # from transformations.transformation_1_1 import Transformation_1_1
+    # from transformations.transformation_1_2 import Transformation_1_2
+    # from transformations.transformation_2 import Transformation_2
+    # from transformations.transformation_3 import Transformation_3
     # Optimizer(Parser('examples/available_expr.c', only_func='main').parse(), [
     #     Transformation_1_1(),  Transformation_1_2(), RemoveSKIP()]).optimize(debug=True)
 

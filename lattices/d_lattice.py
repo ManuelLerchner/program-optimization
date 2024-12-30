@@ -1,9 +1,7 @@
-import functools
-from typing import Dict, Tuple, Literal, Union, Callable
-from abc import ABC, abstractmethod
-from functools import partial
-from Lattices.completeLattice import CompleteLattice
-from cfg.expression import ID
+from typing import Callable, Literal, Union
+
+from cfg.IMP.expression import ID
+from lattices.complete_lattice import CompleteLattice
 
 IntegerLatticeElement = Union[int, Literal["⊥"], Literal["⊤"]]
 

@@ -1,12 +1,13 @@
 
-from typing import Generic, Set, TypeVar
-from Lattices.completeLattice import CompleteLattice
+from typing import Generic, TypeVar
+
+from lattices.complete_lattice import CompleteLattice
 
 A = TypeVar('A')
 T = TypeVar('T', bound=CompleteLattice)
 
 
-class NamedTupleLattice(Generic[A, T], CompleteLattice[dict[A, T]]):
+class CombinedLattice(Generic[A, T], CompleteLattice[dict[A, T]]):
 
     def __init__(self, entries: dict[A, T]):
         self.entries = entries

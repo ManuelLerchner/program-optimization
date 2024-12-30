@@ -1,10 +1,11 @@
 from typing import Optional
-from pycparser import c_parser, c_ast
 
-from cfg.cfg import CFG, Node
-from cfg.command import AssignmentCommand, LoadsCommand, NegCommand, SkipCommand, PosCommand, StoresCommand
-from cfg.expression import ID, convertToExpr
-from transformations.transformation_1 import RemoveSKIP
+from pycparser import c_ast, c_parser
+
+from cfg.cfg import CFG
+from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
+                             PosCommand, SkipCommand, StoresCommand)
+from cfg.IMP.expression import convertToExpr
 
 
 class Parser:
@@ -14,7 +15,7 @@ class Parser:
         self.node_counter = 0
         self.only_func = only_func
 
-    def parse(self):
+    def parse(self) -> CFG:
         with open(self.filename) as f:
             content = f.read()
 
@@ -26,14 +27,14 @@ class Parser:
         assert isinstance(ast, c_ast.FileAST)
 
         for decl in ast.ext:
-            self.visit(decl, None)
+            self.visit(decl, entry_node=None, exit_node=None)
 
         self.cfg.path = "/".join(self.filename.split("/")[:-1])
         self.cfg.filename = self.filename.split("/")[-1].split(".")[0]
 
         return self.cfg
 
-    def visit(self, ast_node: c_ast.Node, entry_node: Node, exit_node: Optional[Node] = None) -> Node | None:
+    def visit(self, ast_node: c_ast.Node, entry_node: CFG.Node | None, exit_node: Optional[CFG.Node] = None) -> CFG.Node | None:
 
         if isinstance(ast_node, c_ast.FuncDef):
             name = ast_node.decl.name
@@ -44,7 +45,7 @@ class Parser:
             return exit_node
 
         elif isinstance(ast_node, c_ast.Compound):
-            current: Node = entry_node
+            current = entry_node
             for stmt in ast_node.block_items or []:
                 out = self.visit(stmt, current, exit_node)
                 if out is not None:

@@ -1,23 +1,28 @@
 
-from abc import ABC, abstractmethod
-from typing import Generic, Literal, Set, TypeVar
+from abc import abstractmethod
+from typing import Literal, Set
 
-from Lattices.completeLattice import CompleteLattice
-from Lattices.powerset import Powerset
-from analysis.analysis import Analysis
-from cfg.expression import Expression
+from overrides import final
+
+from analyses.analysis import Analysis
+from cfg.IMP.expression import Expression
+from lattices.powerset import Powerset
 
 
 class GenKill[T](Analysis[Set[T]]):
 
-    def __init__(self, lattice: Powerset[T], direction: Literal['forward', 'backward'],
+    def __init__(self,  direction: Literal['forward', 'backward'],
                  start: Literal['bot', 'top']):
-        self.lattice: Powerset[T] = lattice
         self.direction = direction
         self.start = start
+        self.lattice: Powerset[T]
 
     def name(self) -> str:
         return self.__class__.__name__
+
+    @final
+    def create_lattice(self, cfg):
+        self.lattice = Powerset[T]()
 
     @abstractmethod
     def gen_kill_skip(self, A:  set[T]) -> tuple[set[T],  set[T]]:

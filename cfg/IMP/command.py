@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from cfg.expression import Expression
+from cfg.IMP.expression import Expression
 
 
 class Command:
@@ -82,3 +82,15 @@ class NegCommand(Command):
 
     def __str__(self) -> str:
         return f"Neg({self.expr})"
+
+
+class GotoCommand(Command):
+    """
+    goto label
+    """
+
+    def __init__(self, label: str):
+        self.label = label
+
+    def __str__(self) -> str:
+        return f"goto {self.label}"

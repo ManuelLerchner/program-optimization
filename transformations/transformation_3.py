@@ -1,34 +1,36 @@
 
 
 from typing import Any
-from analysis.analysis import Analysis
-from analysis.available_expr import AvailableExpressions
-from analysis.live_variables import LiveVariables
-from analysis.expression_stores import ExprStores
-from analysis.true_live_variables import TrueLiveVariables
+
+from analyses.expression_stores import ExprStores
+from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from cfg.command import AssignmentCommand, LoadsCommand, PosCommand, SkipCommand, StoresCommand
-from cfg.expression import BinExpression, UnaryExpression
+from cfg.IMP.command import (AssignmentCommand, LoadsCommand, PosCommand,
+                             StoresCommand)
+from cfg.IMP.expression import ID, Expression, UnaryExpression
+from lattices.powerset import Powerset
 from transformations.transformation import Transformation
 from transformations.transformation_1_1 import Transformation_1_1
 
 
 class Transformation_3(Transformation):
+    def __init__(self):
+        self.ES = ExprStores()
 
     def name(self) -> str:
         return "Transformation 3"
 
     def dependencies(self):
-        self.ES = ExprStores()
         return [self.ES]
 
-    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
+    def transform(self, cfg: CFG, analyses_results: dict[Analysis, dict[CFG.Node, Any]]) -> CFG:
         """
         Transformation 3
         e -> sigma(e)
         """
 
-        V = analyses_results[self.ES]
+        V: dict[CFG.Node, dict[Expression, Powerset[ID]]
+                ] = analyses_results[self.ES]
 
         edge_copy = cfg.edges.copy()
 

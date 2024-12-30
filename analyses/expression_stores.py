@@ -1,49 +1,26 @@
 
-from typing import Dict, Set, Tuple
 import typing
-from Lattices.completeLattice import CompleteLattice
-from Lattices.powerset import Powerset
-from Lattices.tupleLattice import NamedTupleLattice
-from cfg.command import AssignmentCommand, Command, SkipCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand
-from cfg.expression import ID, BinExpression, Constant, Expression, UnaryExpression
-from analysis.analysis import Analysis
+from typing import Dict
 
-
-def get_exprs(expr: Command) -> Set[Expression]:
-    if isinstance(expr, SkipCommand):
-        return set()
-    elif isinstance(expr, AssignmentCommand):
-        return {expr.expr}
-    elif isinstance(expr, LoadsCommand):
-        return {expr.expr}
-    elif isinstance(expr, StoresCommand):
-        return {expr.lhs, expr.rhs}
-    elif isinstance(expr, PosCommand):
-        return {expr.expr}
-    elif isinstance(expr, NegCommand):
-        return {expr.expr}
-    else:
-        raise Exception("Unknown command")
+from analyses.analysis import Analysis
+from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
+                                UnaryExpression)
+from lattices.combined_lattice import CombinedLattice
+from lattices.powerset import Powerset
 
 
 class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
 
-    def __init__(self, entries: Dict[Expression, Powerset[ID]] = {}):
-        lattice: CompleteLattice = NamedTupleLattice[Expression, Powerset[ID]](
-            entries)
-        super().__init__(lattice, 'forward', 'bot')
+    def __init__(self):
+        super().__init__('forward', 'bot')
 
-    def prepare(self):
-        expressions = set()
-        for edge in self.cfg.edges:
-            expressions |= get_exprs(edge.command)
-
-        # filter out IDs
+    def create_lattice(self, cfg):
+        expressions = cfg.get_all_expressions()
         expressions = {
             expr for expr in expressions if not isinstance(expr, ID)}
 
-        entries = {expr: Powerset[ID]() for expr in expressions}
-        self.lattice = NamedTupleLattice[Expression, Powerset[ID]](entries)
+        self.lattice = CombinedLattice[Expression, Powerset[ID]](
+            {expr: Powerset[ID]() for expr in expressions})
 
     def name(self):
         return "ExprStores"

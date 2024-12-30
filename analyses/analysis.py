@@ -1,31 +1,29 @@
 
 from abc import ABC, abstractmethod
-from typing import Generic, Literal, TypeVar
+from typing import Literal
 
-from Lattices.completeLattice import CompleteLattice
 from cfg.cfg import CFG
-from cfg.command import Command, SkipCommand, AssignmentCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand
-from cfg.expression import Expression
+from cfg.IMP.command import (AssignmentCommand, Command, LoadsCommand,
+                             NegCommand, PosCommand, SkipCommand,
+                             StoresCommand)
+from cfg.IMP.expression import Expression
+from lattices.complete_lattice import CompleteLattice
 
 
-T = TypeVar('T')
+class Analysis[T](ABC):
 
-
-class Analysis(Generic[T], ABC):
-
-    def __init__(self, lattice: CompleteLattice[T], direction: Literal['forward', 'backward'], start: Literal['top', 'bot']):
-        self.lattice = lattice
+    def __init__(self, direction: Literal['forward', 'backward'], start: Literal['top', 'bot']):
         self.direction = direction
         self.start = start
         self.cfg: CFG | None = None
+        self.lattice: CompleteLattice[T]
 
+    @abstractmethod
     def name(self) -> str:
-        return self.__class__.__name__
-
-    def prepare(self):
         pass
 
-    def finish(self):
+    @abstractmethod
+    def create_lattice(self, cfg: CFG) -> CompleteLattice[T]:
         pass
 
     @abstractmethod

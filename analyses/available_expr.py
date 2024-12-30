@@ -1,28 +1,35 @@
-
 from typing import Set
-from Lattices.powerset import Powerset
-from cfg.expression import ID, BinExpression, Constant, Expression, UnaryExpression
-from analysis.analysis import Analysis
+
+from analyses.analysis import Analysis
+from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
+                                UnaryExpression)
+from lattices.powerset import Powerset
 
 
 def check_occurence(expr: Expression, lvalue: Expression):
+    if isinstance(expr, Constant):
+        return False
     if isinstance(expr, ID):
         return expr == lvalue
     elif isinstance(expr, BinExpression):
         return check_occurence(expr.left, lvalue) or check_occurence(expr.right, lvalue)
     elif isinstance(expr, UnaryExpression):
         return check_occurence(expr.expr, lvalue)
-    else:
-        return False
+
+    raise Exception("Unknown expression" + str(expr) + str(type(expr)))
 
 
 class AvailableExpressions(Analysis[Set[Expression]]):
 
     def __init__(self):
-        super().__init__(Powerset[Expression](), 'forward', 'bot')
+        super().__init__('forward', 'bot')
 
     def name(self):
         return "AvailExpr"
+
+    def create_lattice(self, cfg):
+        self.lattice = Powerset[Expression]()
+        return self.lattice
 
     @staticmethod
     def is_worthwile_storing(expr: Expression) -> bool:

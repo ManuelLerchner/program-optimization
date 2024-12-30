@@ -1,9 +1,10 @@
 
 
 from typing import Any
-from analysis.analysis import Analysis
+
+from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from cfg.command import SkipCommand
+from cfg.IMP.command import SkipCommand
 from transformations.transformation import Transformation
 
 

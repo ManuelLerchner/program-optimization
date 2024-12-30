@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any
-from analysis.analysis import Analysis
+
+from analyses.analysis import Analysis
 from cfg.cfg import CFG
 
 
@@ -13,7 +13,7 @@ class Transformation(ABC):
         return []
 
     @abstractmethod
-    def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
+    def transform[T](self, cfg: CFG, analyses_results: dict[Analysis[T], dict[CFG.Node, T]]) -> CFG:
         pass
 
     @abstractmethod

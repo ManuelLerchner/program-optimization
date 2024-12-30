@@ -1,17 +1,16 @@
 from typing import Literal
-from analysis.analysis import Analysis
+
+from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from cfg.edge import Edge
-from cfg.node import Node
-from solver.solver import Solver
+from optimizer.solver.solver import Solver
 from util.bcolors import BColors
 
 
-def topo_sort_edges(cfg: CFG) -> list[Edge]:
+def topo_sort_edges(cfg: CFG) -> list[CFG.Edge]:
     visited_edges = set()
     edge_order = []
 
-    def dfs_edge(current_edge: Edge):
+    def dfs_edge(current_edge: CFG.Edge):
         if current_edge in visited_edges:
             return
 
@@ -45,12 +44,13 @@ def sort_edges(type: Literal['forward', 'backward'], cfg: CFG):
         return sorted_edges[::-1]
 
 
-class FixpointSolver(Solver):
+class RoundRobinSolver(Solver):
 
     @staticmethod
-    def solve[T](cfg: CFG, analysis: Analysis[T], debug=False):
-        states: dict[Node, T] = {}
+    def solve[T](cfg: CFG, analysis: Analysis[T], debug=False) -> dict[CFG.Node, T]:
+        states: dict[CFG.Node, T] = {}
 
+        analysis.create_lattice(cfg)
         lattice = analysis.lattice
 
         edges = sort_edges(analysis.direction, cfg)
