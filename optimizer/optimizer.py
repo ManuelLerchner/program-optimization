@@ -34,17 +34,7 @@ class Optimizer:
 
                 analyses_results[analyses] = A
 
-                if debug:
-                    print(f"{BColors.WARNING}Analysis results for {
-                        analyses.name()}{BColors.ENDC}")
-
                 for node, state in A.items():
-
-                    if debug:
-                        print(f"{node.name:>15} {
-                            BColors.OKGREEN}{
-                            analyses.lattice.show(state):^20}{BColors.ENDC}")
-
                     node.annotations[analyses] = state
 
             self.cfg = trans.transform(self.cfg, analyses_results)

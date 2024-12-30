@@ -93,5 +93,11 @@ class RoundRobinSolver(Solver):
 
         if debug:
             print()
+            print(f"{BColors.WARNING}Analysis results{BColors.ENDC}")
+
+            for node, state in states.items():
+                print(f"{node.name:>15} {
+                    BColors.OKGREEN}{
+                    lattice.show(state):<20}{BColors.ENDC}")
 
         return states

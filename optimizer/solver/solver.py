@@ -8,7 +8,7 @@ from util.bcolors import BColors
 
 class Solver:
 
-    PRINT_TEMPLATE_FORWARDS = "                {:<20} {:^20}  --[ {:^30} ]--> {:>20} {:<20}"
+    PRINT_TEMPLATE_FORWARDS = "  {:<20} {:>20}  --[ {:^30} ]--> {:>20} {:>20}"
     PRINT_TEMPLATE_BACKWARDS = "  {:<20} {:>20} <--[ {:^30} ]--  {:>20} {:>20}"
 
     @staticmethod
