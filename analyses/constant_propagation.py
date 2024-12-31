@@ -1,5 +1,5 @@
 
-from typing import Callable
+from typing import Callable, DefaultDict
 
 from analyses.analysis import Analysis
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
@@ -8,9 +8,9 @@ from lattices.d_lattice import (DLattice, DLatticeElement, IntegerLattice,
                                 IntegerLatticeElement)
 
 
-def abstract_eval(expr: Expression, A: Callable[[ID], IntegerLatticeElement]) -> IntegerLatticeElement:
+def abstract_eval(expr: Expression, A: DefaultDict[ID, IntegerLatticeElement]) -> IntegerLatticeElement:
     if isinstance(expr, ID):
-        return A(expr)
+        return A[expr]
 
     if isinstance(expr, Constant):
         return int(expr.value)
@@ -85,7 +85,9 @@ class ConstantPropagation(Analysis[DLatticeElement]):
         if not isinstance(lhs, ID):
             return A
 
-        return lambda x: abstract_eval(rhs, A) if x == lhs else A(x)
+        A.update({lhs: abstract_eval(rhs, A)})
+
+        return A
 
     def loads(self, lhs: Expression, rhs: Expression, A: DLatticeElement) -> DLatticeElement:
         if A == "⊥":
@@ -94,7 +96,9 @@ class ConstantPropagation(Analysis[DLatticeElement]):
         if not isinstance(lhs, ID):
             return A
 
-        return lambda x: "⊤" if x == lhs else A(x)
+        A.update({lhs: "⊤"})
+
+        return A
 
     def stores(self, lhs: Expression, rhs: Expression, A: DLatticeElement) -> DLatticeElement:
         if A == "⊥":
@@ -110,7 +114,13 @@ class ConstantPropagation(Analysis[DLatticeElement]):
 
         if v == 0:
             return "⊥"
+        elif v == 1:
+            return A
         else:
+            if type(expr) == BinExpression and expr.op == '==':
+                A.update({expr.left: IntegerLattice.meet(
+                    A[expr.left], abstract_eval(expr.right, A))})
+
             return A
 
     def Neg(self, expr: Expression, A: DLatticeElement) -> DLatticeElement:
@@ -119,7 +129,13 @@ class ConstantPropagation(Analysis[DLatticeElement]):
 
         v = abstract_eval(expr, A)
 
-        if IntegerLattice.leq(0, v):
+        if v == 0:
             return A
-        else:
+        elif v == 1:
             return "⊥"
+        else:
+            if type(expr) == BinExpression and expr.op == '!=':
+                A.update({expr.left: IntegerLattice.meet(
+                    A[expr.left], abstract_eval(expr.right, A))})
+
+            return A

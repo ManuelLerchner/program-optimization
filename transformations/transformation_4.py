@@ -8,7 +8,7 @@ from cfg.cfg import CFG
 from cfg.IMP.command import (AssignmentCommand, NegCommand,
                              PosCommand, SkipCommand)
 from cfg.IMP.expression import Constant
-from lattices.d_lattice import DLatticeElement
+from lattices.d_lattice import DLatticeElement, IntegerLattice
 from transformations.transformation import Transformation
 
 
@@ -50,13 +50,21 @@ class Transformation_4(Transformation):
             if type(edge.command) == PosCommand:
                 expr = edge.command.expr
 
-                if not abstract_eval(expr, abstact_state) in [0, '⊤']:
+                if not IntegerLattice.leq(0, abstract_eval(expr, abstact_state)):
                     edge.command = SkipCommand()
+
+                if IntegerLattice.eq(0, abstract_eval(expr, abstact_state)):
+                    cfg.edges.remove(edge)
+
             elif type(edge.command) == NegCommand:
                 expr = edge.command.expr
 
-                if abstract_eval(expr, abstact_state) == 0:
+                if IntegerLattice.eq(0, abstract_eval(expr, abstact_state)):
                     edge.command = SkipCommand()
+
+                if not IntegerLattice.leq(0, abstract_eval(expr, abstact_state)):
+                    cfg.edges.remove(edge)
+
             elif type(edge.command) == AssignmentCommand:
                 rhs = edge.command.expr
 
@@ -65,8 +73,7 @@ class Transformation_4(Transformation):
                 if simplified_rhs == '⊤' or simplified_rhs == '⊥':
                     continue
 
-                if simplified_rhs != '⊥':
-                    edge.command = AssignmentCommand(
-                        edge.command.lvalue, Constant(simplified_rhs))
+                edge.command = AssignmentCommand(
+                    edge.command.lvalue, Constant(simplified_rhs))
 
         return cfg

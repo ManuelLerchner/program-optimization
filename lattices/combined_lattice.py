@@ -34,7 +34,4 @@ class CombinedLattice(Generic[A, T], CompleteLattice[dict[A, T]]):
         return {k: self.entries[k].copy(a[k]) for k in self.entries.keys()}
 
     def show(self,  a: dict[A, T]) -> str:
-        ret = []
-        for k, v in a.items():
-            ret.append(f"{k}: {self.entries[k].show(v)}")
-        return "{" + ", ".join(ret) + "}"
+        return f"({', '.join([f'{k}={self.entries[k].show(v)}' for k, v in sorted(a.items(), key=lambda x: str(x[0]))])})"

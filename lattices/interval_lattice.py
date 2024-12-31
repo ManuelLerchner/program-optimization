@@ -1,4 +1,4 @@
-from typing import Callable, Literal, Tuple, Union
+from typing import Callable, DefaultDict, Literal, Tuple, Union
 
 from cfg.IMP.expression import ID
 from lattices.all_variable_lattice import AllVariableLattice
@@ -40,6 +40,11 @@ class IntervalLattice(CompleteLattice[Interval]):
 
     @ staticmethod
     def show(a: Interval) -> str:
+        if a == IntervalLattice.top():
+            return "⊤"
+        if a == IntervalLattice.bot():
+            return "⊥"
+
         return f"[{a[0]}, {a[1]}]"
 
 
@@ -50,4 +55,4 @@ class DIntervalLattice(AllVariableLattice[Interval]):
         self.lattice = IntervalLattice()
 
 
-DIntervalLatticeElement = Union[Callable[[ID], Interval], Literal["⊥"]]
+DIntervalLatticeElement = Union[DefaultDict[ID, Interval], Literal["⊥"]]

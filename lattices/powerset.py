@@ -33,4 +33,4 @@ class Powerset[T](CompleteLattice[Set[T]], Set[T]):
         return a.copy()
 
     def show(self, a: Set[T]) -> str:
-        return str(a)
+        return f"{{{', '.join([str(x) for x in sorted(a, key=str)])}}}"

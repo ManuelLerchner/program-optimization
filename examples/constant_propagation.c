@@ -8,6 +8,8 @@ void main(int A0) {
   }
 
   if (y == 10) {
+    int z = 3 + y;
+
     M[0] = 1;
   }
 

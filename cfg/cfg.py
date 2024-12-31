@@ -2,6 +2,8 @@
 from typing import TYPE_CHECKING, Any, Set
 
 import graphviz
+from PIL import Image
+
 
 from cfg.IMP.command import (AssignmentCommand, Command, LoadsCommand,
                              NegCommand, PosCommand, SkipCommand,
@@ -30,9 +32,9 @@ def get_expressions_command(expr: Command) -> Set[Expression]:
     if isinstance(expr, SkipCommand):
         return set()
     elif isinstance(expr, AssignmentCommand):
-        return {expr.expr}
+        return {expr.expr, expr.lvalue}
     elif isinstance(expr, LoadsCommand):
-        return {expr.expr}
+        return {expr.expr, expr.var}
     elif isinstance(expr, StoresCommand):
         return {expr.lhs, expr.rhs}
     elif isinstance(expr, PosCommand):
@@ -53,7 +55,7 @@ class CFG:
         def __str__(self):
 
             values = "\n".join(
-                [f"{key.name()}={key.lattice.show(value)}" for key, value in self.annotations.items()])
+                [f"{key.name()}={key.lattice.show(value)}" for key, value in sorted(self.annotations.items(), key=lambda x: str(x[0]))])
 
             return f"{self.name}\n{values}" if self.annotations else self.name
 

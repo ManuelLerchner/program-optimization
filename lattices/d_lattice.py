@@ -1,4 +1,4 @@
-from typing import Callable, Literal, Union
+from typing import Callable, DefaultDict, Literal, Union
 
 from cfg.IMP.expression import ID
 from lattices.all_variable_lattice import AllVariableLattice
@@ -53,10 +53,6 @@ class IntegerLattice(CompleteLattice[IntegerLatticeElement]):
     def show(a: IntegerLatticeElement) -> str:
         return str(a)
 
-    @staticmethod
-    def of_bool(b: bool) -> IntegerLatticeElement:
-        return 1 if b else 0
-
 
 class DLattice(AllVariableLattice[IntegerLatticeElement]):
 
@@ -65,5 +61,4 @@ class DLattice(AllVariableLattice[IntegerLatticeElement]):
         self.lattice = IntegerLattice()
 
 
-# DLatticeElement = DLattice.get_type_hint()
-DLatticeElement = Union[Callable[[ID], IntegerLatticeElement], Literal["⊥"]]
+DLatticeElement = Union[DefaultDict[ID, IntegerLatticeElement], Literal["⊥"]]
