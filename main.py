@@ -2,7 +2,7 @@ from cfg.parser import Parser
 from optimizer.optimizer import Optimizer
 from transformations.transformation_1 import RemoveSKIP
 
-from transformations.transformation_4 import Transformation_4
+from transformations.transformation_5 import Transformation_5
 
 
 def main():
@@ -29,8 +29,11 @@ def main():
     # Optimizer(Parser('examples/decr.c', only_func='main').parse(), [
     #     Transformation_1_1(), Transformation_1_2(), Transformation_3(), Transformation_2(),          RemoveSKIP()]).optimize(debug=True)
 
-    Optimizer(Parser('examples/constant_propagation.c', only_func='main').parse(), [
-        Transformation_4(), RemoveSKIP()]).optimize(debug=True)
+    # Optimizer(Parser('examples/constant_propagation.c', only_func='main').parse(), [
+    #     Transformation_4(), RemoveSKIP()]).optimize(debug=True)
+
+    Optimizer(Parser('examples/interval_analysis.c', only_func='main').parse(), [
+        Transformation_5(), RemoveSKIP()]).optimize(debug=True)
 
 
 if __name__ == '__main__':

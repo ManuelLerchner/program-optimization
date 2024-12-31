@@ -84,10 +84,10 @@ class RoundRobinSolver(Solver):
                     if not lattice.eq(new_state, states[dest]):
                         changed = True
 
-                states[dest] = new_state
                 if debug:
                     Solver.print_edge(
-                        analysis, edge, source_state, states[dest], new_state)
+                        analysis, edge, source_state, states[dest] if dest in states else lattice.bot(), new_state)
+                states[dest] = new_state
 
             iterations += 1
 

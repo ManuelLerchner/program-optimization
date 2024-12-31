@@ -1,6 +1,7 @@
 from typing import Callable, Literal, Union
 
 from cfg.IMP.expression import ID
+from lattices.all_variable_lattice import AllVariableLattice
 from lattices.complete_lattice import CompleteLattice
 
 IntegerLatticeElement = Union[int, Literal["⊥"], Literal["⊤"]]
@@ -18,13 +19,13 @@ class IntegerLattice(CompleteLattice[IntegerLatticeElement]):
 
     @staticmethod
     def join(a: IntegerLatticeElement, b: IntegerLatticeElement) -> IntegerLatticeElement:
+        if a == "⊤" or b == "⊤":
+            return "⊤"
         if a == "⊥":
             return b
         if b == "⊥":
             return a
-        if a == "⊤" or b == "⊤":
-            return "⊤"
-        return max(a, b)
+        return a if a == b else "⊤"
 
     @staticmethod
     def meet(a: IntegerLatticeElement, b: IntegerLatticeElement) -> IntegerLatticeElement:
@@ -34,7 +35,7 @@ class IntegerLattice(CompleteLattice[IntegerLatticeElement]):
             return b
         if b == "⊤":
             return a
-        return min(a, b)
+        return a if a == b else "⊥"
 
     @staticmethod
     def leq(a: IntegerLatticeElement, b: IntegerLatticeElement) -> bool:
@@ -57,63 +58,12 @@ class IntegerLattice(CompleteLattice[IntegerLatticeElement]):
         return 1 if b else 0
 
 
-DLatticeElement = Union[Callable[[ID],
-                                 IntegerLatticeElement], Literal["⊥"]]
-
-
-class DLattice(CompleteLattice[DLatticeElement]):
+class DLattice(AllVariableLattice[IntegerLatticeElement]):
 
     def __init__(self, vars: set[ID]):
         self.vars = vars
+        self.lattice = IntegerLattice()
 
-    def top(self) -> DLatticeElement:
-        return lambda _: "⊤"
 
-    def bot(self) -> DLatticeElement:
-        return "⊥"  # Bottom element
-
-    def join(self, a: DLatticeElement, b: DLatticeElement) -> DLatticeElement:
-        if a == "⊥":
-            return b
-        if b == "⊥":
-            return a
-
-        # return new function that returns the join of the two functions
-
-        return lambda x: IntegerLattice.join(a(x), b(x))
-
-    def meet(self, a: DLatticeElement, b: DLatticeElement) -> DLatticeElement:
-
-        if a == "⊥" or b == "⊥":
-            return "⊥"
-
-        # return new function that returns the meet of the two functions
-        return lambda x: IntegerLattice.meet(a(x), b(x))
-
-    def leq(self, a: DLatticeElement, b: DLatticeElement) -> bool:
-        if a == "⊥":
-            return True
-        if b == "⊥":
-            return False
-
-        return all(IntegerLattice.leq(a(k), b(k)) for k in self.vars)
-
-    def eq(self, a: DLatticeElement, b: DLatticeElement) -> bool:
-        if a == "⊥" or b == "⊥":
-            return a == b
-
-        return all(IntegerLattice.eq(a(k), b(k)) for k in self.vars)
-
-    def copy(self, a: DLatticeElement) -> DLatticeElement:
-        if a == "⊥":
-            return "⊥"
-
-        def result(x): return a(x)
-
-        return result
-
-    def show(self, a: DLatticeElement) -> str:
-        if a == "⊥":
-            return "⊥"
-
-        return "{" + ", ".join(f"{k.name} ⟶ {IntegerLattice.show(a(k))}" for k in self.vars) + "}"
+# DLatticeElement = DLattice.get_type_hint()
+DLatticeElement = Union[Callable[[ID], IntegerLatticeElement], Literal["⊥"]]
