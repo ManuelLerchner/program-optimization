@@ -146,7 +146,10 @@ class RoundRobinSolver(Solver):
         if analysis.use_narrow:
             # backward
             def comb(node: CFG.Node):
-                return ("⩎", analysis.lattice.narrow)
+                if analysis.use_narrow and ((self.widen_strategy == 'loop_separator' and node.is_loop_separator) or self.widen_strategy == 'always'):
+                    return ("⩎", analysis.lattice.narrow)
+                else:
+                    return ("⊔", analysis.lattice.join)
 
             iter += self.find_fixpoint("Narrowing", states,
                                        analysis, comb, self.max_narrow_iterations)
