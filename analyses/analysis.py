@@ -12,12 +12,13 @@ from lattices.complete_lattice import CompleteLattice
 
 class Analysis[T](ABC):
 
-    def __init__(self, direction: Literal['forward', 'backward'], start: Literal['top', 'bot'], widen: bool = False) -> None:
+    def __init__(self, direction: Literal['forward', 'backward'], start: Literal['top', 'bot'], use_widen: bool = False, use_narrow: bool = False) -> None:
         self.direction = direction
         self.start = start
-        self.cfg: CFG | None = None
+        self.cfg: CFG
         self.lattice: CompleteLattice[T]
-        self.widen = False
+        self.use_widen = use_widen
+        self.use_narrow = use_narrow
 
     @abstractmethod
     def name(self) -> str:

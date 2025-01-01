@@ -13,8 +13,7 @@ class GenKill[T](Analysis[Set[T]]):
 
     def __init__(self,  direction: Literal['forward', 'backward'],
                  start: Literal['bot', 'top']):
-        self.direction = direction
-        self.start = start
+        super().__init__(direction, start)
         self.lattice: Powerset[T]
 
     def name(self) -> str:

@@ -10,11 +10,10 @@ from transformations.transformation_0 import RemoveSKIP
 
 
 class Parser:
-    def __init__(self, filename, only_func=None):
+    def __init__(self, filename):
         self.filename = filename
         self.cfg = CFG()
         self.node_counter = 0
-        self.only_func = only_func
 
     def parse(self) -> CFG:
         with open(self.filename) as f:
@@ -33,7 +32,7 @@ class Parser:
         self.cfg.path = "/".join(self.filename.split("/")[:-1])
         self.cfg.filename = self.filename.split("/")[-1].split(".")[0]
 
-        return self.cfg
+        return RemoveSKIP().transform(self.cfg, {})
 
     def visit(self, ast_node: c_ast.Node, entry_node: CFG.Node | None, exit_node: Optional[CFG.Node] = None) -> CFG.Node | None:
 
@@ -131,7 +130,8 @@ class Parser:
 
             out = self.visit(ast_node.stmt, loop_entry, loop_exit)
 
-            entry_node.is_loop_separator = True
+            if entry_node is not None:
+                entry_node.is_loop_separator = True
 
             self.cfg.add_edge(entry_node, loop_entry,
                               PosCommand(cond_expr))

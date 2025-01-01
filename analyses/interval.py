@@ -105,7 +105,7 @@ def abstract_eval(expr: Expression, A: DefaultDict[ID, Interval]) -> Interval:
 class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
 
     def __init__(self, widen: bool) -> None:
-        super().__init__('forward', "top")
+        super().__init__('forward', "top", use_widen=True, use_narrow=True)
         self.widen = widen
 
     def create_lattice(self, cfg):

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Callable, Literal
+from typing import Callable, Literal, Tuple
 
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
@@ -7,113 +7,148 @@ from optimizer.solver.solver import Solver
 from util.bcolors import BColors
 
 
-def topo_sort_edges(cfg: CFG) -> list[CFG.Edge]:
-    visited_edges = set()
-    edge_order = []
+def topo_sort_nodes(cfg: CFG) -> list[CFG.Node]:
+    visited_nodes = set()
 
-    def dfs_edge(current_edge: CFG.Edge):
-        if current_edge in visited_edges:
+    sorted_nodes = []
+
+    def dfs_node(current_node: CFG.Node):
+        if current_node in visited_nodes:
             return
 
-        visited_edges.add(current_edge)
+        visited_nodes.add(current_node)
 
-        outgoing_edges = cfg.get_outgoing(current_edge.dest)
+        sorted_nodes.append(current_node)
 
-        for dep_edge in outgoing_edges:
-            dfs_edge(dep_edge)
+        for e in cfg.get_outgoing(current_node):
+            dfs_node(e.dest)
 
-        edge_order.append(current_edge)
-
-    start_nodes = []
     for node in cfg.get_nodes():
-        if len(cfg.get_incoming(node)) == 0:
-            start_nodes.append(node)
+        if node.is_start:
+            dfs_node(node)
 
-    for node in start_nodes:
-        for edge in cfg.get_outgoing(node):
-            dfs_edge(edge)
-
-    return edge_order
+    return sorted_nodes
 
 
-def sort_edges(type: Literal['forward', 'backward'], cfg: CFG):
-    sorted_edges = topo_sort_edges(cfg)
+def sort_nodes(type: Literal['forward', 'backward'], cfg: CFG):
+    sorted_nodes = topo_sort_nodes(cfg)
 
     if type == 'backward':
-        return sorted_edges
+        return sorted_nodes[::-1]
     elif type == 'forward':
-        return sorted_edges[::-1]
+        return sorted_nodes
 
 
 class RoundRobinSolver(Solver):
 
-    def __init__(self, widen_strategy: Literal['none', 'loop_separator', 'always'] = 'none', narrowing: bool = False) -> None:
+    def __init__(self, widen_strategy: Literal['none', 'loop_separator', 'always'] = 'none', max_narrow_iterations: int = 0, debug: bool = False) -> None:
         self.widen_strategy = widen_strategy
-        self.narrowing = narrowing
+        self.max_narrow_iterations = max_narrow_iterations
+        self.debug = debug
 
-    def solve[T](self, cfg: CFG, analysis: Analysis[T], debug=False) -> dict[CFG.Node, T]:
-        edges = sort_edges(analysis.direction, cfg)
-        analysis.lattice = analysis.create_lattice(cfg)
+    def perform_round[T](self, analysis: Analysis[T], states: dict[CFG.Node, T], op:  Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]]) -> bool:
         lattice = analysis.lattice
 
-        def base() -> T:
-            return lattice.bot() if analysis.start == 'bot' else lattice.top()
+        changed = False
+        for node in states:
+            if (analysis.direction == 'forward' and node.is_start) or (analysis.direction == 'backward' and node.is_end):
+                continue
 
-        states: defaultdict[CFG.Node, T] = defaultdict(base)
-        narrowing_active = False
+            if analysis.direction == 'forward':
+                edges = analysis.cfg.get_incoming(node)
+            else:
+                edges = set(map(lambda e: CFG.Edge(e.dest, e.source,
+                                                   e.command), analysis.cfg.get_outgoing(node)))
 
-        changed = True
-        iterations = 1
-        while changed:
-            changed = False
-            if debug:
-                print(f"{BColors.WARNING}Iteration {iterations}{BColors.ENDC} {BColors.OKCYAN}{
-                      "(narrowing)" if narrowing_active else ""}{BColors.ENDC}")
+            fxs = [analysis.transfer(states[edge.source], edge.command)
+                   for edge in edges]
+            incoming = lattice.bot()
+            [incoming := lattice.join(fx, incoming) for fx in fxs]
 
-            for edge in edges:
-                src, dest = (edge.source, edge.dest) if analysis.direction == 'forward' else (
-                    edge.dest, edge.source)
+            comb_name, sq = op(node)
 
-                source_state = states[src]
+            new_state = sq(states[node], incoming)
 
-                updated_dest = analysis.transfer(source_state, edge.command)
+            if not lattice.eq(new_state, states[node]):
+                if self.debug:
+                    print(f"  {BColors.BOLD}{node.name}{BColors.ENDC} {BColors.OKGREEN}{
+                          lattice.show(states[node]):<50}{BColors.ENDC}")
+                    for edge, fx in zip(edges, fxs):
+                        print(f"    {BColors.HEADER}⟵{BColors.ENDC}     {BColors.OKGREEN}{lattice.show(fx):<40}{BColors.ENDC} <--[ {BColors.OKCYAN}{
+                            str(edge.command):^15}{BColors.ENDC} ]-- {BColors.OKGREEN}{
+                            lattice.show(states[edge.source]):<40}{BColors.ENDC}  {BColors.OKBLUE}{edge.source.name}{BColors.ENDC} ")
 
-                op = "="
-                if dest in states:
-                    comb: Callable[[T, T], T]
+                    print(f"    {BColors.HEADER}⟶ {'⊔'} f([{BColors.ENDC}{BColors.ENDC}{BColors.OKBLUE}{', '.join([e.source.name for e in edges])}{BColors.ENDC}{BColors.HEADER}]){BColors.ENDC} = {BColors.OKGREEN}{
+                        lattice.show(incoming):<40}")
 
-                    if not narrowing_active and analysis.widen and ((self.widen_strategy == 'loop_separator' and dest.is_loop_separator) or self.widen_strategy == 'always'):
-                        comb, op = lattice.widen, "⩏"
-                    else:
-                        comb, op = lattice.join, "⊔"
+                    print(f"    {BColors.FAIL}{comb_name} ⇒ {BColors.ENDC}{BColors.OKGREEN}{
+                        lattice.show(new_state):<50}{BColors.ENDC}")
 
-                    new_state = comb(states[dest], updated_dest)
+                changed = True
+                states[node] = new_state
 
-                    if not lattice.eq(new_state, states[dest]):
-                        changed = True
-                else:
-                    new_state = updated_dest
+        if not changed:
+            if self.debug:
+                print(f"  {BColors.WARNING}No changes{BColors.ENDC}")
 
-                if debug:
-                    if not dest in states or not lattice.eq(states[dest], new_state):
-                        Solver.print_edge(
-                            analysis, edge, source_state, states[dest] if dest in states else lattice.bot(), op, new_state)
+        return changed
 
-                states[dest] = new_state
+    def find_fixpoint[T](self, phase: str, states: dict[CFG.Node, T], analysis: Analysis[T], comb: Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], max_iter=float("inf")) -> int:
+        iterations = 0
 
+        while True and iterations < max_iter:
+
+            if self.debug:
+                print(f"\n{BColors.WARNING}{phase} Iteration {
+                      iterations+1}{BColors.ENDC}")
+
+            changed = self.perform_round(analysis, states, comb)
             iterations += 1
 
-            if self.narrowing and not narrowing_active and not changed:
-                changed = True
-                narrowing_active = True
+            if not changed:
+                break
 
-        if debug:
-            print()
-            print(f"{BColors.WARNING}Analysis results{BColors.ENDC}")
+        if self.debug and iterations > 0:
+            print(f"\n{BColors.WARNING}Analysis results after {
+                  iterations} iterations of {phase}{BColors.ENDC}")
 
-            for node, state in states.items():
+            for node in states:
                 print(f"{node.name:>15} {
                     BColors.OKGREEN}{
-                    lattice.show(state):<20}{BColors.ENDC}")
+                    analysis.lattice.show(states[node]):<20}{BColors.ENDC}")
 
-        return states
+        return iterations
+
+    def solve[T](self, cfg: CFG, analysis: Analysis[T]) -> Tuple[dict[CFG.Node, T], int]:
+        analysis.lattice = analysis.create_lattice(cfg)
+
+        states: defaultdict[CFG.Node, T] = defaultdict(
+            lambda: analysis.lattice.bot(), {n: analysis.lattice.bot() for n in sort_nodes(analysis.direction, cfg)})
+
+        for n in states:
+            start = analysis.lattice.top() if analysis.start == 'top' else analysis.lattice.bot()
+            if analysis.direction == 'forward' and n.is_start:
+                states[n] = start
+            elif analysis.direction == 'backward' and n.is_end:
+                states[n] = start
+
+        iter = 0
+
+        # forward
+        def comb(node: CFG.Node):
+            if analysis.use_widen and ((self.widen_strategy == 'loop_separator' and node.is_loop_separator) or self.widen_strategy == 'always'):
+                return ("⩏", analysis.lattice.widen,)
+            else:
+                return ("⊔", analysis.lattice.join)
+
+        iter += self.find_fixpoint("Widening", states, analysis, comb)
+
+        if analysis.use_narrow:
+            # backward
+            def comb(node: CFG.Node):
+                return ("⩎", analysis.lattice.narrow)
+
+            iter += self.find_fixpoint("Narrowing", states,
+                                       analysis, comb, self.max_narrow_iterations)
+
+        return states, iter
