@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Set
 import graphviz
 from PIL import Image
 
+from collections import OrderedDict
 
 from cfg.IMP.command import (AssignmentCommand, Command, LoadsCommand,
                              NegCommand, PosCommand, SkipCommand,
@@ -51,6 +52,9 @@ class CFG:
         def __init__(self, name: str):
             self.name = name
             self.annotations: dict[Analysis, dict[CFG.Node, Any]] = {}
+            self.is_start = False
+            self.is_end = False
+            self.is_loop_separator = False
 
         def __str__(self):
 
@@ -90,7 +94,9 @@ class CFG:
     def make_function_nodes(self, name: str):
         self.function_counter += 1
         entry = CFG.Node(f"{name}{self.function_counter}_entry")
+        entry.is_start = True
         exit = CFG.Node(f"{name}{self.function_counter}_exit")
+        exit.is_end = True
 
         return entry, exit
 

@@ -3,7 +3,7 @@ from typing import Any, List
 
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from optimizer.solver.round_robin import RoundRobinSolver
+from optimizer.solver.round_robin2 import RoundRobinSolver
 from transformations.transformation import Transformation
 from util.bcolors import BColors
 
@@ -30,7 +30,8 @@ class Optimizer:
 
                 analyses.cfg = self.cfg
 
-                A = RoundRobinSolver.solve(self.cfg, analyses, debug=debug)
+                A = RoundRobinSolver('always',  narrow_iterations=10, debug=debug).solve(
+                    self.cfg, analyses,)
 
                 analyses_results[analyses] = A
 

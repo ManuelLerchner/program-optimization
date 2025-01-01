@@ -19,6 +19,12 @@ class CompleteLattice[T](ABC):
     def meet(self, a: T, b: T) -> T:
         pass
 
+    def widen(self, a: T, b: T) -> T:
+        raise NotImplementedError
+
+    def narrow(self, a: T, b: T) -> T:
+        raise NotImplementedError
+
     @abstractmethod
     def leq(self, a: T, b: T) -> bool:
         pass

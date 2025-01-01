@@ -104,11 +104,12 @@ def abstract_eval(expr: Expression, A: DefaultDict[ID, Interval]) -> Interval:
 
 class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
 
-    def __init__(self):
+    def __init__(self, widen: bool) -> None:
         super().__init__('forward', "top")
+        self.widen = widen
 
     def create_lattice(self, cfg):
-        self.lattice = DIntervalLattice(cfg.get_all_vars())
+        return DIntervalLattice(cfg.get_all_vars())
 
     def name(self):
         return "IntervalAnalysis"
@@ -148,21 +149,25 @@ class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
         if v == (0, 0):
             return "⊥"
         else:
-            if type(expr) == BinExpression and expr.op == '==':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], abstract_eval(expr.right, A))})
-            elif type(expr) == BinExpression and expr.op == '<=':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], (float("-inf"), abstract_eval(expr.right, A)[1]))})
-            elif type(expr) == BinExpression and expr.op == '<':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], (float("-inf"), abstract_eval(expr.right, A)[1] - 1))})
-            elif type(expr) == BinExpression and expr.op == '>=':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], (abstract_eval(expr.right, A)[0], float("inf")))})
-            elif type(expr) == BinExpression and expr.op == '>':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], (abstract_eval(expr.right, A)[0], float("inf") - 1))})
+            if type(expr) == BinExpression:
+                var, new_op, subexpr = (expr.left, expr.op, expr.right) if isinstance(
+                    expr.left, ID) else (expr.right, BinExpression.flip_op(expr.op), expr.left)
+
+                if new_op == '==':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], abstract_eval(subexpr, A))})
+                elif new_op == '<=':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], (float("-inf"), abstract_eval(subexpr, A)[1]))})
+                elif new_op == '<':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], (float("-inf"), abstract_eval(subexpr, A)[1] - 1))})
+                elif new_op == '>=':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], (abstract_eval(subexpr, A)[0], float("inf")))})
+                elif new_op == '>':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], (abstract_eval(subexpr, A)[0], float("inf") - 1))})
 
             return A
 
@@ -175,20 +180,24 @@ class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
         if not IntervalLattice.leq((0, 0), v):
             return "⊥"
         else:
-            if type(expr) == BinExpression and expr.op == '!=':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], abstract_eval(expr.right, A))})
-            elif type(expr) == BinExpression and expr.op == '>=':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], (abstract_eval(expr.right, A)[0] - 1, float("inf")))})
-            elif type(expr) == BinExpression and expr.op == '>':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], (float("-inf"), abstract_eval(expr.right, A)[0]))})
-            elif type(expr) == BinExpression and expr.op == '<=':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], (abstract_eval(expr.right, A)[1], float("inf")))})
-            elif type(expr) == BinExpression and expr.op == '<':
-                A.update({expr.left: IntervalLattice.meet(
-                    A[expr.left], (abstract_eval(expr.right, A)[0], float("inf")))})
+            if type(expr) == BinExpression:
+                var, new_op, subexpr = (expr.left, expr.op, expr.right) if isinstance(
+                    expr.left, ID) else (expr.right, BinExpression.flip_op(expr.op), expr.left)
+
+                if new_op == '!=':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], abstract_eval(subexpr, A))})
+                elif new_op == '>=':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], (abstract_eval(subexpr, A)[0] - 1, float("inf")))})
+                elif new_op == '>':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], (float("-inf"), abstract_eval(subexpr, A)[0]))})
+                elif new_op == '<=':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], (abstract_eval(subexpr, A)[1], float("inf")))})
+                elif new_op == '<':
+                    A.update({var: IntervalLattice.meet(
+                        A[var], (abstract_eval(subexpr, A)[0], float("inf")))})
 
             return A

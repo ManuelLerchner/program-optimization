@@ -19,7 +19,7 @@ class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
         expressions = {
             expr for expr in expressions if not isinstance(expr, ID)}
 
-        self.lattice = CombinedLattice[Expression, Powerset[ID]](
+        return CombinedLattice[Expression, Powerset[ID]](
             {expr: Powerset[ID]() for expr in expressions})
 
     def name(self):

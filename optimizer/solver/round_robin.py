@@ -1,4 +1,5 @@
-from typing import Literal
+from collections import defaultdict
+from typing import Callable, Literal
 
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
@@ -46,50 +47,65 @@ def sort_edges(type: Literal['forward', 'backward'], cfg: CFG):
 
 class RoundRobinSolver(Solver):
 
-    @staticmethod
-    def solve[T](cfg: CFG, analysis: Analysis[T], debug=False) -> dict[CFG.Node, T]:
-        states: dict[CFG.Node, T] = {}
+    def __init__(self, widen_strategy: Literal['none', 'loop_separator', 'always'] = 'none', narrowing: bool = False) -> None:
+        self.widen_strategy = widen_strategy
+        self.narrowing = narrowing
 
-        analysis.create_lattice(cfg)
+    def solve[T](self, cfg: CFG, analysis: Analysis[T], debug=False) -> dict[CFG.Node, T]:
+        edges = sort_edges(analysis.direction, cfg)
+        analysis.lattice = analysis.create_lattice(cfg)
         lattice = analysis.lattice
 
-        edges = sort_edges(analysis.direction, cfg)
+        def base() -> T:
+            return lattice.bot() if analysis.start == 'bot' else lattice.top()
+
+        states: defaultdict[CFG.Node, T] = defaultdict(base)
+        narrowing_active = False
 
         changed = True
         iterations = 1
         while changed:
             changed = False
             if debug:
-                print(f"{BColors.WARNING}Iteration {iterations}{BColors.ENDC}")
+                print(f"{BColors.WARNING}Iteration {iterations}{BColors.ENDC} {BColors.OKCYAN}{
+                      "(narrowing)" if narrowing_active else ""}{BColors.ENDC}")
 
             for edge in edges:
                 src, dest = (edge.source, edge.dest) if analysis.direction == 'forward' else (
                     edge.dest, edge.source)
 
-                if src not in states:
-                    if analysis.start == 'bot':
-                        states[src] = lattice.bot()
-                    else:
-                        states[src] = lattice.top()
-
                 source_state = states[src]
 
-                new_state = analysis.transfer(source_state, edge.command)
+                updated_dest = analysis.transfer(source_state, edge.command)
 
-                # if there is already a state for the destination node we need to join the new state with the existing one
-
+                op = "="
                 if dest in states:
-                    new_state = lattice.join(states[dest], new_state)
+                    comb: Callable[[T, T], T]
+
+                    if not narrowing_active and analysis.widen and ((self.widen_strategy == 'loop_separator' and dest.is_loop_separator) or self.widen_strategy == 'always'):
+                        comb, op = lattice.widen, "⩏"
+                    else:
+                        comb, op = lattice.join, "⊔"
+
+                    new_state = comb(states[dest], updated_dest)
 
                     if not lattice.eq(new_state, states[dest]):
                         changed = True
+                else:
+                    new_state = updated_dest
 
                 if debug:
-                    Solver.print_edge(
-                        analysis, edge, source_state, states[dest] if dest in states else lattice.bot(), new_state)
+                    if not dest in states or not lattice.eq(states[dest], new_state):
+                        Solver.print_edge(
+                            analysis, edge, source_state, states[dest] if dest in states else lattice.bot(), op, new_state)
+
                 states[dest] = new_state
 
             iterations += 1
+
+            if self.narrowing and not narrowing_active and not changed:
+                changed = True
+                narrowing_active = True
 
         if debug:
             print()

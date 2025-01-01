@@ -70,7 +70,7 @@ class ConstantPropagation(Analysis[DLatticeElement]):
         super().__init__('forward', "top")
 
     def create_lattice(self, cfg):
-        self.lattice = DLattice(cfg.get_all_vars())
+        return DLattice(cfg.get_all_vars())
 
     def name(self):
         return "ConstantPropagation"

@@ -23,8 +23,28 @@ class IntervalLattice(CompleteLattice[Interval]):
         return (min(a[0], b[0]), max(a[1], b[1]))
 
     @ staticmethod
+    def widen(a: Interval, b: Interval) -> Interval:
+        l1, u1 = a
+        l2, u2 = b
+
+        l = l1 if l1 <= l2 else float("-inf")
+        u = u1 if u1 >= u2 else float("inf")
+
+        return (l, u)
+
+    @ staticmethod
     def meet(a: Interval, b: Interval) -> Interval:
         return (max(a[0], b[0]), min(a[1], b[1]))
+
+    @staticmethod
+    def narrow(a: Interval, b: Interval) -> Interval:
+        l1, u1 = a
+        l2, u2 = b
+
+        l = l2 if l1 == float("-inf") else l1
+        u = u2 if u1 == float("inf") else u1
+
+        return (l, u)
 
     @ staticmethod
     def leq(a: Interval, b: Interval) -> bool:
@@ -48,11 +68,11 @@ class IntervalLattice(CompleteLattice[Interval]):
         return f"[{a[0]}, {a[1]}]"
 
 
+DIntervalLatticeElement = Union[DefaultDict[ID, Interval], Literal["⊥"]]
+
+
 class DIntervalLattice(AllVariableLattice[Interval]):
 
     def __init__(self, vars: set[ID]):
         self.vars = vars
         self.lattice = IntervalLattice()
-
-
-DIntervalLatticeElement = Union[DefaultDict[ID, Interval], Literal["⊥"]]

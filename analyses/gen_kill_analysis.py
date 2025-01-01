@@ -22,7 +22,7 @@ class GenKill[T](Analysis[Set[T]]):
 
     @final
     def create_lattice(self, cfg):
-        self.lattice = Powerset[T]()
+        return Powerset[T]()
 
     @abstractmethod
     def gen_kill_skip(self, A:  set[T]) -> tuple[set[T],  set[T]]:

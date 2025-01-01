@@ -33,7 +33,7 @@ class Parser:
         self.cfg.path = "/".join(self.filename.split("/")[:-1])
         self.cfg.filename = self.filename.split("/")[-1].split(".")[0]
 
-        return RemoveSKIP().transform(self.cfg, {})
+        return self.cfg
 
     def visit(self, ast_node: c_ast.Node, entry_node: CFG.Node | None, exit_node: Optional[CFG.Node] = None) -> CFG.Node | None:
 
@@ -130,6 +130,8 @@ class Parser:
             cond_expr = convertToExpr(ast_node.cond)
 
             out = self.visit(ast_node.stmt, loop_entry, loop_exit)
+
+            entry_node.is_loop_separator = True
 
             self.cfg.add_edge(entry_node, loop_entry,
                               PosCommand(cond_expr))

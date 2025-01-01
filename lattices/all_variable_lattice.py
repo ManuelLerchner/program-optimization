@@ -13,7 +13,7 @@ class AllVariableLattice[T](CompleteLattice[Union[DefaultDict[ID, T], Literal["�
         self.lattice = lattice
 
     def top(self) -> Union[DefaultDict[ID, T], Literal["⊥"]]:
-        return defaultdict(lambda: self.lattice.top())
+        return defaultdict(lambda: self.lattice.top(), {k: self.lattice.top() for k in self.vars})
 
     def bot(self) -> Union[DefaultDict[ID, T], Literal["⊥"]]:
         return "⊥"  # Bottom element
@@ -26,10 +26,23 @@ class AllVariableLattice[T](CompleteLattice[Union[DefaultDict[ID, T], Literal["�
 
         return defaultdict(lambda: self.lattice.bot(), {k: self.lattice.join(a[k], b[k]) for k in self.vars})
 
+    def widen(self, a: Union[DefaultDict[ID, T], Literal["⊥"]], b: Union[DefaultDict[ID, T], Literal["⊥"]]) -> Union[DefaultDict[ID, T], Literal["⊥"]]:
+        if a == "⊥":
+            return b
+        if b == "⊥":
+            return a
+
+        return defaultdict(lambda: self.lattice.bot(), {k: self.lattice.widen(a[k], b[k]) for k in self.vars})
+
     def meet(self, a: Union[DefaultDict[ID, T], Literal["⊥"]], b: Union[DefaultDict[ID, T], Literal["⊥"]]) -> Union[DefaultDict[ID, T], Literal["⊥"]]:
         if a == "⊥" or b == "⊥":
             return "⊥"
         return defaultdict(lambda: self.lattice.bot(), {k: self.lattice.meet(a[k], b[k]) for k in self.vars})
+
+    def narrow(self, a: Union[DefaultDict[ID, T], Literal["⊥"]], b: Union[DefaultDict[ID, T], Literal["⊥"]]) -> Union[DefaultDict[ID, T], Literal["⊥"]]:
+        if a == "⊥" or b == "⊥":
+            return "⊥"
+        return defaultdict(lambda: self.lattice.bot(), {k: self.lattice.narrow(a[k], b[k]) for k in self.vars})
 
     def leq(self, a: Union[DefaultDict[ID, T], Literal["⊥"]], b: Union[DefaultDict[ID, T], Literal["⊥"]]) -> bool:
         if a == "⊥":

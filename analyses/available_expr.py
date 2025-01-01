@@ -28,8 +28,7 @@ class AvailableExpressions(Analysis[Set[Expression]]):
         return "AvailExpr"
 
     def create_lattice(self, cfg):
-        self.lattice = Powerset[Expression]()
-        return self.lattice
+        return Powerset[Expression]()
 
     @staticmethod
     def is_worthwile_storing(expr: Expression) -> bool:

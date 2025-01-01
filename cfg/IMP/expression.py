@@ -95,6 +95,19 @@ class BinExpression(Expression):
     op: str
     right: c_ast.Node
 
+    @staticmethod
+    def flip_op(op: str) -> str:
+        if op == "<":
+            return ">"
+        if op == "<=":
+            return ">="
+        if op == ">":
+            return "<"
+        if op == ">=":
+            return "<="
+
+        raise ValueError(f"Unknown operator: {op}")
+
     def __str__(self):
         return f"{self.left} {self.op} {self.right}"
 
@@ -111,11 +124,17 @@ class BinExpression(Expression):
         return self.left == other.left and self.op == other.op and self.right == other.right
 
 
+def normalize_bin_expr(left: Expression, op: str, right: Expression) -> Expression:
+    if op == ">" or op == ">=":
+        return BinExpression(right, "<" if op == ">" else "<=", left)
+    return BinExpression(left, op, right)
+
+
 def convertToExpr(expr: c_ast.Node) -> Expression:
     if isinstance(expr, c_ast.ID):
         return ID(expr.name)
     elif isinstance(expr, c_ast.BinaryOp):
-        return BinExpression(convertToExpr(expr.left), expr.op, convertToExpr(expr.right))
+        return normalize_bin_expr(convertToExpr(expr.left), expr.op, convertToExpr(expr.right))
     elif isinstance(expr, c_ast.UnaryOp):
         return UnaryExpression(expr.op, convertToExpr(expr.expr))
     elif isinstance(expr, c_ast.Decl):

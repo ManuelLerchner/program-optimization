@@ -14,8 +14,8 @@ from transformations.transformation import Transformation
 
 
 class Transformation_5(Transformation):
-    def __init__(self):
-        self.IA = IntervalAnalysis()
+    def __init__(self, widen: bool) -> None:
+        self.IA = IntervalAnalysis(widen)
 
     def name(self) -> str:
         return "Transformation 4"
