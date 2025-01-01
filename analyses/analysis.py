@@ -21,7 +21,7 @@ class Analysis[T](ABC):
         self.use_narrow = use_narrow
 
     @abstractmethod
-    def name(self) -> str:
+    def name() -> str:
         pass
 
     @abstractmethod

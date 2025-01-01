@@ -17,5 +17,9 @@ class Transformation(ABC):
         pass
 
     @abstractmethod
-    def name(self) -> str:
+    def name() -> str:
+        pass
+
+    @abstractmethod
+    def description() -> str:
         pass

@@ -6,10 +6,10 @@
     "configurations": [
 
         {
-            "name": "Python Debugger: Current File",
+            "name": "Python: Test",
             "type": "debugpy",
             "request": "launch",
-            "program": "main.py",
+            "program": "test.py",
             "console": "integratedTerminal"
         }
     ]

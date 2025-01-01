@@ -24,7 +24,8 @@ class AvailableExpressions(Analysis[Set[Expression]]):
     def __init__(self):
         super().__init__('forward', 'bot')
 
-    def name(self):
+    @staticmethod
+    def name():
         return "AvailExpr"
 
     def create_lattice(self, cfg):

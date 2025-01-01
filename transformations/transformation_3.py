@@ -17,8 +17,13 @@ class Transformation_3(Transformation):
     def __init__(self):
         self.ES = ExprStores()
 
-    def name(self) -> str:
-        return "Transformation 3"
+    @staticmethod
+    def name() -> str:
+        return "T3"
+
+    @staticmethod
+    def description() -> str:
+        return "Substitute expressions with temporary variables if they are available"
 
     def dependencies(self):
         return [self.ES]

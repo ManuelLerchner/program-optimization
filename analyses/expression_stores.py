@@ -22,7 +22,8 @@ class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
         return CombinedLattice[Expression, Powerset[ID]](
             {expr: Powerset[ID]() for expr in expressions})
 
-    def name(self):
+    @staticmethod
+    def name():
         return "ExprStores"
 
     def skip(self, x: Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:

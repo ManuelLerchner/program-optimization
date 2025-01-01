@@ -23,7 +23,8 @@ class LiveVariables(GenKill[Expression]):
     def __init__(self):
         super().__init__('backward', 'bot')
 
-    def name(self):
+    @staticmethod
+    def name():
         return "LiveVar"
 
     def gen_kill_skip(self, A) -> tuple[Set[Expression], Set[Expression]]:

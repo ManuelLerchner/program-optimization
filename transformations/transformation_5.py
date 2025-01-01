@@ -17,8 +17,13 @@ class Transformation_5(Transformation):
     def __init__(self, widen: bool) -> None:
         self.IA = IntervalAnalysis(widen)
 
-    def name(self) -> str:
-        return "Transformation 4"
+    @staticmethod
+    def name() -> str:
+        return "T5"
+
+    @staticmethod
+    def description() -> str:
+        return "Perform interval analysis and delete unreachable nodes"
 
     def dependencies(self):
         return [self.IA]

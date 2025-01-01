@@ -72,7 +72,8 @@ class ConstantPropagation(Analysis[DLatticeElement]):
     def create_lattice(self, cfg):
         return DLattice(cfg.get_all_vars())
 
-    def name(self):
+    @staticmethod
+    def name():
         return "ConstantPropagation"
 
     def skip(self, x: DLatticeElement) -> DLatticeElement:

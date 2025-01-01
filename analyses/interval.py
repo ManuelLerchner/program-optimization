@@ -111,7 +111,8 @@ class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
     def create_lattice(self, cfg):
         return DIntervalLattice(cfg.get_all_vars())
 
-    def name(self):
+    @staticmethod
+    def name():
         return "IntervalAnalysis"
 
     def skip(self, x: DIntervalLatticeElement) -> DIntervalLatticeElement:

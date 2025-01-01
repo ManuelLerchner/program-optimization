@@ -21,8 +21,13 @@ class Transformation_1_1(Transformation):
         typing.cast(Any, reg).is_register = True
         return reg
 
-    def name(self) -> str:
-        return "Transformation 1.1"
+    @staticmethod
+    def name() -> str:
+        return "T1.1"
+
+    @staticmethod
+    def description() -> str:
+        return "Introduce temporary variables for expressions"
 
     def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         """

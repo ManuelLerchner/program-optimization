@@ -8,10 +8,15 @@ from cfg.IMP.command import SkipCommand
 from transformations.transformation import Transformation
 
 
-class RemoveSKIP(Transformation):
+class Transformation_0(Transformation):
 
-    def name(self) -> str:
-        return "RemoveSKIP"
+    @staticmethod
+    def name() -> str:
+        return "T0"
+
+    @staticmethod
+    def description() -> str:
+        return "Delete all skip commands"
 
     def transform(self, cfg: CFG, analyses_results: dict[Analysis, Any]) -> CFG:
         """

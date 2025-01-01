@@ -16,8 +16,13 @@ class Transformation_1_2(Transformation):
     def __init__(self):
         self.AE = AvailableExpressions()
 
-    def name(self) -> str:
-        return "Transformation 1.2"
+    @staticmethod
+    def name() -> str:
+        return "T1.2"
+
+    @staticmethod
+    def description() -> str:
+        return "Delete assignments to temporary variables if the expression is already available"
 
     def dependencies(self) -> list[Analysis]:
         return [self.AE]

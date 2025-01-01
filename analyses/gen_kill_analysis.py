@@ -16,8 +16,9 @@ class GenKill[T](Analysis[Set[T]]):
         super().__init__(direction, start)
         self.lattice: Powerset[T]
 
-    def name(self) -> str:
-        return self.__class__.__name__
+    @staticmethod
+    def name() -> str:
+        return "GenKill"
 
     @final
     def create_lattice(self, cfg):

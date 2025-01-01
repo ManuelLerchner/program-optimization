@@ -6,7 +6,7 @@ from cfg.cfg import CFG
 from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
                              PosCommand, SkipCommand, StoresCommand)
 from cfg.IMP.expression import convertToExpr
-from transformations.transformation_0 import RemoveSKIP
+from transformations.transformation_0 import Transformation_0
 
 
 class Parser:
@@ -32,7 +32,7 @@ class Parser:
         self.cfg.path = "/".join(self.filename.split("/")[:-1])
         self.cfg.filename = self.filename.split("/")[-1].split(".")[0]
 
-        return RemoveSKIP().transform(self.cfg, {})
+        return Transformation_0().transform(self.cfg, {})
 
     def visit(self, ast_node: c_ast.Node, entry_node: CFG.Node | None, exit_node: Optional[CFG.Node] = None) -> CFG.Node | None:
 

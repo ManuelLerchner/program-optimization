@@ -16,8 +16,13 @@ class Transformation_2(Transformation):
     def __init__(self):
         self.LV = TrueLiveVariables()
 
-    def name(self) -> str:
-        return "Transformation 2"
+    @staticmethod
+    def name() -> str:
+        return "T2"
+
+    @staticmethod
+    def description() -> str:
+        return "Delete assignments to variables that are not (truly) live"
 
     def dependencies(self):
         return [self.LV]

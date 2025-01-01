@@ -16,8 +16,13 @@ class Transformation_4(Transformation):
     def __init__(self):
         self.CP = ConstantPropagation()
 
-    def name(self) -> str:
-        return "Transformation 4"
+    @staticmethod
+    def name() -> str:
+        return "T4"
+
+    @staticmethod
+    def description() -> str:
+        return "Perform constant propagation and delete unreachable nodes"
 
     def dependencies(self):
         return [self.CP]
