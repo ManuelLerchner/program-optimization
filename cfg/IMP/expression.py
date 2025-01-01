@@ -124,6 +124,27 @@ class BinExpression(Expression):
         return self.left == other.left and self.op == other.op and self.right == other.right
 
 
+@dataclass
+class FuncCall(Expression):
+    name: str
+    args: list[c_ast.Node]
+
+    def __str__(self):
+        return f"{self.name}({', '.join(map(str, self.args))})"
+
+    def __repr__(self):
+        return f"{self.name}({', '.join(map(str, self.args))})"
+
+    def __eq__(self, other):
+        return self.name == other.name and self.args == other.args
+
+    def to_short_string(self) -> str:
+        return f"{self.name}({', '.join(map(str, self.args))})"
+
+    def __hash__(self):
+        return hash(self.name) + hash(self.args)
+
+
 def convertToExpr(expr: c_ast.Node) -> Expression:
     if isinstance(expr, c_ast.ID):
         return ID(expr.name)
@@ -135,5 +156,10 @@ def convertToExpr(expr: c_ast.Node) -> Expression:
         pass
     elif isinstance(expr, c_ast.Constant):
         return Constant(expr.value)
+    elif isinstance(expr, c_ast.FuncCall):
+        if expr.args is None:
+            return FuncCall(expr.name.name, [])
+        else:
+            return FuncCall(expr.name.name, expr.args)
 
     raise ValueError(f"Unknown expression type: {expr}")

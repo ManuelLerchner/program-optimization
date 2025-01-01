@@ -11,4 +11,5 @@ See the [Course Slides](https://www.cs.cit.tum.de/fileadmin/w00cfj/pl/ProgOpt/fo
 - [x] Superflous Assignments Analysis
 - [x] Constant Propagation
 - [x] Interval Analysis
+- [ ] Memory Aliasing Analysis
   

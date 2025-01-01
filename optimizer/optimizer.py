@@ -4,6 +4,7 @@ from typing import Any, List, Literal
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
 from optimizer.solver.round_robin import RoundRobinSolver
+from optimizer.solver.worklist import WorklistSolver
 from transformations.transformation import Transformation
 from util.bcolors import BColors
 
@@ -34,7 +35,7 @@ class Optimizer:
 
                 analyses.cfg = self.cfg
 
-                A, it = RoundRobinSolver(self.widen_strategy,  self.max_narrow_iterations, self.debug).solve(
+                A, it = WorklistSolver(self.widen_strategy,  self.max_narrow_iterations, self.debug).solve(
                     self.cfg, analyses,)
 
                 analyses_results[analyses] = A

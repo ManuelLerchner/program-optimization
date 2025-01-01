@@ -12,26 +12,26 @@ from cfg.parser import Parser
 
 def main():
 
-    # Optimizer(Parser('examples/available_expr.c').parse(), [
-    #     Transformation_1_1(),  Transformation_1_2(), RemoveSKIP()], debug=True).optimize()
+    Optimizer(Parser('examples/available_expr.c').parse(), [
+        Transformation_1_1(),  Transformation_1_2(), RemoveSKIP()], debug=True).optimize()
 
-    # Optimizer(Parser('examples/dead_variables.c').parse(), [
-    #     Transformation_2(), RemoveSKIP()], debug=True).optimize()
+    Optimizer(Parser('examples/dead_variables.c').parse(), [
+        Transformation_2(), RemoveSKIP()], debug=True).optimize()
 
-    # Optimizer(Parser('examples/dead_variables2.c').parse(), [
-    #     Transformation_2(), RemoveSKIP()], debug=True).optimize()
+    Optimizer(Parser('examples/dead_variables2.c').parse(), [
+        Transformation_2(), RemoveSKIP()], debug=True).optimize()
 
-    # Optimizer(Parser('examples/true_liveness.c').parse(), [
-    #     Transformation_2(), RemoveSKIP()], debug=True).optimize()
+    Optimizer(Parser('examples/true_liveness.c').parse(), [
+        Transformation_2(), RemoveSKIP()], debug=True).optimize()
 
-    # Optimizer(Parser('examples/superflous.c').parse(), [
-    #     Transformation_1_1(), Transformation_3(), Transformation_2(), RemoveSKIP()], debug=True).optimize()
+    Optimizer(Parser('examples/superflous.c').parse(), [
+        Transformation_1_1(), Transformation_3(), Transformation_2(), RemoveSKIP()], debug=True).optimize()
 
-    # Optimizer(Parser('examples/decr.c').parse(), [
-    #     Transformation_1_1(), Transformation_1_2(), Transformation_3(), Transformation_2(), RemoveSKIP()], debug=True).optimize()
+    Optimizer(Parser('examples/decr.c').parse(), [
+        Transformation_1_1(), Transformation_1_2(), Transformation_3(), Transformation_2(), RemoveSKIP()], debug=True).optimize()
 
-    # Optimizer(Parser('examples/constant_propagation.c').parse(), [
-    #     Transformation_4(), RemoveSKIP()], debug=True).optimize()
+    Optimizer(Parser('examples/constant_propagation.c').parse(), [
+        Transformation_4(), RemoveSKIP()], debug=True).optimize()
 
     Optimizer(Parser('examples/interval_analysis.c').parse(), [
         Transformation_5(widen=True), RemoveSKIP()], widen_strategy="loop_separator", max_narrow_iterations=5, debug=True).optimize()

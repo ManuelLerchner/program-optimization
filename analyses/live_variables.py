@@ -1,7 +1,7 @@
 
 from typing import Set
 
-from cfg.IMP.expression import ID, BinExpression, Expression, UnaryExpression
+from cfg.IMP.expression import ID, BinExpression, Constant, Expression, UnaryExpression
 from analyses.gen_kill_analysis import GenKill
 
 
@@ -12,8 +12,10 @@ def variables_in_expression(expr: Expression) -> Set[Expression]:
         return variables_in_expression(expr.left) | variables_in_expression(expr.right)
     elif isinstance(expr, UnaryExpression):
         return variables_in_expression(expr.expr)
-    else:
+    elif isinstance(expr, Constant):
         return set()
+
+    raise ValueError(f"Unknown expression type: {expr}")
 
 
 class LiveVariables(GenKill[Expression]):

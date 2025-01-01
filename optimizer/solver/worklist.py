@@ -7,74 +7,76 @@ from optimizer.solver.solver import Solver, sort_nodes
 from util.bcolors import BColors
 
 
-class RoundRobinSolver(Solver):
+class WorklistSolver(Solver):
 
     def __init__(self, widen_strategy: Literal['none', 'loop_separator', 'always'] = 'none', max_narrow_iterations: int = 0, debug: bool = False) -> None:
         self.widen_strategy = widen_strategy
         self.max_narrow_iterations = max_narrow_iterations
         self.debug = debug
 
-    def perform_round[T](self, analysis: Analysis[T], states: dict[CFG.Node, T], op:  Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]]) -> bool:
+    def perform_step[T](self, analysis: Analysis[T], states: dict[CFG.Node, T], op:  Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], worklist: dict[CFG.Node]
+                        ):
         lattice = analysis.lattice
 
-        changed = False
-        for node in states:
-            if (analysis.direction == 'forward' and node.is_start) or (analysis.direction == 'backward' and node.is_end):
-                continue
+        node = next(iter(worklist))
+        del worklist[node]
 
-            if analysis.direction == 'forward':
-                edges = analysis.cfg.get_incoming(node)
-            else:
-                edges = set(map(lambda e: CFG.Edge(e.dest, e.source,
-                                                   e.command), analysis.cfg.get_outgoing(node)))
+        if (analysis.direction == 'forward' and node.is_start) or (
+                analysis.direction == 'backward' and node.is_end):
+            return
 
-            fxs = [analysis.transfer(states[edge.source], edge.command)
-                   for edge in edges]
-            incoming = lattice.bot()
-            [incoming := lattice.join(fx, incoming) for fx in fxs]
+        if analysis.direction == 'forward':
+            edges = analysis.cfg.get_incoming(node)
+        else:
+            edges = set(map(lambda e: CFG.Edge(e.dest, e.source,
+                                               e.command), analysis.cfg.get_outgoing(node)))
 
-            comb_name, sq = op(node)
+        fxs = [analysis.transfer(states[edge.source], edge.command)
+               for edge in edges]
+        incoming = lattice.bot()
+        [incoming := lattice.join(fx, incoming) for fx in fxs]
 
-            new_state = sq(states[node], incoming)
+        comb_name, sq = op(node)
 
-            if not lattice.eq(new_state, states[node]):
-                if self.debug:
-                    print(f"  {BColors.BOLD}{node.name}{BColors.ENDC} {BColors.OKGREEN}{
-                          lattice.show(states[node]):<50}{BColors.ENDC}")
-                    for edge, fx in zip(edges, fxs):
-                        print(f"    {BColors.HEADER}⟵{BColors.ENDC}     {BColors.OKGREEN}{lattice.show(fx):<40}{BColors.ENDC} <--[ {BColors.OKCYAN}{
-                            str(edge.command):^15}{BColors.ENDC} ]-- {BColors.OKGREEN}{
-                            lattice.show(states[edge.source]):<40}{BColors.ENDC}  {BColors.OKBLUE}{edge.source.name}{BColors.ENDC} ")
+        new_state = sq(states[node], incoming)
 
-                    print(f"    {BColors.HEADER}⟶ {'⊔'} f([{BColors.ENDC}{BColors.ENDC}{BColors.OKBLUE}{', '.join([e.source.name for e in edges])}{BColors.ENDC}{BColors.HEADER}]){BColors.ENDC} = {BColors.OKGREEN}{
-                        lattice.show(incoming):<40}")
-
-                    print(f"    {BColors.FAIL}{comb_name} ⇒ {BColors.ENDC}{BColors.OKGREEN}{
-                        lattice.show(new_state):<50}{BColors.ENDC}")
-
-                changed = True
-                states[node] = new_state
-
-        if not changed:
+        if not lattice.eq(new_state, states[node]):
             if self.debug:
-                print(f"  {BColors.WARNING}No changes{BColors.ENDC}")
+                print(f"  {BColors.BOLD}{node.name}{BColors.ENDC} {BColors.OKGREEN}{
+                    lattice.show(states[node]):<50}{BColors.ENDC}")
+                for edge, fx in zip(edges, fxs):
+                    print(f"    {BColors.HEADER}⟵{BColors.ENDC}     {BColors.OKGREEN}{lattice.show(fx):<40}{BColors.ENDC} <--[ {BColors.OKCYAN}{
+                        str(edge.command):^15}{BColors.ENDC} ]-- {BColors.OKGREEN}{
+                        lattice.show(states[edge.source]):<40}{BColors.ENDC}  {BColors.OKBLUE}{edge.source.name}{BColors.ENDC} ")
 
-        return changed
+                print(f"    {BColors.HEADER}⟶ {'⊔'} f([{BColors.ENDC}{BColors.ENDC}{BColors.OKBLUE}{', '.join([e.source.name for e in edges])}{BColors.ENDC}{BColors.HEADER}]){BColors.ENDC} = {BColors.OKGREEN}{
+                    lattice.show(incoming):<40}")
+
+                print(f"    {BColors.FAIL}{comb_name} ⇒ {BColors.ENDC}{BColors.OKGREEN}{
+                    lattice.show(new_state):<50}{BColors.ENDC}")
+
+            states[node] = new_state
+
+            new = {e.dest: None for e in analysis.cfg.get_outgoing(node)} if analysis.direction == 'forward' else {
+                e.source: None for e in analysis.cfg.get_incoming(node)}
+
+            old = {**worklist}
+            worklist.clear()
+            worklist.update({**new, **old})
 
     def find_fixpoint[T](self, phase: str, states: dict[CFG.Node, T], analysis: Analysis[T], comb: Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], max_iter=float("inf")) -> int:
         iterations = 0
 
-        while True and iterations < max_iter:
+        worklist = dict.fromkeys(states)
+
+        while worklist and iterations < max_iter:
 
             if self.debug:
-                print(f"\n{BColors.WARNING}{phase} Round {
+                print(f"\n{BColors.WARNING}{phase} Iteration {
                       iterations+1}{BColors.ENDC}")
 
-            changed = self.perform_round(analysis, states, comb)
-            iterations += len(states)
-
-            if not changed:
-                break
+            self.perform_step(analysis, states, comb, worklist)
+            iterations += 1
 
         if self.debug and iterations > 0:
             print(f"\n{BColors.WARNING}Analysis results after {
