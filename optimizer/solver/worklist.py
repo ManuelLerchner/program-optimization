@@ -14,7 +14,7 @@ class WorklistSolver(Solver):
         self.max_narrow_iterations = max_narrow_iterations
         self.debug = debug
 
-    def perform_step[T](self, analysis: Analysis[T], states: dict[CFG.Node, T], op:  Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], worklist: dict[CFG.Node]
+    def perform_step[T](self, analysis: Analysis[T], states: dict[CFG.Node, T], op:  Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], worklist: dict[CFG.Node, None]
                         ):
         lattice = analysis.lattice
 

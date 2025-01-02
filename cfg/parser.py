@@ -3,7 +3,7 @@ from typing import Optional
 from pycparser import c_ast, c_parser
 
 from cfg.cfg import CFG
-from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
+from cfg.IMP.command import (AllocCommand, AssignmentCommand, BlockReadCommand, BlockWriteCommand, LoadsCommand, NegCommand,
                              PosCommand, SkipCommand, StoresCommand)
 from cfg.IMP.expression import convertToExpr
 from transformations.transformation_0 import Transformation_0
@@ -84,15 +84,26 @@ class Parser:
             return combine_node
 
         elif isinstance(ast_node, c_ast.Assignment):
-            command: AssignmentCommand | LoadsCommand | StoresCommand
-            if (type(ast_node.lvalue) == c_ast.ArrayRef) and ast_node.lvalue.name.name == "M":
-                command = StoresCommand(convertToExpr(
-                    ast_node.lvalue.subscript), convertToExpr(ast_node.rvalue))
-                node = self.cfg.make_stores_node()
-            elif (type(ast_node.rvalue) == c_ast.ArrayRef) and ast_node.rvalue.name.name == "M":
-                command = LoadsCommand(convertToExpr(
-                    ast_node.lvalue), convertToExpr(ast_node.rvalue.subscript))
-                node = self.cfg.make_loads_node()
+            command: AssignmentCommand | LoadsCommand | StoresCommand | BlockReadCommand | BlockWriteCommand | AllocCommand
+            if (type(ast_node.lvalue) == c_ast.ArrayRef):
+                if ast_node.lvalue.name.name == "M":
+                    command = StoresCommand(convertToExpr(
+                        ast_node.lvalue.subscript), convertToExpr(ast_node.rvalue))
+                    node = self.cfg.make_stores_node()
+                else:
+                    command = BlockWriteCommand(convertToExpr(
+                        ast_node.lvalue.name), convertToExpr(ast_node.lvalue.subscript), convertToExpr(ast_node.rvalue))
+                    node = self.cfg.make_block_write_node()
+            elif (type(ast_node.rvalue) == c_ast.ArrayRef):
+                if ast_node.rvalue.name.name == "M":
+                    command = LoadsCommand(convertToExpr(
+                        ast_node.lvalue), convertToExpr(ast_node.rvalue.subscript))
+                    node = self.cfg.make_loads_node()
+                else:
+                    command = BlockReadCommand(convertToExpr(
+                        ast_node.lvalue), convertToExpr(ast_node.rvalue.name), convertToExpr(ast_node.rvalue.subscript))
+                    node = self.cfg.make_block_read_node()
+
             else:
                 command = AssignmentCommand(convertToExpr(
                     ast_node.lvalue), convertToExpr(ast_node.rvalue))
@@ -106,14 +117,27 @@ class Parser:
             if ast_node.init is None:
                 return None
 
-            if (type(ast_node.init) == c_ast.ArrayRef) and ast_node.init.name.name == "M":
-                command = LoadsCommand(convertToExpr(
-                    c_ast.ID(ast_node.name)), convertToExpr(ast_node.init.subscript))
-                node = self.cfg.make_stores_node()
-            elif (type(ast_node.init) == c_ast.ArrayRef) and ast_node.init.name.name == "M":
-                command = StoresCommand(convertToExpr(
-                    c_ast.ID(ast_node.name)), convertToExpr(ast_node.init.subscript))
-                node = self.cfg.make_loads_node()
+            if (type(ast_node.init) == c_ast.ArrayRef):
+                if ast_node.init.name.name == "M":
+                    command = LoadsCommand(convertToExpr(
+                        c_ast.ID(ast_node.name)), convertToExpr(ast_node.init.subscript))
+                    node = self.cfg.make_stores_node()
+                else:
+                    command = BlockReadCommand(convertToExpr(
+                        c_ast.ID(ast_node.name)), convertToExpr(ast_node.init.name), convertToExpr(ast_node.init.subscript))
+                    node = self.cfg.make_block_read_node()
+            elif (type(ast_node.init) == c_ast.ArrayRef):
+                if ast_node.init.name.name == "M":
+                    command = StoresCommand(convertToExpr(
+                        c_ast.ID(ast_node.name)), convertToExpr(ast_node.init.subscript))
+                    node = self.cfg.make_loads_node()
+                else:
+                    command = BlockWriteCommand(convertToExpr(
+                        c_ast.ID(ast_node.name)), convertToExpr(ast_node.init.name), convertToExpr(ast_node.init.field))
+                    node = self.cfg.make_block_write_node()
+            elif (type(ast_node.init) == c_ast.FuncCall) and ast_node.init.name.name == "new":
+                command = AllocCommand(convertToExpr(c_ast.ID(ast_node.name)))
+                node = self.cfg.make_alloc_node()
             else:
                 command = AssignmentCommand(convertToExpr(
                     c_ast.ID(ast_node.name)), convertToExpr(ast_node.init))

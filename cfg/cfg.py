@@ -92,6 +92,9 @@ class CFG:
         self.skip_counter = 0
         self.if_counter = 0
         self.loop_counter = 0
+        self.alloc_counter = 0
+        self.block_read_counter = 0
+        self.block_write_counter = 0
 
     def make_function_nodes(self, name: str):
         self.function_counter += 1
@@ -131,6 +134,18 @@ class CFG:
         loop_exit = CFG.Node(f"loop_{self.loop_counter}_exit")
 
         return loop_entry, loop_exit
+
+    def make_alloc_node(self):
+        self.alloc_counter += 1
+        return CFG.Node(f"alloc_{self.alloc_counter}")
+
+    def make_block_read_node(self):
+        self.block_read_counter += 1
+        return CFG.Node(f"block_read_{self.block_read_counter}")
+
+    def make_block_write_node(self):
+        self.block_write_counter += 1
+        return CFG.Node(f"block_write_{self.block_write_counter}")
 
     def add_edge(self, source: Node, dest: Node, command: Command):
         edge = CFG.Edge(source, dest, command)

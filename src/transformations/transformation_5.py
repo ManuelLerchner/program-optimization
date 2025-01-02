@@ -3,11 +3,10 @@
 from typing import Any
 
 from analyses.analysis import Analysis
-from analyses.interval import (DIntervalLatticeElement, IntervalAnalysis,
-                               abstract_eval_interval)
+from analyses.interval import IntervalAnalysis, abstract_eval_interval, DIntervalLatticeElement
 from cfg.cfg import CFG
-from cfg.IMP.command import (NegCommand, PosCommand,
-                             SkipCommand)
+from cfg.IMP.command import (NegCommand,
+                             PosCommand, SkipCommand)
 from lattices.interval_lattice import IntervalLattice
 from transformations.transformation import Transformation
 

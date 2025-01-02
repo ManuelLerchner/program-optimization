@@ -38,9 +38,13 @@ def test():
     # Optimizer(Parser('examples/interval_analysis.c').parse(), [
     #     Transformation_5(widen=True), Transformation_0()], widen_strategy="loop_separator", max_narrow_iterations=5, debug=True).optimize()
 
-    Optimizer(Parser('examples/available_expr.c').parse(), [
-        Transformation_1_1(), Transformation_1_2(),
-        Transformation_0()
+    # Optimizer(Parser('examples/available_expr.c').parse(), [
+    #     Transformation_1_1(), Transformation_1_2(),
+    #     Transformation_0()
+    # ], debug=True).optimize()
+
+    Optimizer(Parser('examples/memory.c').parse(), [
+
     ], debug=True).optimize()
 
 

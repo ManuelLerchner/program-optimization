@@ -4,5 +4,5 @@ void main(int A0, int i, int j) {
   int* y = new ();
 
   x[0] = y;
-  x[1] = 7;
+  y[1] = 7;
 }

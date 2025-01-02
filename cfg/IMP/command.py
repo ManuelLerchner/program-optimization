@@ -94,3 +94,55 @@ class GotoCommand(Command):
 
     def __str__(self) -> str:
         return f"goto {self.label}"
+
+
+class AllocCommand(Command):
+    """
+    var = new()
+    """
+
+    def __init__(self, var: Expression):
+        self.var = var
+
+    def __str__(self) -> str:
+        return f"{self.var} = new()"
+
+
+class FreeCommand(Command):
+    """
+    free(var)
+    """
+
+    def __init__(self, var: Expression):
+        self.var = var
+
+    def __str__(self) -> str:
+        return f"free({self.var})"
+
+
+class BlockReadCommand(Command):
+    """
+    var = x[e]
+    """
+
+    def __init__(self, var: Expression, x: Expression, e: Expression):
+        self.var = var
+        self.x = x
+        self.e = e
+
+    def __str__(self) -> str:
+        return f"{self.var} = {self.x}[{self.e}]"
+
+
+class BlockWriteCommand(Command):
+    """
+    x[e] = var
+    """
+
+    def __init__(self, x: Expression, e: Expression, var: Expression):
+        self.x = x
+        self.e = e
+        self.var = var
+
+    def __str__(self) -> str:
+        return f"{self.x}[{self.e}] = {self.var}"

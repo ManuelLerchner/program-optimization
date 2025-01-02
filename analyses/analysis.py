@@ -20,6 +20,7 @@ class Analysis[T](ABC):
         self.use_widen = use_widen
         self.use_narrow = use_narrow
 
+    @staticmethod
     @abstractmethod
     def name() -> str:
         pass

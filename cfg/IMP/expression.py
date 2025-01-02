@@ -141,9 +141,6 @@ class MemoryExpression(Expression):
     def __repr__(self):
         return f"{self.array}[{self.expr}]"
 
-    def __eq__(self, other):
-        return self.array == other.address and self.expr == other.expr
-
     def to_short_string(self) -> str:
         return f"{self.array.to_short_string()}_{self.expr.to_short_string()}"
 

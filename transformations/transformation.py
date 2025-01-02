@@ -16,10 +16,12 @@ class Transformation(ABC):
     def transform[T](self, cfg: CFG, analyses_results: dict[Analysis[T], dict[CFG.Node, T]]) -> CFG:
         pass
 
+    @staticmethod
     @abstractmethod
     def name() -> str:
         pass
 
+    @staticmethod
     @abstractmethod
     def description() -> str:
         pass

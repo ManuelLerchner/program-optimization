@@ -104,8 +104,8 @@ class Transformation_1_1(Transformation):
                     expr, MemoryExpression(ID("M"), expr)]
 
                 # filter out expressions that are not worth storing
-                possible_expressions = {
-                    e for e in possible_expressions if AvailableExpressions.is_worthwile_storing(e)}
+                possible_expressions = [
+                    e for e in possible_expressions if AvailableExpressions.is_worthwile_storing(e)]
 
                 cfg.edges.remove(edge)
 
