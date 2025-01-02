@@ -3,7 +3,7 @@ import typing
 from typing import Dict
 
 from analyses.analysis import Analysis
-from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
+from cfg.IMP.expression import (ID, BinExpression, Constant, Expression, MemoryExpression,
                                 UnaryExpression)
 from lattices.combined_lattice import CombinedLattice
 from lattices.powerset import Powerset
@@ -50,7 +50,7 @@ class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
                 else:
                     A[expr].discard(lhs)
 
-        if isinstance(rhs, BinExpression) or isinstance(rhs, UnaryExpression):
+        if isinstance(rhs, BinExpression) or isinstance(rhs, UnaryExpression) or isinstance(rhs, MemoryExpression):
             for expr in A:
                 if expr == rhs:
                     A[expr] = typing.cast(Powerset[ID], {lhs})
@@ -60,28 +60,12 @@ class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
         return A
 
     def loads(self, lhs: Expression, rhs: Expression, A: Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:
-        if not isinstance(lhs, ID):
-            return A
-
-        for expr in A:
-
-            if isinstance(rhs, Constant):
-                A[expr].discard(lhs)
-
-            if isinstance(rhs, BinExpression) or isinstance(rhs, UnaryExpression):
-                if expr == rhs:
-                    A[expr] = typing.cast(Powerset[ID], {})
-                else:
-                    A[expr].discard(lhs)
-
-        return A
+        return self.assignment(lhs, MemoryExpression(ID("M"), rhs), A)
 
     def stores(self, lhs: Expression, rhs: Expression,  A: Dict[Expression, Powerset[ID]]) -> Dict[Expression, Powerset[ID]]:
         for expr in A:
-
-            if isinstance(rhs, BinExpression) or isinstance(rhs, UnaryExpression):
-                if expr == rhs or expr == lhs:
-                    A[expr] = typing.cast(Powerset[ID], {})
+            if type(expr) == MemoryExpression:
+                A[expr] = typing.cast(Powerset[ID], set())
 
         return A
 

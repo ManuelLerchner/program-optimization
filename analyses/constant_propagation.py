@@ -1,14 +1,17 @@
 
-from typing import Callable, DefaultDict
+from typing import Callable, DefaultDict, Dict
 
 from analyses.analysis import Analysis
-from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
+from cfg.IMP.expression import (ID, BinExpression, Constant, Expression, MemoryExpression,
                                 UnaryExpression)
+from lattices.all_variable_lattice import AllVariableLattice
+from lattices.combined_lattice import CombinedLattice
+from lattices.complete_lattice import CompleteLattice
 from lattices.d_lattice import (DLattice, DLatticeElement, IntegerLattice,
                                 IntegerLatticeElement)
 
 
-def abstract_eval(expr: Expression, A: DefaultDict[ID, IntegerLatticeElement]) -> IntegerLatticeElement:
+def abstract_eval(expr: Expression, A: DefaultDict[ID, IntegerLatticeElement], M: DefaultDict[ID, IntegerLatticeElement]) -> IntegerLatticeElement:
     if isinstance(expr, ID):
         return A[expr]
 
@@ -16,8 +19,8 @@ def abstract_eval(expr: Expression, A: DefaultDict[ID, IntegerLatticeElement]) -
         return int(expr.value)
 
     if isinstance(expr, BinExpression):
-        left = abstract_eval(expr.left, A)
-        right = abstract_eval(expr.right, A)
+        left = abstract_eval(expr.left, A, M)
+        right = abstract_eval(expr.right, A, M)
 
         if left == "⊥" or right == "⊥":
             return "⊥"
@@ -48,7 +51,7 @@ def abstract_eval(expr: Expression, A: DefaultDict[ID, IntegerLatticeElement]) -
             return 1 if left != right else 0
 
     if isinstance(expr, UnaryExpression):
-        e = abstract_eval(expr.expr, A)
+        e = abstract_eval(expr.expr, A, M)
 
         if e == "⊥":
             return "⊥"
@@ -61,57 +64,65 @@ def abstract_eval(expr: Expression, A: DefaultDict[ID, IntegerLatticeElement]) -
         if expr.op == '!':
             return 1 if e == 0 else 0
 
+    if isinstance(expr, MemoryExpression):
+        return M[ID(str(abstract_eval(expr.expr, A, M)))]
+
     raise Exception("Unknown expression")
 
 
-class ConstantPropagation(Analysis[DLatticeElement]):
-
+class ConstantPropagation(Analysis[Dict[str, CompleteLattice]]):
     def __init__(self):
         super().__init__('forward', "top")
 
     def create_lattice(self, cfg):
-        return DLattice(cfg.get_all_vars())
+        return CombinedLattice({"D": DLattice(cfg.get_all_vars()), "M": DLattice({})})
 
     @staticmethod
     def name():
         return "ConstantPropagation"
 
-    def skip(self, x: DLatticeElement) -> DLatticeElement:
+    def skip(self, x: Dict[str, CompleteLattice]) -> Dict[str, CompleteLattice]:
         return x
 
-    def assignment(self, lhs: Expression, rhs: Expression, A: DLatticeElement) -> DLatticeElement:
+    def assignment(self, lhs: Expression, rhs: Expression, P: Dict[str, CompleteLattice]) -> Dict[str, CompleteLattice]:
+        A = P["D"]
+        M = P["M"]
+
+        if A != "⊥" and isinstance(lhs, ID):
+            A.update({lhs: abstract_eval(rhs, A, M)})
+
+        return {"D": A, "M": M}
+
+    def loads(self, lhs: Expression, rhs: Expression, P: Dict[str, CompleteLattice]) -> Dict[str, CompleteLattice]:
+        A = P["D"]
+        M = P["M"]
+
+        if A != "⊥" and isinstance(lhs, ID):
+            M.update({lhs: abstract_eval(rhs, A, M)})
+
+        return {"D": A, "M": M}
+
+    def stores(self, lhs: Expression, rhs: Expression, P: Dict[str, CompleteLattice]) -> Dict[str, CompleteLattice]:
+        A = P["D"]
+        M = P["M"]
         if A == "⊥":
             return A
 
-        if not isinstance(lhs, ID):
-            return A
+        if abstract_eval(lhs, A, M) == "⊤":
+            M = DLattice({}).top()
+        else:
+            M.update({ID(str(abstract_eval(lhs, A, M))): abstract_eval(rhs, A, M)})
 
-        A.update({lhs: abstract_eval(rhs, A)})
+        return {"D": A, "M": M}
 
-        return A
+    def Pos(self, expr: Expression, P: Dict[str, CompleteLattice]) -> Dict[str, CompleteLattice]:
+        A = P["D"]
+        M = P["M"]
 
-    def loads(self, lhs: Expression, rhs: Expression, A: DLatticeElement) -> DLatticeElement:
         if A == "⊥":
             return A
 
-        if not isinstance(lhs, ID):
-            return A
-
-        A.update({lhs: "⊤"})
-
-        return A
-
-    def stores(self, lhs: Expression, rhs: Expression, A: DLatticeElement) -> DLatticeElement:
-        if A == "⊥":
-            return A
-
-        return A
-
-    def Pos(self, expr: Expression, A: DLatticeElement) -> DLatticeElement:
-        if A == "⊥":
-            return A
-
-        v = abstract_eval(expr, A)
+        v = abstract_eval(expr, A, M)
 
         if v == 0:
             return "⊥"
@@ -120,23 +131,26 @@ class ConstantPropagation(Analysis[DLatticeElement]):
         else:
             if type(expr) == BinExpression and expr.op == '==':
                 A.update({expr.left: IntegerLattice.meet(
-                    A[expr.left], abstract_eval(expr.right, A))})
+                    A[expr.left], abstract_eval(expr.right, A, M))})
 
             return A
 
-    def Neg(self, expr: Expression, A: DLatticeElement) -> DLatticeElement:
+    def Neg(self, expr: Expression, P: Dict[str, CompleteLattice]) -> Dict[str, CompleteLattice]:
+        A = P["D"]
+        M = P["M"]
+
         if A == "⊥":
-            return A
+            return {"D": A, "M": M}
 
-        v = abstract_eval(expr, A)
+        v = abstract_eval(expr, A, M)
 
         if v == 0:
-            return A
+            return {"D": A, "M": M}
         elif v == 1:
-            return "⊥"
+            return {"D": "⊥", "M": M}
         else:
             if type(expr) == BinExpression and expr.op == '!=':
                 A.update({expr.left: IntegerLattice.meet(
-                    A[expr.left], abstract_eval(expr.right, A))})
+                    A[expr.left], abstract_eval(expr.right, A, M))})
 
-            return A
+            return {"D": A, "M": M}

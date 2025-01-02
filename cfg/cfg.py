@@ -9,7 +9,7 @@ from collections import OrderedDict
 from cfg.IMP.command import (AssignmentCommand, Command, LoadsCommand,
                              NegCommand, PosCommand, SkipCommand,
                              StoresCommand)
-from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
+from cfg.IMP.expression import (ID, BinExpression, Constant, Expression, MemoryExpression,
                                 UnaryExpression)
 
 if TYPE_CHECKING:
@@ -25,6 +25,8 @@ def get_vars(expression: Expression) -> Set[ID]:
         return get_vars(expression.left) | get_vars(expression.right)
     if isinstance(expression, UnaryExpression):
         return get_vars(expression.expr)
+    if isinstance(expression, MemoryExpression):
+        return get_vars(expression.expr) | get_vars(expression.array)
 
     raise Exception("Unknown expression")
 
@@ -35,7 +37,7 @@ def get_expressions_command(expr: Command) -> Set[Expression]:
     elif isinstance(expr, AssignmentCommand):
         return {expr.expr, expr.lvalue}
     elif isinstance(expr, LoadsCommand):
-        return {expr.expr, expr.var}
+        return {expr.expr, expr.var, MemoryExpression(ID("M"), expr.expr)}
     elif isinstance(expr, StoresCommand):
         return {expr.lhs, expr.rhs}
     elif isinstance(expr, PosCommand):

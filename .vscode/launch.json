@@ -9,7 +9,7 @@
             "name": "Python: Test",
             "type": "debugpy",
             "request": "launch",
-            "program": "test.py",
+            "program": "main.py",
             "console": "integratedTerminal"
         }
     ]

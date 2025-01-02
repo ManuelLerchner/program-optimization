@@ -1,24 +1,16 @@
 int M[];
 int x;
 int y;
+int A;
 
 void main(int A0) {
-  if (x == 7) {
-    y = x + 3;
-  }
+  int x = 23;
+  int y = 42;
+  int u = 42;
 
-  if (y == 10) {
-    int z = 3 + y;
+  M[u] = x * y;
 
-    M[0] = 1;
-  }
+  int z = M[u] + 1;
 
-  int a = 23;
-  int b = 42;
-
-  int c = a * b;
-
-  if (c == 966) {
-    M[1] = 2;
-  }
+  M[u] = z;
 }

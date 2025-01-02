@@ -2,11 +2,11 @@
 
 from typing import Any
 
-from analyses.available_expr import AvailableExpressions
 from analyses.analysis import Analysis
+from analyses.available_expr import AvailableExpressions
 from cfg.cfg import CFG
-from cfg.IMP.command import AssignmentCommand, SkipCommand
-from cfg.IMP.expression import Expression
+from cfg.IMP.command import AssignmentCommand, LoadsCommand, SkipCommand
+from cfg.IMP.expression import ID, Expression, MemoryExpression
 from lattices.powerset import Powerset
 from transformations.transformation import Transformation
 
@@ -44,6 +44,13 @@ class Transformation_1_2(Transformation):
                 expr = edge.command.expr
 
                 if expr in A[U]:
+                    edge.command = SkipCommand()
+
+            if type(edge.command) == LoadsCommand:
+                U = edge.source
+                expr = edge.command.expr
+
+                if MemoryExpression(ID("M"), expr) in A[U]:
                     edge.command = SkipCommand()
 
         return cfg

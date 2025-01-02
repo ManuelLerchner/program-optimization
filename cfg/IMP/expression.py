@@ -80,6 +80,9 @@ class UnaryExpression(Expression):
         return f"{self.op} {self.expr}"
 
     def __eq__(self, other):
+        if not isinstance(other, UnaryExpression):
+            return False
+
         return self.op == other.op and self.expr == other.expr
 
     def to_short_string(self) -> str:
@@ -121,7 +124,37 @@ class BinExpression(Expression):
         return f"{self.left.to_short_string()}{op_to_shortstring(self.op)}{self.right.to_short_string()}"
 
     def __eq__(self, other):
+        if not isinstance(other, BinExpression):
+            return False
+
         return self.left == other.left and self.op == other.op and self.right == other.right
+
+
+@dataclass
+class MemoryExpression(Expression):
+    array: c_ast.Node
+    expr: c_ast.Node
+
+    def __str__(self):
+        return f"{self.array}[{self.expr}]"
+
+    def __repr__(self):
+        return f"{self.array}[{self.expr}]"
+
+    def __eq__(self, other):
+        return self.array == other.address and self.expr == other.expr
+
+    def to_short_string(self) -> str:
+        return f"{self.array.to_short_string()}_{self.expr.to_short_string()}"
+
+    def __hash__(self):
+        return hash(self.array) + hash(self.expr)
+
+    def __eq__(self, other):
+        if not isinstance(other, MemoryExpression):
+            return False
+
+        return self.array == other.array and self.expr == other.expr
 
 
 @dataclass
@@ -161,5 +194,7 @@ def convertToExpr(expr: c_ast.Node) -> Expression:
             return FuncCall(expr.name.name, [])
         else:
             return FuncCall(expr.name.name, expr.args)
+    elif isinstance(expr, c_ast.ArrayRef):
+        return MemoryExpression(convertToExpr(expr.name), convertToExpr(expr.subscript))
 
     raise ValueError(f"Unknown expression type: {expr}")

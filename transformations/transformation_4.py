@@ -1,12 +1,12 @@
 
 
-from typing import Any
+from typing import Any, Dict
 
 from analyses.constant_propagation import ConstantPropagation, abstract_eval
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from cfg.IMP.command import (AssignmentCommand, NegCommand,
-                             PosCommand, SkipCommand)
+from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
+                             PosCommand, SkipCommand, StoresCommand)
 from cfg.IMP.expression import Constant
 from lattices.d_lattice import DLatticeElement, IntegerLattice
 from transformations.transformation import Transformation
@@ -33,10 +33,11 @@ class Transformation_4(Transformation):
         bot -> delete[node]
         """
 
-        D: dict[CFG.Node, DLatticeElement] = analyses_results[self.CP]
+        P: dict[CFG.Node,
+                Dict[str, DLatticeElement]] = analyses_results[self.CP]
 
         for node in cfg.get_nodes():
-            if D[node] == '⊥':
+            if P[node]["D"] == '⊥':
                 incoming_edges = cfg.get_incoming(node)
                 outgoing_edges = cfg.get_outgoing(node)
 
@@ -47,38 +48,61 @@ class Transformation_4(Transformation):
         for edge in edge_copy:
             U = edge.source
 
-            abstact_state = D[U]
+            D, M = P[U]["D"], P[U]["M"]
 
-            if abstact_state == '⊥':
+            if D == '⊥':
                 continue
 
             if type(edge.command) == PosCommand:
                 expr = edge.command.expr
 
-                if not IntegerLattice.leq(0, abstract_eval(expr, abstact_state)):
+                if not IntegerLattice.leq(0, abstract_eval(expr, D, M)):
                     edge.command = SkipCommand()
 
-                if IntegerLattice.eq(0, abstract_eval(expr, abstact_state)):
+                if IntegerLattice.eq(0, abstract_eval(expr, D, M)):
                     cfg.edges.remove(edge)
 
             elif type(edge.command) == NegCommand:
                 expr = edge.command.expr
 
-                if IntegerLattice.eq(0, abstract_eval(expr, abstact_state)):
+                if IntegerLattice.eq(0, abstract_eval(expr, D, M)):
                     edge.command = SkipCommand()
 
-                if not IntegerLattice.leq(0, abstract_eval(expr, abstact_state)):
+                if not IntegerLattice.leq(0, abstract_eval(expr, D, M)):
                     cfg.edges.remove(edge)
 
             elif type(edge.command) == AssignmentCommand:
                 rhs = edge.command.expr
 
-                simplified_rhs = abstract_eval(rhs, abstact_state)
+                simplified_rhs = abstract_eval(rhs, D, M)
 
                 if simplified_rhs == '⊤' or simplified_rhs == '⊥':
                     continue
 
                 edge.command = AssignmentCommand(
                     edge.command.lvalue, Constant(simplified_rhs))
+
+            elif type(edge.command) == LoadsCommand:
+                lhs = edge.command.var
+                rhs = edge.command.expr
+
+                simplified_rhs = abstract_eval(rhs, D, M)
+
+                if simplified_rhs != '⊤' and simplified_rhs != '⊥':
+                    edge.command = AssignmentCommand(
+                        lhs, Constant(simplified_rhs))
+
+            elif type(edge.command) == StoresCommand:
+                lhs = edge.command.lhs
+                rhs = edge.command.rhs
+
+                simplified_rhs = abstract_eval(rhs, D, M)
+                simplified_lhs = abstract_eval(lhs, D, M)
+
+                if simplified_lhs != '⊤' and simplified_lhs != '⊥':
+                    edge.command.lhs = Constant(simplified_lhs)
+
+                if simplified_rhs != '⊤' and simplified_rhs != '⊥':
+                    edge.command.rhs = Constant(simplified_rhs)
 
         return cfg

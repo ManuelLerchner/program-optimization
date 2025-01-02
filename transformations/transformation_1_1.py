@@ -7,8 +7,8 @@ from analyses.analysis import Analysis
 from analyses.available_expr import AvailableExpressions
 from cfg.cfg import CFG
 from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
-                             PosCommand, StoresCommand)
-from cfg.IMP.expression import ID, Expression
+                             PosCommand, SkipCommand, StoresCommand)
+from cfg.IMP.expression import ID, Expression, MemoryExpression
 from transformations.transformation import Transformation
 
 
@@ -33,6 +33,7 @@ class Transformation_1_1(Transformation):
         """
         Transformation 1.1
         x = e  -->  T_e=e; x = T_e
+        x = M[e]  -->  T_e=e; x = M[T_e]
 
         branch(expr) --> T_e = expr; branch(T_e)
 
@@ -42,7 +43,7 @@ class Transformation_1_1(Transformation):
 
         for edge in edge_copy:
 
-            ass1: Any = None
+            ass: Any = None
             ass2: Any = None
 
             if type(edge.command) == AssignmentCommand:
@@ -55,11 +56,11 @@ class Transformation_1_1(Transformation):
                     continue
                 T_e = Transformation_1_1.introduce_register(expr)
 
-                ass1 = AssignmentCommand(T_e, expr)
+                ass = AssignmentCommand(T_e, expr)
                 ass2 = AssignmentCommand(lval, T_e)
 
                 edge.dest = cfg.make_stmt_node()
-                edge.command = ass1
+                edge.command = ass
 
                 cfg.add_edge(edge.dest, V, ass2)
 
@@ -72,7 +73,7 @@ class Transformation_1_1(Transformation):
                 if not AvailableExpressions.is_worthwile_storing(expr):
                     continue
 
-                ass1 = AssignmentCommand(T_e, expr)
+                ass = AssignmentCommand(T_e, expr)
 
                 M = cfg.make_stmt_node()
 
@@ -85,7 +86,7 @@ class Transformation_1_1(Transformation):
                         neg_edge = edge
 
                 if pos_edge:
-                    pos_edge.command = ass1
+                    pos_edge.command = ass
                     pos_edge.dest = M
                     cfg.add_edge(M, V, PosCommand(T_e))
 
@@ -99,18 +100,29 @@ class Transformation_1_1(Transformation):
                 lval = edge.command.var
                 expr = edge.command.expr
 
-                if not AvailableExpressions.is_worthwile_storing(expr):
-                    continue
+                possible_expressions = [
+                    expr, MemoryExpression(ID("M"), expr)]
 
-                T_e = Transformation_1_1.introduce_register(expr)
+                # filter out expressions that are not worth storing
+                possible_expressions = {
+                    e for e in possible_expressions if AvailableExpressions.is_worthwile_storing(e)}
 
-                ass1 = AssignmentCommand(T_e, expr)
-                ass2 = LoadsCommand(lval, T_e)
+                cfg.edges.remove(edge)
 
-                edge.dest = cfg.make_stmt_node()
-                edge.command = ass1
+                source = U
+                target = cfg.make_stmt_node()
+                for expr in possible_expressions:
+                    T_e = Transformation_1_1.introduce_register(expr)
 
-                cfg.add_edge(edge.dest, V, ass2)
+                    ass = LoadsCommand(T_e, expr.expr) if type(
+                        expr) == MemoryExpression else AssignmentCommand(T_e, expr)
+
+                    cfg.add_edge(source, target, ass)
+                    source = target
+                    target = cfg.make_stmt_node()
+
+                cfg.add_edge(source, V,
+                             AssignmentCommand(lval, T_e))
 
             elif type(edge.command) == StoresCommand:
                 U = edge.source

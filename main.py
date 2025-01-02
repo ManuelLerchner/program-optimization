@@ -1,80 +1,48 @@
 import argparse
-
-import argcomplete
-
-from analyses.analysis import Analysis
 from cfg.parser import Parser
 from optimizer.optimizer import Optimizer
-from transformations import Transformation, Transformation_Blank
-
-available_transformations: dict[str, Transformation] = {
-    x.name(): x for x in Transformation.__subclasses__()}
-
-available_analyses: dict[str, Transformation] = {
-    x.name(): x for x in Analysis.__subclasses__()}
-
-
-parser = argparse.ArgumentParser(
-    prog="Program Optimization",
-    description="Optimize IMP programs using various transformations",
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-)
+from transformations.transformation import Transformation
+from transformations.transformation_0 import Transformation_0
+from transformations.transformation_5 import Transformation_5
+from transformations.transformation_4 import Transformation_4
+from transformations.transformation_3 import Transformation_3
+from transformations.transformation_2 import Transformation_2
+from transformations.transformation_1_2 import Transformation_1_2
+from transformations.transformation_1_1 import Transformation_1_1
+from cfg.parser import Parser
 
 
-parser.add_argument(
-    "--file",
-    type=str,
-    required=True,
-    help="Input file to optimize",
-)
-parser.add_argument(
-    "--output",
-    type=str,
-    required=False,
-    help="Output folder to store the optimized files",
-)
+def test():
 
-parser.add_argument(
-    "--debug",
-    default=True,
-    action="store_true",
-    help="Enable debug mode",
-)
-parser.add_argument(
-    "--widen_strategy",
-    type=str,
-    default="none",
-    choices=["none", "loop_separator", "always"],
-    help="Widening strategy to use",
-)
-parser.add_argument(
-    "--max_narrow_iterations",
-    type=int,
-    default=5,
-    help="Maximum number of narrow iterations",
-)
+    # Optimizer(Parser('examples/available_expr.c').parse(), [
+    #     Transformation_1_1(),  Transformation_1_2(), Transformation_0()], debug=True).optimize()
 
-parser.add_argument(
-    "--t",
-    type=str,
-    nargs="+",
-    choices=[name for name in sorted(
-        available_transformations.keys() | available_analyses.keys())],
-    help="Transformations or analyses to run",
-)
+    # Optimizer(Parser('examples/dead_variables.c').parse(), [
+    #     Transformation_2(), Transformation_0()], debug=True).optimize()
+
+    # Optimizer(Parser('examples/dead_variables2.c').parse(), [
+    #     Transformation_2(), Transformation_0()], debug=True).optimize()
+
+    # Optimizer(Parser('examples/true_liveness.c').parse(), [
+    #     Transformation_2(), Transformation_0()], debug=True).optimize()
+
+    # Optimizer(Parser('examples/superflous.c').parse(), [
+    #     Transformation_1_1(), Transformation_3(), Transformation_2(), Transformation_0()], debug=True).optimize()
+
+    # Optimizer(Parser('examples/decr.c').parse(), [
+    #     Transformation_1_1(), Transformation_1_2(), Transformation_3(), Transformation_2(), Transformation_0()], debug=True).optimize()
+
+    # Optimizer(Parser('examples/constant_propagation.c').parse(), [
+    #     Transformation_4(), Transformation_0()], debug=True).optimize()
+
+    # Optimizer(Parser('examples/interval_analysis.c').parse(), [
+    #     Transformation_5(widen=True), Transformation_0()], widen_strategy="loop_separator", max_narrow_iterations=5, debug=True).optimize()
+
+    Optimizer(Parser('examples/available_expr.c').parse(), [
+        Transformation_1_1(), Transformation_1_2(),
+        Transformation_0()
+    ], debug=True).optimize()
 
 
-argcomplete.autocomplete(parser)
-
-if __name__ == '__main__':
-    args = parser.parse_args()
-
-    trs: list[Transformation] = [
-        available_transformations[name]() if name in available_transformations
-        else Transformation_Blank(available_analyses[name]()) for name in args.t
-    ]
-
-    cfg = Parser(args.file).parse()
-
-    Optimizer(cfg, trs, args.output, args.widen_strategy,
-              args.max_narrow_iterations, args.debug).optimize()
+if __name__ == "__main__":
+    test()
