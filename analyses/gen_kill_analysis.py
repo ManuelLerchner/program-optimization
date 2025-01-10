@@ -5,7 +5,7 @@ from typing import Literal, Set, final
 
 from analyses.analysis import Analysis
 from cfg.IMP.expression import Expression
-from lattices.powerset import FlippedPowerset, Powerset
+from lattices.powerset import Powerset
 
 
 class GenKill[T](Analysis[Set[T]]):

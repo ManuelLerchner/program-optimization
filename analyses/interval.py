@@ -10,6 +10,8 @@ from lattices.interval_lattice import (DIntervalLattice,
 
 
 def binary_interval_arithmetic(op: str, a: Interval, b: Interval) -> Interval:
+    if a == "⊥" or b == "⊥":
+        return "⊥"
 
     l1, u1 = (a)
     l2, u2 = (b)
@@ -71,6 +73,9 @@ def binary_interval_arithmetic(op: str, a: Interval, b: Interval) -> Interval:
 
 
 def unary_interval_arithmetic(op: str, a: Interval) -> Interval:
+    if a == "⊥":
+        return "⊥"
+
     l, u = (a)
 
     if op == '-':
@@ -159,21 +164,25 @@ class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
                 var, new_op, subexpr = (expr.left, expr.op, expr.right) if isinstance(
                     expr.left, ID) else (expr.right, BinExpression.flip_op(expr.op), expr.left)
 
+                sub_expr_interval = abstract_eval_interval(subexpr, A)
+
+                assert sub_expr_interval != "⊥"
+
                 if new_op == '==':
                     A.update({var: IntervalLattice.meet(
-                        A[var], abstract_eval_interval(subexpr, A))})
+                        A[var], sub_expr_interval)})
                 elif new_op == '<=':
                     A.update({var: IntervalLattice.meet(
-                        A[var], (float("-inf"), abstract_eval_interval(subexpr, A)[1]))})
+                        A[var], (float("-inf"), sub_expr_interval[1]))})
                 elif new_op == '<':
                     A.update({var: IntervalLattice.meet(
-                        A[var], (float("-inf"), abstract_eval_interval(subexpr, A)[1] - 1))})
+                        A[var], (float("-inf"), sub_expr_interval[1] - 1))})
                 elif new_op == '>=':
                     A.update({var: IntervalLattice.meet(
-                        A[var], (abstract_eval_interval(subexpr, A)[0], float("inf")))})
+                        A[var], (sub_expr_interval[0], float("inf")))})
                 elif new_op == '>':
                     A.update({var: IntervalLattice.meet(
-                        A[var], (abstract_eval_interval(subexpr, A)[0], float("inf") - 1))})
+                        A[var], (sub_expr_interval[0], float("inf") - 1))})
 
             return A
 
@@ -190,20 +199,24 @@ class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
                 var, new_op, subexpr = (expr.left, expr.op, expr.right) if isinstance(
                     expr.left, ID) else (expr.right, BinExpression.flip_op(expr.op), expr.left)
 
+                sub_expr_interval = abstract_eval_interval(subexpr, A)
+
+                assert sub_expr_interval != "⊥"
+
                 if new_op == '!=':
                     A.update({var: IntervalLattice.meet(
-                        A[var], abstract_eval_interval(subexpr, A))})
+                        A[var], sub_expr_interval)})
                 elif new_op == '>=':
                     A.update({var: IntervalLattice.meet(
-                        A[var], (abstract_eval_interval(subexpr, A)[0] - 1, float("inf")))})
+                        A[var], (float("-inf"), sub_expr_interval[1]-1))})
                 elif new_op == '>':
                     A.update({var: IntervalLattice.meet(
-                        A[var], (float("-inf"), abstract_eval_interval(subexpr, A)[0]))})
+                        A[var], (float("-inf"), sub_expr_interval[1]))})
                 elif new_op == '<=':
                     A.update({var: IntervalLattice.meet(
-                        A[var], (abstract_eval_interval(subexpr, A)[1], float("inf")))})
+                        A[var], (sub_expr_interval[1]-1, float("inf")))})
                 elif new_op == '<':
                     A.update({var: IntervalLattice.meet(
-                        A[var], (abstract_eval_interval(subexpr, A)[0], float("inf")))})
+                        A[var], (sub_expr_interval[0], float("inf")))})
 
             return A

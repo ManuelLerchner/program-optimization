@@ -3,7 +3,7 @@ from typing import Set
 
 from cfg.IMP.expression import ID, BinExpression, Constant, Expression, UnaryExpression, MemoryExpression
 from analyses.gen_kill_analysis import GenKill
-from lattices.powerset import FlippedPowerset, Powerset
+from lattices.powerset import FlippedPowerset
 
 
 def variables_in_expression(expr: Expression) -> Set[Expression]:

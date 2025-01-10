@@ -1,11 +1,13 @@
 
 from typing import Set
+import typing
 
 from analyses.analysis import Analysis
 from analyses.live_variables import variables_in_expression
 from cfg.IMP.expression import ID, BinExpression, Constant, Expression, UnaryExpression
 from analyses.gen_kill_analysis import GenKill
 from cfg.cfg import CFG
+from lattices.complete_lattice import CompleteLattice
 from lattices.powerset import FlippedPowerset, Powerset
 
 
@@ -18,8 +20,9 @@ class VeryBusyAnalysis(Analysis[FlippedPowerset[Expression]]):
     def name():
         return "VeryBusy"
 
-    def create_lattice(self, cfg: CFG) -> Powerset[Expression]:
-        return FlippedPowerset[Expression](cfg.get_all_expressions())
+    def create_lattice(self, cfg: CFG) -> CompleteLattice[FlippedPowerset[Expression]]:
+        return typing.cast(CompleteLattice[FlippedPowerset[Expression]],
+                           FlippedPowerset[Expression](cfg.get_all_expressions()))
 
     def start_node(self) -> FlippedPowerset[Expression]:
         return self.lattice.top()

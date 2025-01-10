@@ -29,6 +29,11 @@ class IntervalLattice(CompleteLattice[Interval]):
 
     @ staticmethod
     def widen(a: Interval, b: Interval) -> Interval:
+        if a == "⊥":
+            return b
+        if b == "⊥":
+            return a
+
         l1, u1 = a
         l2, u2 = b
 

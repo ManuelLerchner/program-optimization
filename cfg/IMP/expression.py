@@ -11,7 +11,7 @@ class Expression(ABC):
         pass
 
     @abstractmethod
-    def is_worthwile_storing() -> bool:
+    def is_worthwile_storing(self) -> bool:
         pass
 
 
