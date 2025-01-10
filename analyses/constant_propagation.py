@@ -4,6 +4,7 @@ from typing import DefaultDict, Dict
 from analyses.analysis import Analysis
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
                                 MemoryExpression, UnaryExpression)
+from cfg.cfg import CFG
 from lattices.combined_lattice import CombinedLattice
 from lattices.d_lattice import (DLattice, DLatticeElement, IntegerLattice,
                                 IntegerLatticeElement)
@@ -75,7 +76,7 @@ class ConstantPropagation(Analysis[Dict[str, DLatticeElement]]):
     def create_lattice(self, cfg):
         return CombinedLattice({"D": DLattice(cfg.get_all_vars()), "M": DLattice({})})
 
-    def start_node(self):
+    def start_node(self, cfg: CFG):
         return self.lattice.top()
 
     @staticmethod

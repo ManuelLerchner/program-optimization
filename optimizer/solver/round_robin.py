@@ -28,7 +28,7 @@ class RoundRobinSolver(Solver):
                 edges = set(map(lambda e: CFG.Edge(e.dest, e.source,
                                                    e.command), analysis.cfg.get_outgoing(node)))
 
-            fxs = [analysis.transfer(states[edge.source], edge.command)
+            fxs = [analysis.transfer(states[edge.source], edge.source, edge.command, edge.dest)
                    for edge in edges]
             incoming = lattice.bot()
             [incoming := lattice.join(fx, incoming) for fx in fxs]

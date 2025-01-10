@@ -4,6 +4,7 @@ from typing import Set
 from analyses.live_variables import variables_in_expression
 from cfg.IMP.expression import ID, Expression
 from analyses.gen_kill_analysis import GenKill
+from cfg.cfg import CFG
 from lattices.powerset import Powerset
 
 
@@ -21,7 +22,7 @@ class TrueLiveVariables(GenKill[Expression]):
         filtered = set([x for x in expr if type(x) == ID])
         return Powerset[Expression](filtered)
 
-    def start_node(self):
+    def start_node(self, cfg: CFG):
         return self.lattice.bot()
 
     def gen_kill_skip(self, A) -> tuple[Set[Expression], Set[Expression]]:

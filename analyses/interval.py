@@ -1,9 +1,10 @@
 
 from typing import DefaultDict
 
-from analyses.analysis import Analysis
+from analyses.analysis import Analysis, NodeInsensitiveAnalysis
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
                                 UnaryExpression)
+from cfg.cfg import CFG
 from lattices.interval_lattice import (DIntervalLattice,
                                        DIntervalLatticeElement, Interval,
                                        IntervalLattice)
@@ -109,7 +110,7 @@ def abstract_eval_interval(expr: Expression, A: DefaultDict[ID, Interval]) -> In
     raise Exception("Unknown expression")
 
 
-class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
+class IntervalAnalysis(NodeInsensitiveAnalysis[DIntervalLatticeElement]):
 
     def __init__(self, widen: bool) -> None:
         super().__init__('forward', "may", use_widen=True, use_narrow=True)
@@ -118,7 +119,7 @@ class IntervalAnalysis(Analysis[DIntervalLatticeElement]):
     def create_lattice(self, cfg):
         return DIntervalLattice(cfg.get_all_vars())
 
-    def start_node(self):
+    def start_node(self, cfg: CFG):
         return self.lattice.top()
 
     @staticmethod

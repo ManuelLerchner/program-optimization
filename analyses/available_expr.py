@@ -1,8 +1,9 @@
 from typing import Set
 
-from analyses.analysis import Analysis
+from analyses.analysis import Analysis, NodeInsensitiveAnalysis
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression, MemoryExpression,
                                 UnaryExpression)
+from cfg.cfg import CFG
 from lattices.powerset import Powerset
 
 
@@ -21,7 +22,7 @@ def check_occurence(expr: Expression, lvalue: Expression):
     raise Exception("Unknown expression" + str(expr) + str(type(expr)))
 
 
-class AvailableExpressions(Analysis[Set[Expression]]):
+class AvailableExpressions(NodeInsensitiveAnalysis[Set[Expression]]):
 
     def __init__(self):
         super().__init__('forward', 'bot')
@@ -35,7 +36,7 @@ class AvailableExpressions(Analysis[Set[Expression]]):
         filtered = set([x for x in expr if x.is_worthwile_storing()])
         return Powerset[Expression](filtered)
 
-    def start_node(self):
+    def start_node(self, cfg: CFG):
         return self.lattice.bot()
 
     def skip(self, x: Set[Expression]) -> Set[Expression]:

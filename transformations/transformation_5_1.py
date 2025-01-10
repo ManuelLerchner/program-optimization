@@ -56,7 +56,7 @@ class Transformation_5_1(Transformation):
             save = A[u] | B[u]
 
             not_available = B[v] - \
-                self.AA.transfer(save, edge.command)
+                self.AA.transfer(save, edge.source, edge.command, edge.dest)
 
             if len(not_available) == 0:
                 continue

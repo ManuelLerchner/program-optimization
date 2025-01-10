@@ -5,6 +5,7 @@ from typing import Dict
 from analyses.analysis import Analysis
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression, MemoryExpression,
                                 UnaryExpression)
+from cfg.cfg import CFG
 from lattices.combined_lattice import CombinedLattice
 from lattices.powerset import Powerset
 
@@ -22,7 +23,7 @@ class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
         return CombinedLattice[Expression, Powerset[ID]](
             {expr: Powerset[ID](set(ids)) for expr in exprs})
 
-    def start_node(self):
+    def start_node(self, cfg: CFG):
         return self.lattice.bot()
 
     @staticmethod
