@@ -1,7 +1,7 @@
 
 from typing import DefaultDict, Dict
 
-from analyses.analysis import Analysis
+from analyses.analysis import Analysis, NodeInsensitiveAnalysis
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
                                 MemoryExpression, UnaryExpression)
 from cfg.cfg import CFG
@@ -69,7 +69,7 @@ def abstract_eval_expr(expr: Expression, A: DefaultDict[ID, IntegerLatticeElemen
     raise Exception("Unknown expression")
 
 
-class ConstantPropagation(Analysis[Dict[str, DLatticeElement]]):
+class ConstantPropagation(NodeInsensitiveAnalysis[Dict[str, DLatticeElement]]):
     def __init__(self):
         super().__init__('forward', "top")
 

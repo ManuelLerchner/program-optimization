@@ -2,7 +2,7 @@
 import typing
 from typing import Dict
 
-from analyses.analysis import Analysis
+from analyses.analysis import Analysis, NodeInsensitiveAnalysis
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression, MemoryExpression,
                                 UnaryExpression)
 from cfg.cfg import CFG
@@ -10,7 +10,7 @@ from lattices.combined_lattice import CombinedLattice
 from lattices.powerset import Powerset
 
 
-class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
+class ExprStores(NodeInsensitiveAnalysis[Dict[Expression, Powerset[ID]]]):
 
     def __init__(self):
         super().__init__('forward', 'bot')

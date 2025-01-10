@@ -3,12 +3,12 @@ from abc import abstractmethod
 from typing import Literal, Set, final
 
 
-from analyses.analysis import Analysis
+from analyses.analysis import Analysis, NodeInsensitiveAnalysis
 from cfg.IMP.expression import Expression
 from lattices.powerset import Powerset
 
 
-class GenKill[T](Analysis[Set[T]]):
+class GenKill[T](NodeInsensitiveAnalysis[Set[T]]):
 
     def __init__(self,  direction: Literal['forward', 'backward'],
                  type: Literal["may", "must"]):
