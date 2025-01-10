@@ -23,7 +23,11 @@ class TrueLiveVariables(GenKill[Expression]):
         return Powerset[Expression](filtered)
 
     def start_node(self, cfg: CFG):
-        return self.lattice.bot()
+        expr = cfg.get_all_expressions()
+        if any([type(x) == ID and x.name == "result" for x in expr]):
+            return {(ID("result"))}
+        else:
+            return set()
 
     def gen_kill_skip(self, A) -> tuple[Set[Expression], Set[Expression]]:
         return set(), set()

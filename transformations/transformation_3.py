@@ -42,6 +42,7 @@ class Transformation_3(Transformation):
         def substitute(node, var):
             if hasattr(var, 'is_register'):
                 return var
+
             for expr in V[node]:
                 if var in V[node][expr]:
                     # check if attribute is a register

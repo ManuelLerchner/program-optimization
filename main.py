@@ -12,6 +12,12 @@ from transformations.transformation_5_1 import Transformation_5_1
 from transformations.transformation_5_2 import Transformation_5_2
 from transformations.transformation_6 import Transformation_6
 
+fullPipeline = [
+    Transformation_4(), Transformation_5_0(), Transformation_6(), Transformation_1_1(), Transformation_1_2(
+    ), Transformation_3(), Transformation_2(), Transformation_5_1(), Transformation_5_2(), Transformation_3(), Transformation_2(),
+    Transformation_0()
+]
+
 
 def test():
 
@@ -54,13 +60,10 @@ def test():
         Transformation_6(),
     ], debug=True).optimize()
 
-    fullPipeline = [
-        Transformation_4(), Transformation_5_0(), Transformation_6(), Transformation_1_1(), Transformation_1_2(
-        ), Transformation_3(), Transformation_2(), Transformation_5_1(), Transformation_5_2(), Transformation_3(), Transformation_2(),
-        Transformation_0()
-    ]
-
     Optimizer(Parser('examples/big_program.c').parse(),
+              fullPipeline, debug=True).optimize()
+
+    Optimizer(Parser('examples/factorial.c').parse(),
               fullPipeline, debug=True).optimize()
 
 

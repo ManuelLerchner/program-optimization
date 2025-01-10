@@ -197,7 +197,7 @@ class CFG:
 
             sorted_nodes.append(current_node)
 
-            for e in self.get_outgoing(current_node):
+            for e in sorted(self.get_outgoing(current_node), key=lambda x: str(x.dest)):
                 dfs_node(e.dest)
 
         for node in self.get_nodes():
@@ -217,7 +217,7 @@ class CFG:
 
             visited_nodes.add(current_node)
 
-            for e in self.get_outgoing(current_node):
+            for e in sorted(self.get_outgoing(current_node), key=lambda x: str(x.dest)):
                 dfs_node(e.dest)
                 sorted_edges.append(e)
 
