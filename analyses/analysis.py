@@ -12,9 +12,9 @@ from lattices.complete_lattice import CompleteLattice
 
 class Analysis[T](ABC):
 
-    def __init__(self, direction: Literal['forward', 'backward'], start: Literal['top', 'bot'], use_widen: bool = False, use_narrow: bool = False) -> None:
+    def __init__(self, direction: Literal['forward', 'backward'], type: Literal['may', 'must'], use_widen: bool = False, use_narrow: bool = False) -> None:
         self.direction = direction
-        self.start = start
+        self.type = type
         self.cfg: CFG
         self.lattice: CompleteLattice[T]
         self.use_widen = use_widen
@@ -27,6 +27,10 @@ class Analysis[T](ABC):
 
     @abstractmethod
     def create_lattice(self, cfg: CFG) -> CompleteLattice[T]:
+        pass
+
+    @abstractmethod
+    def start_node(self) -> T:
         pass
 
     @abstractmethod

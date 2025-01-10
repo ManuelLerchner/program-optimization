@@ -3,7 +3,7 @@ from typing import Set
 from analyses.analysis import Analysis
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression, MemoryExpression,
                                 UnaryExpression)
-from lattices.powerset import Powerset
+from lattices.powerset import FlippedPowerset, Powerset
 
 
 def check_occurence(expr: Expression, lvalue: Expression):
@@ -31,21 +31,19 @@ class AvailableExpressions(Analysis[Set[Expression]]):
         return "AvailExpr"
 
     def create_lattice(self, cfg):
-        return Powerset[Expression]()
-
-    @staticmethod
-    def is_worthwile_storing(expr: Expression) -> bool:
-        if isinstance(expr, ID) or isinstance(expr, Constant):
-            return False
-
-        return True
+        expr = cfg.get_all_expressions()
+        filtered = set([x for x in expr if x.is_worthwile_storing()])
+        return Powerset[Expression](filtered)
+    
+    def start_node(self):
+        return self.lattice.bot()
 
     def skip(self, x: Set[Expression]) -> Set[Expression]:
         return x
 
     def assignment(self, lhs: Expression, rhs: Expression, A: Set[Expression]) -> Set[Expression]:
 
-        if self.is_worthwile_storing(rhs):
+        if rhs.is_worthwile_storing():
             A.add(rhs)
 
         filtered = set([x for x in A if not check_occurence(x, lhs)])
@@ -54,7 +52,7 @@ class AvailableExpressions(Analysis[Set[Expression]]):
 
     def loads(self, lhs: Expression, rhs: Expression, A: Set[Expression]) -> Set[Expression]:
 
-        if self.is_worthwile_storing(rhs):
+        if rhs.is_worthwile_storing():
             A.add(rhs)
 
         A.add(MemoryExpression(ID("M"), rhs))
@@ -67,9 +65,9 @@ class AvailableExpressions(Analysis[Set[Expression]]):
         e1 = lhs
         e2 = rhs
 
-        if self.is_worthwile_storing(e1):
+        if e1.is_worthwile_storing():
             A.add(e1)
-        if self.is_worthwile_storing(e2):
+        if e2.is_worthwile_storing():
             A.add(e2)
 
         # remove all MemoryExpressions that are not in the store
@@ -79,13 +77,13 @@ class AvailableExpressions(Analysis[Set[Expression]]):
 
     def Pos(self, expr: Expression, A: Set[Expression]) -> Set[Expression]:
 
-        if self.is_worthwile_storing(expr):
+        if expr.is_worthwile_storing():
             A.add(expr)
 
         return A
 
     def Neg(self, expr: Expression, A: Set[Expression]) -> Set[Expression]:
-        if self.is_worthwile_storing(expr):
+        if expr.is_worthwile_storing():
             A.add(expr)
 
         return A

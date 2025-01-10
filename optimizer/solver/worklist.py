@@ -14,16 +14,17 @@ class WorklistSolver(Solver):
         self.max_narrow_iterations = max_narrow_iterations
         self.debug = debug
 
-    def perform_step[T](self, analysis: Analysis[T], states: dict[CFG.Node, T], op:  Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], worklist: dict[CFG.Node, None]
-                        ):
+    def perform_step[T](self, analysis: Analysis[T], states: dict[CFG.Node, T], op:  Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], worklist: list[CFG.Node]
+                        ) -> list[CFG.Node]:
         lattice = analysis.lattice
 
-        node = next(iter(worklist))
-        del worklist[node]
+        node = worklist.pop(0)
+        print(f"  {BColors.BOLD}{node.name}{BColors.ENDC} {BColors.OKGREEN}{
+            lattice.show(states[node]):<50}{BColors.ENDC}")
 
-        if (analysis.direction == 'forward' and node.is_start) or (
-                analysis.direction == 'backward' and node.is_end):
-            return
+        # if (analysis.direction == 'forward' and node.is_start) or (
+        #         analysis.direction == 'backward' and node.is_end):
+        #     return worklist
 
         if analysis.direction == 'forward':
             edges = analysis.cfg.get_incoming(node)
@@ -42,8 +43,6 @@ class WorklistSolver(Solver):
 
         if not lattice.eq(new_state, states[node]):
             if self.debug:
-                print(f"  {BColors.BOLD}{node.name}{BColors.ENDC} {BColors.OKGREEN}{
-                    lattice.show(states[node]):<50}{BColors.ENDC}")
                 for edge, fx in zip(edges, fxs):
                     print(f"    {BColors.HEADER}⟵{BColors.ENDC}     {BColors.OKGREEN}{lattice.show(fx):<40}{BColors.ENDC} <--[ {BColors.OKCYAN}{
                         str(edge.command):^15}{BColors.ENDC} ]-- {BColors.OKGREEN}{
@@ -57,17 +56,15 @@ class WorklistSolver(Solver):
 
             states[node] = new_state
 
-            new = {e.dest: None for e in analysis.cfg.get_outgoing(node)} if analysis.direction == 'forward' else {
-                e.source: None for e in analysis.cfg.get_incoming(node)}
+            new = [e.dest for e in analysis.cfg.get_outgoing(node)] if analysis.direction == 'forward' else [
+                e.source for e in analysis.cfg.get_incoming(node)]
 
-            old = {**worklist}
-            worklist.clear()
-            worklist.update({**new, **old})
+            worklist = new + worklist
 
-    def find_fixpoint[T](self, phase: str, states: dict[CFG.Node, T], analysis: Analysis[T], comb: Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], max_iter=float("inf")) -> int:
+        return worklist
+
+    def find_fixpoint[T](self, phase: str, states: dict[CFG.Node, T], worklist: list[CFG.Node],   analysis: Analysis[T], comb: Callable[[CFG.Node], Tuple[str, Callable[[T, T], T]]], max_iter=float("inf")) -> int:
         iterations = 0
-
-        worklist = dict.fromkeys(states)
 
         while worklist and iterations < max_iter:
 
@@ -75,7 +72,7 @@ class WorklistSolver(Solver):
                 print(f"\n{BColors.WARNING}{phase} Iteration {
                       iterations+1}{BColors.ENDC}")
 
-            self.perform_step(analysis, states, comb, worklist)
+            worklist = self.perform_step(analysis, states, comb, worklist)
             iterations += 1
 
         if self.debug and iterations > 0:
@@ -91,16 +88,15 @@ class WorklistSolver(Solver):
 
     def solve[T](self, cfg: CFG, analysis: Analysis[T]) -> Tuple[dict[CFG.Node, T], int]:
         analysis.lattice = analysis.create_lattice(cfg)
+        worklist = sort_nodes(analysis.direction, cfg)
 
         states: defaultdict[CFG.Node, T] = defaultdict(
-            lambda: analysis.lattice.bot(), {n: analysis.lattice.bot() for n in sort_nodes(analysis.direction, cfg)})
+            lambda: analysis.lattice.bot(), {n: analysis.lattice.bot() for n in worklist})
 
         for n in states:
-            start = analysis.lattice.top() if analysis.start == 'top' else analysis.lattice.bot()
-            if analysis.direction == 'forward' and n.is_start:
-                states[n] = start
-            elif analysis.direction == 'backward' and n.is_end:
-                states[n] = start
+
+            if analysis.direction == 'forward' and n.is_start or analysis.direction == 'backward' and n.is_end:
+                states[n] = analysis.start_node()
 
         iter = 0
 
@@ -111,7 +107,8 @@ class WorklistSolver(Solver):
             else:
                 return ("⊔", analysis.lattice.join)
 
-        iter += self.find_fixpoint("Widening", states, analysis, comb)
+        iter += self.find_fixpoint("Widening", states,
+                                   worklist[::], analysis, comb)
 
         if analysis.use_narrow:
             # backward
@@ -121,7 +118,7 @@ class WorklistSolver(Solver):
                 else:
                     return ("⊔", analysis.lattice.join)
 
-            iter += self.find_fixpoint("Narrowing", states,
+            iter += self.find_fixpoint("Narrowing", states, worklist[::],
                                        analysis, comb, self.max_narrow_iterations)
 
         return states, iter

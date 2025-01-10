@@ -17,6 +17,9 @@ class SkipCommand(Command):
     ;
     """
 
+    def __init__(self, cfg_keep: bool = False):
+        self.cfg_keep = cfg_keep
+
     def __str__(self) -> str:
         return ";"
 

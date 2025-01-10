@@ -1,28 +1,23 @@
 
 from abc import abstractmethod
-from typing import Literal, Set
+from typing import Literal, Set, final
 
-from overrides import final
 
 from analyses.analysis import Analysis
 from cfg.IMP.expression import Expression
-from lattices.powerset import Powerset
+from lattices.powerset import FlippedPowerset, Powerset
 
 
 class GenKill[T](Analysis[Set[T]]):
 
     def __init__(self,  direction: Literal['forward', 'backward'],
-                 start: Literal['bot', 'top']):
-        super().__init__(direction, start)
+                 type: Literal["may", "must"]):
+        super().__init__(direction, type)
         self.lattice: Powerset[T]
 
     @staticmethod
     def name() -> str:
         return "GenKill"
-
-    @final
-    def create_lattice(self, cfg):
-        return Powerset[T]()
 
     @abstractmethod
     def gen_kill_skip(self, A:  set[T]) -> tuple[set[T],  set[T]]:

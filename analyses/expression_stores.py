@@ -16,11 +16,14 @@ class ExprStores(Analysis[Dict[Expression, Powerset[ID]]]):
 
     def create_lattice(self, cfg):
         expressions = cfg.get_all_expressions()
-        expressions = {
-            expr for expr in expressions if not isinstance(expr, ID)}
+        exprs = list(expr for expr in expressions if not isinstance(expr, ID))
+        ids = list(expr for expr in expressions if isinstance(expr, ID))
 
         return CombinedLattice[Expression, Powerset[ID]](
-            {expr: Powerset[ID]() for expr in expressions})
+            {expr: Powerset[ID](set(ids)) for expr in exprs})
+
+    def start_node(self):
+        return self.lattice.bot()
 
     @staticmethod
     def name():

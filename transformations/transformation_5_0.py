@@ -6,13 +6,12 @@ from analyses.analysis import Analysis
 from analyses.interval import (DIntervalLatticeElement, IntervalAnalysis,
                                abstract_eval_interval)
 from cfg.cfg import CFG
-from cfg.IMP.command import (NegCommand, PosCommand,
-                             SkipCommand)
+from cfg.IMP.command import NegCommand, PosCommand, SkipCommand
 from lattices.interval_lattice import IntervalLattice
 from transformations.transformation import Transformation
 
 
-class Transformation_5(Transformation):
+class Transformation_5_0(Transformation):
     def __init__(self, widen: bool) -> None:
         self.IA = IntervalAnalysis(widen)
 

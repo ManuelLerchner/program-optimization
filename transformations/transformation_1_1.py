@@ -52,7 +52,7 @@ class Transformation_1_1(Transformation):
                 lval = edge.command.lvalue
                 expr = edge.command.expr
 
-                if not AvailableExpressions.is_worthwile_storing(expr):
+                if not expr.is_worthwile_storing():
                     continue
                 T_e = Transformation_1_1.introduce_register(expr)
 
@@ -70,7 +70,7 @@ class Transformation_1_1(Transformation):
                 expr = edge.command.expr
                 T_e = Transformation_1_1.introduce_register(expr)
 
-                if not AvailableExpressions.is_worthwile_storing(expr):
+                if not expr.is_worthwile_storing():
                     continue
 
                 ass = AssignmentCommand(T_e, expr)
@@ -105,7 +105,7 @@ class Transformation_1_1(Transformation):
 
                 # filter out expressions that are not worth storing
                 possible_expressions = [
-                    e for e in possible_expressions if AvailableExpressions.is_worthwile_storing(e)]
+                    e for e in possible_expressions if e.is_worthwile_storing()]
 
                 cfg.edges.remove(edge)
 
@@ -130,7 +130,7 @@ class Transformation_1_1(Transformation):
                 lhs = edge.command.lhs
                 rhs = edge.command.rhs
 
-                if not AvailableExpressions.is_worthwile_storing(lhs) or not AvailableExpressions.is_worthwile_storing(rhs):
+                if not lhs.is_worthwile_storing() or not rhs.is_worthwile_storing():
                     continue
 
                 T_lhs = Transformation_1_1.introduce_register(lhs)

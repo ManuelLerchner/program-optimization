@@ -10,6 +10,10 @@ class Expression(ABC):
     def to_short_string(self) -> str:
         pass
 
+    @abstractmethod
+    def is_worthwile_storing() -> bool:
+        pass
+
 
 def op_to_shortstring(op: str):
     if op == "+":
@@ -22,8 +26,20 @@ def op_to_shortstring(op: str):
         return "d"
     elif op == "%":
         return "mod"
+    elif op == "==":
+        return "eq"
+    elif op == "!=":
+        return "neq"
+    elif op == "<":
+        return "lt"
+    elif op == "<=":
+        return "le"
+    elif op == ">":
+        return "gt"
+    elif op == ">=":
+        return "ge"
 
-    return op
+    raise ValueError(f"Unknown operator: {op}")
 
 
 @dataclass
@@ -41,6 +57,9 @@ class Constant(Expression):
 
     def to_short_string(self) -> str:
         return str(self.value)
+
+    def is_worthwile_storing(self) -> bool:
+        return False
 
     def __hash__(self):
         return hash(self.value)
@@ -63,6 +82,9 @@ class ID(Expression):
 
     def to_short_string(self) -> str:
         return self.name
+
+    def is_worthwile_storing(self) -> bool:
+        return False
 
     def __hash__(self):
         return hash(self.name)
@@ -87,6 +109,9 @@ class UnaryExpression(Expression):
 
     def to_short_string(self) -> str:
         return f"{op_to_shortstring(self.op)}{self.expr.to_short_string()}"
+
+    def is_worthwile_storing(self) -> bool:
+        return True
 
     def __hash__(self):
         return hash(self.op) + hash(self.expr)
@@ -123,6 +148,9 @@ class BinExpression(Expression):
     def to_short_string(self) -> str:
         return f"{self.left.to_short_string()}{op_to_shortstring(self.op)}{self.right.to_short_string()}"
 
+    def is_worthwile_storing(self) -> bool:
+        return True
+
     def __eq__(self, other):
         if not isinstance(other, BinExpression):
             return False
@@ -147,6 +175,9 @@ class MemoryExpression(Expression):
     def __hash__(self):
         return hash(self.array) + hash(self.expr)
 
+    def is_worthwile_storing(self) -> bool:
+        return True
+
     def __eq__(self, other):
         if not isinstance(other, MemoryExpression):
             return False
@@ -170,6 +201,9 @@ class FuncCall(Expression):
 
     def to_short_string(self) -> str:
         return f"{self.name}({', '.join(map(str, self.args))})"
+
+    def is_worthwile_storing(self) -> bool:
+        return True
 
     def __hash__(self):
         return hash(self.name) + hash(self.args)

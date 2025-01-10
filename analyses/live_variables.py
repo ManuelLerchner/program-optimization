@@ -1,8 +1,9 @@
 
 from typing import Set
 
-from cfg.IMP.expression import ID, BinExpression, Constant, Expression, UnaryExpression
+from cfg.IMP.expression import ID, BinExpression, Constant, Expression, UnaryExpression, MemoryExpression
 from analyses.gen_kill_analysis import GenKill
+from lattices.powerset import FlippedPowerset, Powerset
 
 
 def variables_in_expression(expr: Expression) -> Set[Expression]:
@@ -14,6 +15,8 @@ def variables_in_expression(expr: Expression) -> Set[Expression]:
         return variables_in_expression(expr.expr)
     elif isinstance(expr, Constant):
         return set()
+    elif isinstance(expr, MemoryExpression):
+        return variables_in_expression(expr.expr) | variables_in_expression(expr.array)
 
     raise ValueError(f"Unknown expression type: {expr}")
 
@@ -26,6 +29,9 @@ class LiveVariables(GenKill[Expression]):
     @staticmethod
     def name():
         return "LiveVar"
+
+    def create_lattice(self, cfg):
+        return FlippedPowerset[Expression](cfg.get_all_expressions())
 
     def gen_kill_skip(self, A) -> tuple[Set[Expression], Set[Expression]]:
         return set(), set()

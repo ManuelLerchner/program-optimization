@@ -75,6 +75,9 @@ class ConstantPropagation(Analysis[Dict[str, DLatticeElement]]):
     def create_lattice(self, cfg):
         return CombinedLattice({"D": DLattice(cfg.get_all_vars()), "M": DLattice({})})
 
+    def start_node(self):
+        return self.lattice.top()
+
     @staticmethod
     def name():
         return "ConstantPropagation"

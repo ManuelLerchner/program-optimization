@@ -10,6 +10,9 @@ from transformations.transformation import Transformation
 
 class Transformation_0(Transformation):
 
+    def __init__(self, force=False) -> None:
+        self.force = force
+
     @staticmethod
     def name() -> str:
         return "T0"
@@ -31,7 +34,7 @@ class Transformation_0(Transformation):
             U = edge.source
             V = edge.dest
 
-            if isinstance(edge.command, SkipCommand):
+            if isinstance(edge.command, SkipCommand) and (not edge.command.cfg_keep or self.force):
                 incoming_edges = cfg.get_incoming(U)
 
                 if not len(incoming_edges) == 1:
@@ -51,7 +54,7 @@ class Transformation_0(Transformation):
             U = edge.source
             V = edge.dest
 
-            if isinstance(edge.command, SkipCommand):
+            if isinstance(edge.command, SkipCommand) and (not edge.command.cfg_keep or self.force):
                 outgoing_edges = cfg.get_outgoing(V)
 
                 if not len(outgoing_edges) == 1:

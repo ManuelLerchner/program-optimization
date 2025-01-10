@@ -4,6 +4,7 @@ from typing import Set
 from analyses.live_variables import variables_in_expression
 from cfg.IMP.expression import ID, Expression
 from analyses.gen_kill_analysis import GenKill
+from lattices.powerset import FlippedPowerset, Powerset
 
 
 class TrueLiveVariables(GenKill[Expression]):
@@ -14,6 +15,14 @@ class TrueLiveVariables(GenKill[Expression]):
     @staticmethod
     def name():
         return "TrueLiveVar"
+
+    def create_lattice(self, cfg):
+        expr = cfg.get_all_expressions()
+        filtered = set([x for x in expr if type(x) == ID])
+        return Powerset[Expression](filtered)
+
+    def start_node(self):
+        return self.lattice.bot()
 
     def gen_kill_skip(self, A) -> tuple[Set[Expression], Set[Expression]]:
         return set(), set()

@@ -4,8 +4,8 @@ from cfg.IMP.expression import ID
 from lattices.all_variable_lattice import AllVariableLattice
 from lattices.complete_lattice import CompleteLattice
 
-IntervalElement = Union[float]
-Interval = Tuple[IntervalElement, IntervalElement]
+
+Interval = Union[Tuple[float, float], Literal["⊥"]]
 
 
 class IntervalLattice(CompleteLattice[Interval]):
@@ -16,10 +16,15 @@ class IntervalLattice(CompleteLattice[Interval]):
 
     @ staticmethod
     def bot() -> Interval:
-        return (float("inf"), float("-inf"))
+        return "⊥"
 
     @ staticmethod
     def join(a: Interval, b: Interval) -> Interval:
+        if a == "⊥":
+            return b
+        if b == "⊥":
+            return a
+
         return (min(a[0], b[0]), max(a[1], b[1]))
 
     @ staticmethod
@@ -34,10 +39,19 @@ class IntervalLattice(CompleteLattice[Interval]):
 
     @ staticmethod
     def meet(a: Interval, b: Interval) -> Interval:
+        if a == "⊥":
+            return a
+        if b == "⊥":
+            return b
         return (max(a[0], b[0]), min(a[1], b[1]))
 
     @staticmethod
     def narrow(a: Interval, b: Interval) -> Interval:
+        if a == "⊥":
+            return a
+        if b == "⊥":
+            return b
+
         l1, u1 = a
         l2, u2 = b
 
@@ -48,6 +62,11 @@ class IntervalLattice(CompleteLattice[Interval]):
 
     @ staticmethod
     def leq(a: Interval, b: Interval) -> bool:
+        if a == "⊥":
+            return True
+        if b == "⊥":
+            return False
+
         return a[0] >= b[0] and a[1] <= b[1]
 
     @ staticmethod
@@ -60,10 +79,10 @@ class IntervalLattice(CompleteLattice[Interval]):
 
     @ staticmethod
     def show(a: Interval) -> str:
-        if a == IntervalLattice.top():
-            return "⊤"
-        if a == IntervalLattice.bot():
+        if a == "⊥":
             return "⊥"
+        if a == (float("-inf"), float("inf")):
+            return "⊤"
 
         return f"[{a[0]}, {a[1]}]"
 

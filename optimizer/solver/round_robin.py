@@ -94,7 +94,7 @@ class RoundRobinSolver(Solver):
             lambda: analysis.lattice.bot(), {n: analysis.lattice.bot() for n in sort_nodes(analysis.direction, cfg)})
 
         for n in states:
-            start = analysis.lattice.top() if analysis.start == 'top' else analysis.lattice.bot()
+            start = analysis.lattice.top()
             if analysis.direction == 'forward' and n.is_start:
                 states[n] = start
             elif analysis.direction == 'backward' and n.is_end:

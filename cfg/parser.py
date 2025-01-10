@@ -166,4 +166,28 @@ class Parser:
 
             return loop_exit
 
+        elif isinstance(ast_node, c_ast.DoWhile):
+            loop_entry, loop_exit = self.cfg.make_loop_nodes()
+
+            out = self.visit(ast_node.stmt, loop_entry, loop_exit)
+
+            if entry_node is not None:
+                entry_node.is_loop_separator = True
+
+            self.cfg.add_edge(entry_node, loop_entry, SkipCommand())
+
+            cond_expr = convertToExpr(ast_node.cond)
+            self.cfg.add_edge(out, entry_node, PosCommand(cond_expr))
+            self.cfg.add_edge(out, loop_exit, NegCommand(cond_expr))
+
+            return loop_exit
+
+        elif isinstance(ast_node, c_ast.EmptyStatement):
+            skip_node = self.cfg.make_skip_node()
+
+            self.cfg.add_edge(entry_node, skip_node,
+                              SkipCommand(cfg_keep=True))
+
+            return skip_node
+
         raise NotImplementedError(ast_node)

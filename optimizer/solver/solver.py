@@ -33,7 +33,8 @@ def sort_nodes(type: Literal['forward', 'backward'], cfg: CFG):
     sorted_nodes = topo_sort_nodes(cfg)
 
     if type == 'backward':
-        return sorted_nodes[::-1]
+        rev = sorted_nodes[::-1]
+        return rev
     elif type == 'forward':
         return sorted_nodes
 
