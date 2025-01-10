@@ -3,7 +3,7 @@ from typing import Callable, Literal, Tuple
 
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from optimizer.solver.solver import Solver, sort_nodes
+from optimizer.solver.solver import Solver
 from util.bcolors import BColors
 
 

@@ -3,13 +3,13 @@ from typing import Callable, Literal, Tuple
 
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from optimizer.solver.solver import Solver, sort_nodes
+from optimizer.solver.solver import Solver
 from util.bcolors import BColors
 
 
 class WorklistSolver(Solver):
 
-    def __init__(self, widen_strategy: Literal['none', 'loop_separator', 'always'] = 'none', max_narrow_iterations: int = 0, debug: bool = False) -> None:
+    def __init__(self, widen_strategy: Literal['none', 'loop_separator', 'always'] = 'loop_separator', max_narrow_iterations: int = 5, debug: bool = False) -> None:
         self.widen_strategy = widen_strategy
         self.max_narrow_iterations = max_narrow_iterations
         self.debug = debug
@@ -88,7 +88,7 @@ class WorklistSolver(Solver):
 
     def solve[T](self, cfg: CFG, analysis: Analysis[T]) -> Tuple[dict[CFG.Node, T], int]:
         analysis.lattice = analysis.create_lattice(cfg)
-        worklist = sort_nodes(analysis.direction, cfg)
+        worklist = cfg.sort_nodes(analysis.direction)
 
         states: defaultdict[CFG.Node, T] = defaultdict(
             lambda: analysis.lattice.bot(), {n: analysis.lattice.bot() for n in worklist})

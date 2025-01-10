@@ -1,16 +1,14 @@
 
-from typing import TYPE_CHECKING, Any, Set
+from typing import TYPE_CHECKING, Any, Literal, Set
 
 import graphviz
-from PIL import Image
-
-from collections import OrderedDict
 
 from cfg.IMP.command import (AssignmentCommand, Command, LoadsCommand,
                              NegCommand, PosCommand, SkipCommand,
                              StoresCommand)
-from cfg.IMP.expression import (ID, BinExpression, Constant, Expression, MemoryExpression,
-                                UnaryExpression)
+from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
+                                MemoryExpression, UnaryExpression)
+from util.bcolors import BColors
 
 if TYPE_CHECKING:
     from analyses.analysis import Analysis
@@ -57,13 +55,19 @@ class CFG:
             self.is_start = False
             self.is_end = False
             self.is_loop_separator = False
+            self.age = 0
 
         def __str__(self):
-
             values = "\n".join(
                 [f"{key.name()}={key.lattice.show(value)}" for key, value in sorted(self.annotations.items(), key=lambda x: str(x[0]))])
 
             return f"{self.name}\n{values}" if self.annotations else self.name
+
+        def __repr__(self):
+            values = "\n".join(
+                [f"{key.name()}={key.lattice.show(value)}" for key, value in sorted(self.annotations.items(), key=lambda x: str(x[0]))])
+
+            return f"{BColors.OKGREEN}{self.name}{BColors.ENDC}\n{BColors.OKBLUE}{values}{BColors.ENDC}" if self.annotations else f"{BColors.OKGREEN}{self.name}{BColors.ENDC}"
 
         def __hash__(self):
             return hash(self.name)
@@ -76,9 +80,10 @@ class CFG:
             self.source: CFG.Node = source
             self.command = command
             self.dest: CFG.Node = dest
+            self.age = 0
 
         def __repr__(self):
-            return f"Edge({self.source} -> {self.dest} [{self.command}])"
+            return f"Edge({repr(self.source)} -> {repr(self.dest)} [{(self.command)} : {type(self.command).__name__}])"
 
     def __init__(self) -> None:
         self.edges: list[CFG.Edge] = []
@@ -95,6 +100,7 @@ class CFG:
         self.alloc_counter = 0
         self.block_read_counter = 0
         self.block_write_counter = 0
+        self.optimization_counter = 0
 
     def make_function_nodes(self, name: str):
         self.function_counter += 1
@@ -147,6 +153,10 @@ class CFG:
         self.block_write_counter += 1
         return CFG.Node(f"block_write_{self.block_write_counter}")
 
+    def make_opt_node(self):
+        self.optimization_counter += 1
+        return CFG.Node(f"opt_{self.optimization_counter}")
+
     def add_edge(self, source: Node, dest: Node, command: Command):
         edge = CFG.Edge(source, dest, command)
 
@@ -174,18 +184,109 @@ class CFG:
                 outgoing.add(edge)
         return outgoing
 
+    def topo_sort_nodes(self) -> list[Node]:
+        visited_nodes = set()
+
+        sorted_nodes = []
+
+        def dfs_node(current_node: CFG.Node):
+            if current_node in visited_nodes:
+                return
+
+            visited_nodes.add(current_node)
+
+            sorted_nodes.append(current_node)
+
+            for e in self.get_outgoing(current_node):
+                dfs_node(e.dest)
+
+        for node in self.get_nodes():
+            if node.is_start:
+                dfs_node(node)
+
+        return sorted_nodes
+
+    def topo_sort_edges(self) -> list[Edge]:
+        visited_nodes = set()
+
+        sorted_edges = []
+
+        def dfs_node(current_node: CFG.Node):
+            if current_node in visited_nodes:
+                return
+
+            visited_nodes.add(current_node)
+
+            for e in self.get_outgoing(current_node):
+                dfs_node(e.dest)
+                sorted_edges.append(e)
+
+        for node in self.get_nodes():
+            if node.is_start:
+                dfs_node(node)
+
+        return sorted_edges[::-1]
+
+    def sort_nodes(self, type: Literal['forward', 'backward']):
+        sorted_nodes = self.topo_sort_nodes()
+
+        if type == 'backward':
+            rev = sorted_nodes[::-1]
+            return rev
+        elif type == 'forward':
+            return sorted_nodes
+
     def to_dot(self):
         dot = graphviz.Digraph()
+
+        nodes = self.sort_nodes('forward')
+
+        for node in nodes:
+
+            if node.is_start:
+                dot.node(node.name, label=str(node),
+                         shape='box', style="filled", fillcolor='green')
+                continue
+            elif node.is_end:
+                dot.node(node.name, label=str(node),
+                         shape='box', style="filled", fillcolor='green')
+                continue
+
+            if len(self.get_outgoing(node)) == 2:
+                dot.node(node.name, label=str(node),
+                         shape='diamond', style="filled", fillcolor='yellow')
+                continue
+
+            fillcolor = 'orange' if node.age == 0 else 'white'
+            dot.node(node.name, label=str(node),
+                     style="filled", fillcolor=fillcolor)
+
         for edge in self.edges:
             # set label to empty string
             src = edge.source
             dest = edge.dest
-            dot.node(src.name, label=str(src))
-            dot.node(dest.name, label=str(dest))
 
-            dot.edge(src.name, dest.name, label=str(edge.command))
+            linecolor = 'red' if edge.age == 0 else 'black'
+
+            dot.edge(src.name, dest.name, label=str(edge.command),
+                     color=linecolor, fontcolor=linecolor)
+
+        for node in nodes:
+            node.age += 1
+        for edge in self.edges:
+            edge.age += 1
 
         return dot
+
+    def __str__(self):
+        edge_str = self.topo_sort_edges()
+
+        s = ""
+        s += "Filename: "+(self.filename) + "\n"
+        for edge in edge_str:
+            s += "\t"+repr(edge) + "\n"
+
+        return s
 
     def get_all_vars(self) -> Set[ID]:
         all_vars = set()

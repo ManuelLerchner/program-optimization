@@ -4,10 +4,9 @@ import typing
 from typing import Any
 
 from analyses.analysis import Analysis
-from analyses.available_expr import AvailableExpressions
 from cfg.cfg import CFG
 from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
-                             PosCommand, SkipCommand, StoresCommand)
+                             PosCommand, StoresCommand)
 from cfg.IMP.expression import ID, Expression, MemoryExpression
 from transformations.transformation import Transformation
 
@@ -59,7 +58,7 @@ class Transformation_1_1(Transformation):
                 ass = AssignmentCommand(T_e, expr)
                 ass2 = AssignmentCommand(lval, T_e)
 
-                edge.dest = cfg.make_stmt_node()
+                edge.dest = cfg.make_opt_node()
                 edge.command = ass
 
                 cfg.add_edge(edge.dest, V, ass2)
@@ -75,7 +74,7 @@ class Transformation_1_1(Transformation):
 
                 ass = AssignmentCommand(T_e, expr)
 
-                M = cfg.make_stmt_node()
+                M = cfg.make_opt_node()
 
                 pos_edge = None
                 neg_edge = None
@@ -110,7 +109,7 @@ class Transformation_1_1(Transformation):
                 cfg.edges.remove(edge)
 
                 source = U
-                target = cfg.make_stmt_node()
+                target = cfg.make_opt_node()
                 for expr in possible_expressions:
                     T_e = Transformation_1_1.introduce_register(expr)
 
@@ -119,7 +118,7 @@ class Transformation_1_1(Transformation):
 
                     cfg.add_edge(source, target, ass)
                     source = target
-                    target = cfg.make_stmt_node()
+                    target = cfg.make_opt_node()
 
                 cfg.add_edge(source, V,
                              AssignmentCommand(lval, T_e))
@@ -140,10 +139,10 @@ class Transformation_1_1(Transformation):
                 ass2 = AssignmentCommand(T_rhs, rhs)
                 ass3 = StoresCommand(T_lhs, T_rhs)
 
-                edge.dest = cfg.make_stmt_node()
+                edge.dest = cfg.make_opt_node()
                 edge.command = ass1
 
-                cfg.add_edge(edge.dest, cfg.make_stmt_node(), ass2)
-                cfg.add_edge(cfg.make_stmt_node(), V, ass3)
+                cfg.add_edge(edge.dest, cfg.make_opt_node(), ass2)
+                cfg.add_edge(cfg.make_opt_node(), V, ass3)
 
         return cfg

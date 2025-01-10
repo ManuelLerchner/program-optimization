@@ -60,7 +60,7 @@ class Transformation_6(Transformation):
 
                         cfg.edges.remove(inc)
 
-                        new_node = cfg.make_stmt_node()
+                        new_node = cfg.make_opt_node()
 
                         cfg.add_edge(u, new_node, inc.command)
                         cfg.add_edge(new_node, u1, neg_edge.command)

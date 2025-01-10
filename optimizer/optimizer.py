@@ -11,7 +11,7 @@ from util.bcolors import BColors
 
 class Optimizer:
     def __init__(self, cfg: CFG, transformations: List[Transformation], output_path: str = 'output/',
-                 widen_strategy: Literal['none', 'loop_separator', 'always'] = 'none', max_narrow_iterations: int = 5, debug: bool = False) -> None:
+                 widen_strategy: Literal['none', 'loop_separator', 'always'] = 'loop_separator', max_narrow_iterations: int = 5, debug: bool = False) -> None:
         self.cfg = cfg
         self.transformations = transformations
         self.output_path = output_path
@@ -19,11 +19,32 @@ class Optimizer:
         self.max_narrow_iterations = max_narrow_iterations
         self.debug = debug
 
+    def summarize(self):
+        print(f"{BColors.OKGREEN}Optimizer configuration:{BColors.ENDC}")
+
+        print(f"{BColors.OKGREEN}CFG:{BColors.ENDC}")
+        print(self.cfg)
+        print(f"{BColors.OKGREEN}Transformations:{BColors.ENDC}")
+        for t in self.transformations:
+            print(f"\t{BColors.OKCYAN}{t.name()}{
+                  BColors.ENDC}:\t {t.description()}")
+        print(f"{BColors.OKGREEN}Widen strategy:{
+              BColors.ENDC} {self.widen_strategy}")
+        print(f"{BColors.OKGREEN}Max narrow iterations:{
+              BColors.ENDC} {self.max_narrow_iterations}")
+        print(f"{BColors.OKGREEN}Debug:{BColors.ENDC} {self.debug}")
+
+        print()
+
     def optimize(self) -> CFG:
+        self.summarize()
 
         analyses_results: dict[Analysis, dict[CFG.Node, Any]] = {}
 
-        self.cfg.render(f"{self.output_path}{self.cfg.filename}/initial")
+        folder = f"{self.output_path}{self.cfg.filename}/{
+            "_".join([t.name() for t in self.transformations])}"
+
+        self.cfg.render(f"{folder}/initial")
 
         total_iter = 0
         for i, trans in enumerate(self.transformations):
@@ -49,16 +70,15 @@ class Optimizer:
             self.cfg = trans.transform(self.cfg, analyses_results)
 
             self.cfg.render(
-                f"{self.output_path}/{self.cfg.filename}/step_{i+1}_{trans.name()}")
+                f"{folder}/step_{i+1}_{trans.name()}")
 
+            # clean all annotations
+            for node in self.cfg.get_nodes():
+                node.annotations = {}
             print()
 
         print(f"{BColors.OKGREEN}Total iterations:{BColors.ENDC} {total_iter}")
 
-        # clean all annotations
-        for node in self.cfg.get_nodes():
-            node.annotations = {}
-
-        self.cfg.render(f"{self.output_path}/{self.cfg.filename}/result")
+        self.cfg.render(f"{folder}/result")
 
         return self.cfg

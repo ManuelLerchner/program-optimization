@@ -30,42 +30,34 @@ class Transformation_0(Transformation):
 
         edges = cfg.edges.copy()
 
+        def next(u: CFG.Node) -> CFG.Node:
+            skip = list(filter(lambda x: isinstance(
+                x.command, SkipCommand), cfg.get_outgoing(u)))
+            if len(skip) == 0:
+                return u
+            else:
+                n = skip.pop()
+                if n.command.cfg_keep:
+                    return u
+                else:
+                    return next(n.dest)
+
         for edge in edges:
-            U = edge.source
-            V = edge.dest
+            if not isinstance(edge.command, SkipCommand) or edge.command.cfg_keep:
+                edge.dest = next(edge.dest)
 
-            if isinstance(edge.command, SkipCommand) and (not edge.command.cfg_keep or self.force):
-                incoming_edges = cfg.get_incoming(U)
+        for edge in cfg.edges.copy():
+            if isinstance(edge.command, SkipCommand) and (not edge.command.cfg_keep):
+                u = edge.source
+                v = edge.dest
+                cfg.edges.remove(edge)
 
-                if not len(incoming_edges) == 1:
-                    continue
+                if u.is_start:
+                    v.is_start = True
+                    v.name = u.name
 
-                for incoming_edge in incoming_edges:
-
-                    incoming_edge.dest = V
-
-                    for out2 in cfg.get_outgoing(U):
-                        out2.source = V
-
-                    cfg.edges.remove(edge)
-
-        edges = cfg.edges.copy()
-        for edge in edges:
-            U = edge.source
-            V = edge.dest
-
-            if isinstance(edge.command, SkipCommand) and (not edge.command.cfg_keep or self.force):
-                outgoing_edges = cfg.get_outgoing(V)
-
-                if not len(outgoing_edges) == 1:
-                    continue
-
-                for outgoing_edge in outgoing_edges:
-
-                    outgoing_edge.source = U
-                    for inc2 in cfg.get_incoming(V):
-                        inc2.dest = U
-
-                    cfg.edges.remove(edge)
+                if v.is_end:
+                    u.is_end = True
+                    u.name = v.name
 
         return cfg

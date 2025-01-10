@@ -12,7 +12,7 @@ from transformations.transformation import Transformation
 
 
 class Transformation_5_0(Transformation):
-    def __init__(self, widen: bool) -> None:
+    def __init__(self, widen: bool = True) -> None:
         self.IA = IntervalAnalysis(widen)
 
     @staticmethod

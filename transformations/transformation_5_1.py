@@ -13,7 +13,7 @@ from transformations.transformation_1_1 import Transformation_1_1
 
 
 class Transformation_5_1(Transformation):
-    def __init__(self, widen: bool) -> None:
+    def __init__(self) -> None:
         self.VB = VeryBusyAnalysis()
         self.AA = AvailableExpressions()
 
@@ -43,11 +43,11 @@ class Transformation_5_1(Transformation):
                     expr), expr) for expr in B[node]], key=lambda x: str(x))
 
                 source = node
-                new_target = cfg.make_stmt_node()
+                new_target = cfg.make_opt_node()
                 for command in to_insert:
                     cfg.add_edge(source, new_target, command)
                     source = new_target
-                    new_target = cfg.make_stmt_node()
+                    new_target = cfg.make_opt_node()
 
         for edge in edge_copy:
             u = edge.source
@@ -67,11 +67,11 @@ class Transformation_5_1(Transformation):
             cfg.edges.remove(edge)
 
             source = u
-            new_target = cfg.make_stmt_node()
+            new_target = cfg.make_opt_node()
             for command in [edge.command] + to_insert:
                 cfg.add_edge(source, new_target, command)
                 source = new_target
-                new_target = cfg.make_stmt_node()
+                new_target = cfg.make_opt_node()
 
             cfg.add_edge(source, v, SkipCommand())
         return cfg

@@ -53,6 +53,9 @@ class Constant(Expression):
         return str(self.value)
 
     def __eq__(self, other):
+        if not isinstance(other, Constant):
+            return False
+
         return self.value == other.value
 
     def to_short_string(self) -> str:
@@ -133,6 +136,8 @@ class BinExpression(Expression):
             return "<"
         if op == ">=":
             return "<="
+
+        return op
 
         raise ValueError(f"Unknown operator: {op}")
 

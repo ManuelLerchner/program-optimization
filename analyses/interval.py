@@ -1,10 +1,10 @@
 
 from typing import DefaultDict
 
-from analyses.analysis import Analysis, NodeInsensitiveAnalysis
+from analyses.analysis import NodeInsensitiveAnalysis
+from cfg.cfg import CFG
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
                                 UnaryExpression)
-from cfg.cfg import CFG
 from lattices.interval_lattice import (DIntervalLattice,
                                        DIntervalLatticeElement, Interval,
                                        IntervalLattice)
@@ -70,7 +70,28 @@ def binary_interval_arithmetic(op: str, a: Interval, b: Interval) -> Interval:
         else:
             return (0, 1)
 
-    raise Exception("Unknown operator")
+    if op == '&&':
+        if l1 == 0 and u1 == 0:
+            return (0, 0)
+        if l2 == 0 and u2 == 0:
+            return (0, 0)
+        return (1, 1)
+
+    if op == '||':
+        if l1 == 0 and u1 == 0 and l2 == 0 and u2 == 0:
+            return (0, 0)
+        return (1, 1)
+
+    if op == '%':
+        if l2 == 0 and u2 == 0:
+            return (IntervalLattice.top())
+        if (l1 == u1) and (l2 == u2):
+            res = l1 % l2
+            return (res, res)
+        else:
+            return (0, max(abs(l2 - 1), abs(u2 - 1)))
+
+    raise Exception("Unknown operator" + op)
 
 
 def unary_interval_arithmetic(op: str, a: Interval) -> Interval:

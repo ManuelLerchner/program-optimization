@@ -30,7 +30,12 @@ class Parser:
             self.visit(decl, entry_node=None, exit_node=None)
 
         self.cfg.path = "/".join(self.filename.split("/")[:-1])
-        self.cfg.filename = self.filename.split("/")[-1].split(".")[0]
+        self.cfg.filename = self.filename.split("/")[-1]
+
+        for node in self.cfg.get_nodes():
+            node.age += 1
+        for edge in self.cfg.edges:
+            edge.age += 1
 
         return Transformation_0().transform(self.cfg, {})
 

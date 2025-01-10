@@ -1,19 +1,16 @@
 
-from analyses.pre_dominator import PredominatorAnalysis
 from cfg.parser import Parser
 from optimizer.optimizer import Optimizer
 from transformations.transformation_0 import Transformation_0
 from transformations.transformation_1_1 import Transformation_1_1
-from transformations.transformation_5_0 import Transformation_5_0
-from transformations.transformation_5_1 import Transformation_5_1
-from transformations.transformation_5_2 import Transformation_5_2
 from transformations.transformation_1_2 import Transformation_1_2
 from transformations.transformation_2 import Transformation_2
 from transformations.transformation_3 import Transformation_3
-
 from transformations.transformation_4 import Transformation_4
+from transformations.transformation_5_0 import Transformation_5_0
+from transformations.transformation_5_1 import Transformation_5_1
+from transformations.transformation_5_2 import Transformation_5_2
 from transformations.transformation_6 import Transformation_6
-from transformations.transformation_blank import Transformation_Blank
 
 
 def test():
@@ -48,14 +45,23 @@ def test():
     ], debug=True).optimize()
 
     Optimizer(Parser('examples/very_busy.c').parse(), [
-        Transformation_5_1(widen=False), Transformation_5_2(), Transformation_0(force=True)], debug=True).optimize()
+        Transformation_5_1(), Transformation_5_2(), Transformation_0(force=True)], debug=True).optimize()
 
     Optimizer(Parser('examples/very_busy_loop_invariant.c').parse(), [
-        Transformation_5_1(widen=False), Transformation_5_2(), Transformation_0(force=True)], debug=True).optimize()
+        Transformation_5_1(), Transformation_5_2(), Transformation_0(force=True)], debug=True).optimize()
 
     Optimizer(Parser('examples/loop_rotation.c').parse(), [
         Transformation_6(),
     ], debug=True).optimize()
+
+    fullPipeline = [
+        Transformation_4(), Transformation_5_0(), Transformation_6(), Transformation_1_1(), Transformation_1_2(
+        ), Transformation_3(), Transformation_2(), Transformation_5_1(), Transformation_5_2(), Transformation_3(), Transformation_2(),
+        Transformation_0()
+    ]
+
+    Optimizer(Parser('examples/big_program.c').parse(),
+              fullPipeline, debug=True).optimize()
 
 
 if __name__ == "__main__":
