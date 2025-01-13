@@ -1,23 +1,24 @@
 
-from cfg.parser import Parser
-from optimizer.optimizer import Optimizer
-from transformations.transformation_0 import Transformation_0
-from transformations.transformation_1_1 import Transformation_1_1
-from transformations.transformation_1_2 import Transformation_1_2
-from transformations.transformation_2 import Transformation_2
-from transformations.transformation_3 import Transformation_3
-from transformations.transformation_4 import Transformation_4
-from transformations.transformation_5_0 import Transformation_5_0
-from transformations.transformation_5_1 import Transformation_5_1
-from transformations.transformation_5_2 import Transformation_5_2
-from transformations.transformation_6 import Transformation_6
-from transformations.transformation_9 import Transformation_9
-from transformations.transformation_11 import Transformation_11
-from transformations.transformation_SSA_1_Prep import Transformation_SSA_Prep
-from transformations.transformation_SSA_2_Calc import Transformation_SSA
-from transformations.transformation_SSA_3_Rename import \
+from src.cfg.parser import Parser
+from src.optimizer.optimizer import Optimizer
+from src.transformations.transformation_0 import Transformation_0
+from src.transformations.transformation_1_1 import Transformation_1_1
+from src.transformations.transformation_1_2 import Transformation_1_2
+from src.transformations.transformation_2 import Transformation_2
+from src.transformations.transformation_3 import Transformation_3
+from src.transformations.transformation_4 import Transformation_4
+from src.transformations.transformation_5_0 import Transformation_5_0
+from src.transformations.transformation_5_1 import Transformation_5_1
+from src.transformations.transformation_5_2 import Transformation_5_2
+from src.transformations.transformation_6 import Transformation_6
+from src.transformations.transformation_9 import Transformation_9
+from src.transformations.transformation_11 import Transformation_11
+from src.transformations.transformation_SSA_1_Prep import \
+    Transformation_SSA_Prep
+from src.transformations.transformation_SSA_2_Calc import Transformation_SSA
+from src.transformations.transformation_SSA_3_Rename import \
     Transformation_SSA_Rename
-from transformations.transformation_SSA_4_register_allocation import \
+from src.transformations.transformation_SSA_4_register_allocation import \
     Register_Allocation
 
 fullPipeline = [
