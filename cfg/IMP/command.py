@@ -47,7 +47,7 @@ class LoadsCommand(Command):
         self.expr = expr
 
     def __str__(self) -> str:
-        return f"{self.var} = M[ {self.expr} ]"
+        return f"{self.var} = M[{self.expr}]"
 
 
 class StoresCommand(Command):

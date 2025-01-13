@@ -1,0 +1,1726 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: factorial.c
+	Edge([92mmain_entry_1[0m
+[94m
+locals=[n]
+globals=[fact, i, n, result][0m -> [92mstmt_1[0m [n = 5 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mstmt_2[0m [fact = 1 : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mstmt_3[0m [i = 1 : AssignmentCommand])
+	Edge([92mstmt_3[0m -> [92mloop_1_exit[0m [Neg(i &lt; = n) : NegCommand])
+	Edge([92mloop_1_exit[0m -> [92mmain_exit_1[0m [result = fact : AssignmentCommand])
+	Edge([92mstmt_3[0m -> [92mloop_1_entry[0m [Pos(i &lt; = n) : PosCommand])
+	Edge([92mloop_1_entry[0m -> [92mstmt_4[0m [fact = fact * i : AssignmentCommand])
+	Edge([92mstmt_4[0m -> [92mstmt_3[0m [i = i + 1 : AssignmentCommand])
+
+[92mTransformations:[0m
+	[96mT4[0m:	 Perform constant propagation and delete unreachable nodes
+	[96mT5[0m:	 Perform interval analysis and delete unreachable nodes
+	[96mT6[0m:	 Loop Rotation
+	[96mT1.1[0m:	 Introduce temporary variables for expressions
+	[96mT1.2[0m:	 Delete assignments to temporary variables if the expression is already available
+	[96mT3[0m:	 Substitute expressions with temporary variables if they are available
+	[96mT2[0m:	 Delete assignments to variables that are not (truly) live
+	[96mT5_1[0m:	 Partial Redundancy Elimination, using very busy analysis
+	[96mT5_2[0m:	 Canonize all uses of expressions
+	[96mT3[0m:	 Substitute expressions with temporary variables if they are available
+	[96mT2[0m:	 Delete assignments to variables that are not (truly) live
+	[96mT0[0m:	 Delete all skip commands
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT4[0m
+[93mRunning analysis:[0m [96mConstantPropagation (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m(D=(fact=⊤, i=⊤, n=⊤, result=⊤), M=())            [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m <--[ [96m     n = 5     [0m ]-- [92m(D=(fact=⊤, i=⊤, n=⊤, result=⊤), M=())  [0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_2[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  [0m <--[ [96m   fact = 1    [0m ]-- [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  [0m <--[ [96m     i = 1     [0m ]-- [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  [0m  [94mstmt_2[0m 
+    [95m⟵[0m     [92m(D=⊥, M=⊥)                              [0m <--[ [96m   i = i + 1   [0m ]-- [92m(D=⊥, M=⊥)                              [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2, stmt_4[0m[95m])[0m = [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=1, i=1, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 5[0m
+  [1mloop_1_entry[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  [0m <--[ [96mPos(i &lt; = n)[0m ]-- [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=1, i=1, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_4[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  [0m <--[ [96mfact = fact * i[0m ]-- [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=1, i=1, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_3[0m [92m(D=(fact=1, i=1, n=5, result=⊤), M=())            [0m
+    [95m⟵[0m     [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  [0m <--[ [96m     i = 1     [0m ]-- [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  [0m  [94mstmt_2[0m 
+    [95m⟵[0m     [92m(D=(fact=1, i=2, n=5, result=⊤), M=())  [0m <--[ [96m   i = i + 1   [0m ]-- [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2, stmt_4[0m[95m])[0m = [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_entry[0m [92m(D=(fact=1, i=1, n=5, result=⊤), M=())            [0m
+    [95m⟵[0m     [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  [0m <--[ [96mPos(i &lt; = n)[0m ]-- [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_4[0m [92m(D=(fact=1, i=1, n=5, result=⊤), M=())            [0m
+    [95m⟵[0m     [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m <--[ [96mfact = fact * i[0m ]-- [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 10[0m
+  [1mstmt_3[0m [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())            [0m
+    [95m⟵[0m     [92m(D=(fact=1, i=1, n=5, result=⊤), M=())  [0m <--[ [96m     i = 1     [0m ]-- [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())  [0m  [94mstmt_2[0m 
+    [95m⟵[0m     [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m <--[ [96m   i = i + 1   [0m ]-- [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2, stmt_4[0m[95m])[0m = [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 11[0m
+  [1mloop_1_entry[0m [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())            [0m
+    [95m⟵[0m     [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m <--[ [96mPos(i &lt; = n)[0m ]-- [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 12[0m
+  [1mstmt_4[0m [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 13[0m
+  [1mloop_1_exit[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m <--[ [96mNeg(i &lt; = n)[0m ]-- [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 14[0m
+  [1mmain_exit_1[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m <--[ [96m result = fact [0m ]-- [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  [0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 15[0m
+  [1mloop_1_exit[0m [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 16[0m
+  [1mloop_1_exit[0m [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 17[0m
+  [1mstmt_2[0m [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 18[0m
+  [1mstmt_3[0m [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 19[0m
+  [1mloop_1_entry[0m [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 20[0m
+  [1mstmt_4[0m [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 21[0m
+  [1mloop_1_exit[0m [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mWidening Iteration 22[0m
+  [1mmain_exit_1[0m [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())            [0m
+
+[93mAnalysis results after 22 iterations of Widening[0m
+   main_entry_1 [92m(D=(fact=⊤, i=⊤, n=⊤, result=⊤), M=())[0m
+         stmt_1 [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())[0m
+         stmt_2 [92m(D=(fact=1, i=⊤, n=5, result=⊤), M=())[0m
+         stmt_3 [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())[0m
+   loop_1_entry [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())[0m
+         stmt_4 [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())[0m
+    loop_1_exit [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())[0m
+    main_exit_1 [92m(D=(fact=⊤, i=⊤, n=5, result=⊤), M=())[0m
+
+[93mRunning transformation:[0m [96mT5[0m
+[93mRunning analysis:[0m [96mIntervalAnalysis (analyses.use_widen=True, analyses.use_narrow=True)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m(fact=⊤, i=⊤, n=⊤, result=⊤)                      [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(fact=⊤, i=⊤, n=[5, 5], result=⊤)       [0m <--[ [96m     n = 5     [0m ]-- [92m(fact=⊤, i=⊤, n=⊤, result=⊤)            [0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m(fact=⊤, i=⊤, n=[5, 5], result=⊤)       
+    [91m⊔ ⇒ [0m[92m(fact=⊤, i=⊤, n=[5, 5], result=⊤)                 [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_2[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)  [0m <--[ [96m   fact = 1    [0m ]-- [92m(fact=⊤, i=⊤, n=[5, 5], result=⊤)       [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)  
+    [91m⊔ ⇒ [0m[92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)            [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m <--[ [96m     i = 1     [0m ]-- [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)  [0m  [94mstmt_2[0m 
+    [95m⟵[0m     [92m⊥                                       [0m <--[ [96m   i = i + 1   [0m ]-- [92m⊥                                       [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2, stmt_4[0m[95m])[0m = [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)
+    [91m⩏ ⇒ [0m[92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)       [0m
+
+[93mWidening Iteration 5[0m
+  [1mloop_1_entry[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m <--[ [96mPos(i &lt; = n)[0m ]-- [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)
+    [91m⊔ ⇒ [0m[92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)       [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_4[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m <--[ [96mfact = fact * i[0m ]-- [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)
+    [91m⊔ ⇒ [0m[92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)       [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_3[0m [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)       [0m
+    [95m⟵[0m     [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m <--[ [96m     i = 1     [0m ]-- [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)  [0m  [94mstmt_2[0m 
+    [95m⟵[0m     [92m(fact=[1, 1], i=[2, 2], n=[5, 5], result=⊤)[0m <--[ [96m   i = i + 1   [0m ]-- [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2, stmt_4[0m[95m])[0m = [92m(fact=[1, 1], i=[1, 2], n=[5, 5], result=⊤)
+    [91m⩏ ⇒ [0m[92m(fact=[1, 1], i=[1, inf], n=[5, 5], result=⊤)     [0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_entry[0m [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)       [0m
+    [95m⟵[0m     [92m(fact=[1, 1], i=[1, 5], n=[5, 5], result=⊤)[0m <--[ [96mPos(i &lt; = n)[0m ]-- [92m(fact=[1, 1], i=[1, inf], n=[5, 5], result=⊤)[0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(fact=[1, 1], i=[1, 5], n=[5, 5], result=⊤)
+    [91m⊔ ⇒ [0m[92m(fact=[1, 1], i=[1, 5], n=[5, 5], result=⊤)       [0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_4[0m [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)       [0m
+    [95m⟵[0m     [92m(fact=[1, 5], i=[1, 5], n=[5, 5], result=⊤)[0m <--[ [96mfact = fact * i[0m ]-- [92m(fact=[1, 1], i=[1, 5], n=[5, 5], result=⊤)[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(fact=[1, 5], i=[1, 5], n=[5, 5], result=⊤)
+    [91m⊔ ⇒ [0m[92m(fact=[1, 5], i=[1, 5], n=[5, 5], result=⊤)       [0m
+
+[93mWidening Iteration 10[0m
+  [1mstmt_3[0m [92m(fact=[1, 1], i=[1, inf], n=[5, 5], result=⊤)     [0m
+    [95m⟵[0m     [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m <--[ [96m     i = 1     [0m ]-- [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)  [0m  [94mstmt_2[0m 
+    [95m⟵[0m     [92m(fact=[1, 5], i=[2, 6], n=[5, 5], result=⊤)[0m <--[ [96m   i = i + 1   [0m ]-- [92m(fact=[1, 5], i=[1, 5], n=[5, 5], result=⊤)[0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2, stmt_4[0m[95m])[0m = [92m(fact=[1, 5], i=[1, 6], n=[5, 5], result=⊤)
+    [91m⩏ ⇒ [0m[92m(fact=[1, inf], i=[1, inf], n=[5, 5], result=⊤)   [0m
+
+[93mWidening Iteration 11[0m
+  [1mloop_1_entry[0m [92m(fact=[1, 1], i=[1, 5], n=[5, 5], result=⊤)       [0m
+    [95m⟵[0m     [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)[0m <--[ [96mPos(i &lt; = n)[0m ]-- [92m(fact=[1, inf], i=[1, inf], n=[5, 5], result=⊤)[0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)
+    [91m⊔ ⇒ [0m[92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)     [0m
+
+[93mWidening Iteration 12[0m
+  [1mstmt_4[0m [92m(fact=[1, 5], i=[1, 5], n=[5, 5], result=⊤)       [0m
+    [95m⟵[0m     [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)[0m <--[ [96mfact = fact * i[0m ]-- [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)
+    [91m⊔ ⇒ [0m[92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)     [0m
+
+[93mWidening Iteration 13[0m
+  [1mstmt_3[0m [92m(fact=[1, inf], i=[1, inf], n=[5, 5], result=⊤)   [0m
+
+[93mWidening Iteration 14[0m
+  [1mloop_1_exit[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)[0m <--[ [96mNeg(i &lt; = n)[0m ]-- [92m(fact=[1, inf], i=[1, inf], n=[5, 5], result=⊤)[0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)
+    [91m⊔ ⇒ [0m[92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)   [0m
+
+[93mWidening Iteration 15[0m
+  [1mmain_exit_1[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=[1, inf])[0m <--[ [96m result = fact [0m ]-- [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=[1, inf])
+    [91m⊔ ⇒ [0m[92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=[1, inf])[0m
+
+[93mWidening Iteration 16[0m
+  [1mloop_1_exit[0m [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)   [0m
+
+[93mWidening Iteration 17[0m
+  [1mloop_1_exit[0m [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)   [0m
+
+[93mWidening Iteration 18[0m
+  [1mstmt_2[0m [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)            [0m
+
+[93mWidening Iteration 19[0m
+  [1mstmt_3[0m [92m(fact=[1, inf], i=[1, inf], n=[5, 5], result=⊤)   [0m
+
+[93mWidening Iteration 20[0m
+  [1mloop_1_entry[0m [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)     [0m
+
+[93mWidening Iteration 21[0m
+  [1mstmt_4[0m [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)     [0m
+
+[93mWidening Iteration 22[0m
+  [1mloop_1_exit[0m [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)   [0m
+
+[93mWidening Iteration 23[0m
+  [1mmain_exit_1[0m [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=[1, inf])[0m
+
+[93mAnalysis results after 23 iterations of Widening[0m
+   main_entry_1 [92m(fact=⊤, i=⊤, n=⊤, result=⊤)[0m
+         stmt_1 [92m(fact=⊤, i=⊤, n=[5, 5], result=⊤)[0m
+         stmt_2 [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)[0m
+         stmt_3 [92m(fact=[1, inf], i=[1, inf], n=[5, 5], result=⊤)[0m
+   loop_1_entry [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)[0m
+         stmt_4 [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)[0m
+    loop_1_exit [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)[0m
+    main_exit_1 [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=[1, inf])[0m
+
+[93mNarrowing Iteration 1[0m
+  [1mmain_entry_1[0m [92m(fact=⊤, i=⊤, n=⊤, result=⊤)                      [0m
+
+[93mNarrowing Iteration 2[0m
+  [1mstmt_1[0m [92m(fact=⊤, i=⊤, n=[5, 5], result=⊤)                 [0m
+
+[93mNarrowing Iteration 3[0m
+  [1mstmt_2[0m [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)            [0m
+
+[93mNarrowing Iteration 4[0m
+  [1mstmt_3[0m [92m(fact=[1, inf], i=[1, inf], n=[5, 5], result=⊤)   [0m
+    [95m⟵[0m     [92m(fact=[1, 1], i=[1, 1], n=[5, 5], result=⊤)[0m <--[ [96m     i = 1     [0m ]-- [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)  [0m  [94mstmt_2[0m 
+    [95m⟵[0m     [92m(fact=[1, inf], i=[2, 6], n=[5, 5], result=⊤)[0m <--[ [96m   i = i + 1   [0m ]-- [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)[0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2, stmt_4[0m[95m])[0m = [92m(fact=[1, inf], i=[1, 6], n=[5, 5], result=⊤)
+    [91m⩎ ⇒ [0m[92m(fact=[1, inf], i=[1, 6], n=[5, 5], result=⊤)     [0m
+
+[93mNarrowing Iteration 5[0m
+  [1mloop_1_entry[0m [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)     [0m
+
+[93mAnalysis results after 5 iterations of Narrowing[0m
+   main_entry_1 [92m(fact=⊤, i=⊤, n=⊤, result=⊤)[0m
+         stmt_1 [92m(fact=⊤, i=⊤, n=[5, 5], result=⊤)[0m
+         stmt_2 [92m(fact=[1, 1], i=⊤, n=[5, 5], result=⊤)[0m
+         stmt_3 [92m(fact=[1, inf], i=[1, 6], n=[5, 5], result=⊤)[0m
+   loop_1_entry [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)[0m
+         stmt_4 [92m(fact=[1, inf], i=[1, 5], n=[5, 5], result=⊤)[0m
+    loop_1_exit [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=⊤)[0m
+    main_exit_1 [92m(fact=[1, inf], i=[4, inf], n=[5, 5], result=[1, inf])[0m
+
+[93mRunning transformation:[0m [96mT6[0m
+[93mRunning analysis:[0m [96mPredominator (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{main_entry_1}                                    [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+    [95m⟵[0m     [92m{main_entry_1, stmt_1}                  [0m <--[ [96m     n = 5     [0m ]-- [92m{main_entry_1}                          [0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m{main_entry_1, stmt_1}                  
+    [91m⊔ ⇒ [0m[92m{main_entry_1, stmt_1}                            [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_2[0m [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+    [95m⟵[0m     [92m{main_entry_1, stmt_1, stmt_2}          [0m <--[ [96m   fact = 1    [0m ]-- [92m{main_entry_1, stmt_1}                  [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{main_entry_1, stmt_1, stmt_2}          
+    [91m⊔ ⇒ [0m[92m{main_entry_1, stmt_1, stmt_2}                    [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+    [95m⟵[0m     [92m{main_entry_1, stmt_1, stmt_2, stmt_3}  [0m <--[ [96m     i = 1     [0m ]-- [92m{main_entry_1, stmt_1, stmt_2}          [0m  [94mstmt_2[0m 
+    [95m⟵[0m     [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m <--[ [96m   i = i + 1   [0m ]-- [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2, stmt_4[0m[95m])[0m = [92m{main_entry_1, stmt_1, stmt_2, stmt_3}  
+    [91m⊔ ⇒ [0m[92m{main_entry_1, stmt_1, stmt_2, stmt_3}            [0m
+
+[93mWidening Iteration 5[0m
+  [1mloop_1_entry[0m [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+    [95m⟵[0m     [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3}[0m <--[ [96mPos(i &lt; = n)[0m ]-- [92m{main_entry_1, stmt_1, stmt_2, stmt_3}  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3}
+    [91m⊔ ⇒ [0m[92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3}[0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_4[0m [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+    [95m⟵[0m     [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m <--[ [96mfact = fact * i[0m ]-- [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3}[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3, stmt_4}
+    [91m⊔ ⇒ [0m[92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_3[0m [92m{main_entry_1, stmt_1, stmt_2, stmt_3}            [0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_exit[0m [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+    [95m⟵[0m     [92m{loop_1_exit, main_entry_1, stmt_1, stmt_2, stmt_3}[0m <--[ [96mNeg(i &lt; = n)[0m ]-- [92m{main_entry_1, stmt_1, stmt_2, stmt_3}  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{loop_1_exit, main_entry_1, stmt_1, stmt_2, stmt_3}
+    [91m⊔ ⇒ [0m[92m{loop_1_exit, main_entry_1, stmt_1, stmt_2, stmt_3}[0m
+
+[93mWidening Iteration 9[0m
+  [1mmain_exit_1[0m [92m{loop_1_entry, loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+    [95m⟵[0m     [92m{loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3}[0m <--[ [96m result = fact [0m ]-- [92m{loop_1_exit, main_entry_1, stmt_1, stmt_2, stmt_3}[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m{loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3}
+    [91m⊔ ⇒ [0m[92m{loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3}[0m
+
+[93mWidening Iteration 10[0m
+  [1mstmt_2[0m [92m{main_entry_1, stmt_1, stmt_2}                    [0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_3[0m [92m{main_entry_1, stmt_1, stmt_2, stmt_3}            [0m
+
+[93mWidening Iteration 12[0m
+  [1mloop_1_entry[0m [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3}[0m
+
+[93mWidening Iteration 13[0m
+  [1mstmt_4[0m [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+
+[93mWidening Iteration 14[0m
+  [1mloop_1_exit[0m [92m{loop_1_exit, main_entry_1, stmt_1, stmt_2, stmt_3}[0m
+
+[93mWidening Iteration 15[0m
+  [1mmain_exit_1[0m [92m{loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3}[0m
+
+[93mAnalysis results after 15 iterations of Widening[0m
+   main_entry_1 [92m{main_entry_1}      [0m
+         stmt_1 [92m{main_entry_1, stmt_1}[0m
+         stmt_2 [92m{main_entry_1, stmt_1, stmt_2}[0m
+         stmt_3 [92m{main_entry_1, stmt_1, stmt_2, stmt_3}[0m
+   loop_1_entry [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3}[0m
+         stmt_4 [92m{loop_1_entry, main_entry_1, stmt_1, stmt_2, stmt_3, stmt_4}[0m
+    loop_1_exit [92m{loop_1_exit, main_entry_1, stmt_1, stmt_2, stmt_3}[0m
+    main_exit_1 [92m{loop_1_exit, main_entry_1, main_exit_1, stmt_1, stmt_2, stmt_3}[0m
+Rotating loop at stmt_3
+
+[93mRunning transformation:[0m [96mT1.1[0m
+
+[93mRunning transformation:[0m [96mT1.2[0m
+[93mRunning analysis:[0m [96mAvailExpr (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m{}                                                [0m
+
+[93mWidening Iteration 5[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{}                                      [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{i &lt; = n}                            [0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_5[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96m result = fact [0m ]-- [92m{i &lt; = n}                            [0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mopt_5[0m 
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{i &lt; = n}                            [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5, opt_3[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 9[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{fact * i, i &lt; = n}                  [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{i &lt; = n}                            [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{fact * i, i &lt; = n}                  
+    [91m⊔ ⇒ [0m[92m{fact * i, i &lt; = n}                            [0m
+
+[93mWidening Iteration 10[0m
+  [1mstmt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mfact = T_factti[0m ]-- [92m{fact * i, i &lt; = n}                  [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 11[0m
+  [1mopt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n, i + 1}                     [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{i &lt; = n}                            [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m{i &lt; = n, i + 1}                     
+    [91m⊔ ⇒ [0m[92m{i &lt; = n, i + 1}                               [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 13[0m
+  [1mloop_1_entry[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 14[0m
+  [1mopt_2[0m [92m{fact * i, i &lt; = n}                            [0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_4[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_4[0m [92m{i &lt; = n, i + 1}                               [0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_5[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{}                                      [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 19[0m
+  [1mloop_1_exit[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 20[0m
+  [1mloop_1_entry[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 21[0m
+  [1mloop_1_exit[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 22[0m
+  [1mmain_exit_1[0m [92m{i &lt; = n}                                      [0m
+
+[93mAnalysis results after 22 iterations of Widening[0m
+   main_entry_1 [92m{}                  [0m
+         stmt_1 [92m{}                  [0m
+         stmt_2 [92m{}                  [0m
+         stmt_3 [92m{}                  [0m
+          opt_3 [92m{i &lt; = n}        [0m
+   loop_1_entry [92m{i &lt; = n}        [0m
+          opt_2 [92m{fact * i, i &lt; = n}[0m
+         stmt_4 [92m{i &lt; = n}        [0m
+          opt_4 [92m{i &lt; = n, i + 1} [0m
+          opt_1 [92m{}                  [0m
+          opt_5 [92m{i &lt; = n}        [0m
+    loop_1_exit [92m{i &lt; = n}        [0m
+    main_exit_1 [92m{i &lt; = n}        [0m
+
+[93mRunning transformation:[0m [96mT3[0m
+[93mRunning analysis:[0m [96mExprStores (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_2[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+
+[93mWidening Iteration 5[0m
+  [1mopt_3[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_exit[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_5[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_exit_1[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m result = fact [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_entry[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m  [94mopt_5[0m 
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5, opt_3[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 9[0m
+  [1mopt_2[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96mT_factti = fact * i[0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m
+
+[93mWidening Iteration 10[0m
+  [1mstmt_4[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96mfact = T_factti[0m ]-- [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={})[0m
+
+[93mWidening Iteration 11[0m
+  [1mopt_4[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_1[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96m   i = T_ip1   [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 13[0m
+  [1mopt_5[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 14[0m
+  [1mloop_1_exit[0m [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_5[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 15[0m
+  [1mmain_exit_1[0m [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96m result = fact [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 16[0m
+  [1mloop_1_entry[0m [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_5[0m 
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5, opt_3[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_2[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m
+    [95m⟵[0m     [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96mT_factti = fact * i[0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 18[0m
+  [1mstmt_4[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={})[0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96mfact = T_factti[0m ]-- [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 19[0m
+  [1mopt_4[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 20[0m
+  [1mloop_1_entry[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 21[0m
+  [1mopt_2[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 22[0m
+  [1mstmt_4[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 23[0m
+  [1mopt_4[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 24[0m
+  [1mopt_1[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 25[0m
+  [1mopt_5[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 26[0m
+  [1mloop_1_exit[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 27[0m
+  [1mmain_exit_1[0m [92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mAnalysis results after 27 iterations of Widening[0m
+   main_entry_1 [92m(fact * i={}, i &lt; = n={}, i + 1={})[0m
+         stmt_1 [92m(fact * i={}, i &lt; = n={}, i + 1={})[0m
+         stmt_2 [92m(fact * i={}, i &lt; = n={}, i + 1={})[0m
+         stmt_3 [92m(fact * i={}, i &lt; = n={}, i + 1={})[0m
+          opt_3 [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m
+   loop_1_entry [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+          opt_2 [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+         stmt_4 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+          opt_4 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+          opt_1 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+          opt_5 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+    loop_1_exit [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+    main_exit_1 [92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mRunning transformation:[0m [96mT2[0m
+[93mRunning analysis:[0m [96mTrueLiveVar (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_exit_1[0m [92m{result}                                          [0m
+
+[93mWidening Iteration 2[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti}                              [0m <--[ [96mresult = T_factti[0m ]-- [92m{result}                                [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{T_factti}                              
+    [91m⊔ ⇒ [0m[92m{T_factti}                                        [0m
+
+[93mWidening Iteration 3[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_ilen}                                [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m{T_factti, T_ilen}                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{T_factti}                              [0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, loop_1_exit[0m[95m])[0m = [92m{T_factti, T_ilen}                      
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ilen}                                [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, T_ilen}                      [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti, n}                           [0m <--[ [96m     i = 1     [0m ]-- [92m{T_factti, i, n}                        [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{T_factti, n}                           
+    [91m⊔ ⇒ [0m[92m{T_factti, n}                                     [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti, n}                           [0m <--[ [96m   fact = 1    [0m ]-- [92m{T_factti, n}                           [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{T_factti, n}                           
+    [91m⊔ ⇒ [0m[92m{T_factti, n}                                     [0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti}                              [0m <--[ [96m     n = 5     [0m ]-- [92m{T_factti, n}                           [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{T_factti}                              
+    [91m⊔ ⇒ [0m[92m{T_factti}                                        [0m
+
+[93mWidening Iteration 8[0m
+  [1mopt_5[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_ilen}                                [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m{T_factti, T_ilen}                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{T_factti}                              [0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, loop_1_exit[0m[95m])[0m = [92m{T_factti, T_ilen}                      
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ilen}                                [0m
+
+[93mWidening Iteration 9[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, T_ilen}                      [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti, T_ip1, n}                    [0m <--[ [96m   i = T_ip1   [0m ]-- [92m{T_factti, i, n}                        [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{T_factti, T_ip1, n}                    
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ip1, n}                              [0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{T_factti, T_ip1, n}                    [0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96mfact = T_factti[0m ]-- [92m{T_factti, i, n}                        [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 13[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{fact, i, n}                            [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{T_factti, i, n}                        [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{fact, i, n}                            
+    [91m⊔ ⇒ [0m[92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 14[0m
+  [1mopt_5[0m [92m{T_factti, T_ilen}                                [0m
+    [95m⟵[0m     [92m{T_factti, T_ilen}                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{T_factti}                              [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{T_ilen, fact, i, n}                    [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{fact, i, n}                            [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, loop_1_entry[0m[95m])[0m = [92m{T_factti, T_ilen, fact, i, n}          
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ilen, fact, i, n}                    [0m
+
+[93mWidening Iteration 15[0m
+  [1mopt_1[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, T_ilen, fact, i, n}          [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_4[0m [92m{T_factti, T_ip1, n}                              [0m
+    [95m⟵[0m     [92m{T_factti, T_ip1, fact, n}              [0m <--[ [96m   i = T_ip1   [0m ]-- [92m{T_factti, fact, i, n}                  [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{T_factti, T_ip1, fact, n}              
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ip1, fact, n}                        [0m
+
+[93mWidening Iteration 17[0m
+  [1mstmt_4[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{T_factti, T_ip1, fact, n}              [0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_2[0m [92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 19[0m
+  [1mopt_3[0m [92m{T_factti, T_ilen}                                [0m
+    [95m⟵[0m     [92m{T_factti, T_ilen}                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{T_factti}                              [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{T_ilen, fact, i, n}                    [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{fact, i, n}                            [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, loop_1_entry[0m[95m])[0m = [92m{T_factti, T_ilen, fact, i, n}          
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ilen, fact, i, n}                    [0m
+
+[93mWidening Iteration 20[0m
+  [1mstmt_3[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, T_ilen, fact, i, n}          [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 21[0m
+  [1mstmt_2[0m [92m{T_factti, n}                                     [0m
+    [95m⟵[0m     [92m{T_factti, fact, n}                     [0m <--[ [96m     i = 1     [0m ]-- [92m{T_factti, fact, i, n}                  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{T_factti, fact, n}                     
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, n}                               [0m
+
+[93mWidening Iteration 22[0m
+  [1mstmt_1[0m [92m{T_factti, n}                                     [0m
+
+[93mWidening Iteration 23[0m
+  [1mopt_5[0m [92m{T_factti, T_ilen, fact, i, n}                    [0m
+
+[93mWidening Iteration 24[0m
+  [1mopt_1[0m [92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 25[0m
+  [1mopt_4[0m [92m{T_factti, T_ip1, fact, n}                        [0m
+
+[93mWidening Iteration 26[0m
+  [1mstmt_4[0m [92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 27[0m
+  [1mopt_2[0m [92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 28[0m
+  [1mloop_1_entry[0m [92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 29[0m
+  [1mopt_3[0m [92m{T_factti, T_ilen, fact, i, n}                    [0m
+
+[93mWidening Iteration 30[0m
+  [1mstmt_3[0m [92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 31[0m
+  [1mstmt_2[0m [92m{T_factti, fact, n}                               [0m
+
+[93mWidening Iteration 32[0m
+  [1mstmt_1[0m [92m{T_factti, n}                                     [0m
+
+[93mWidening Iteration 33[0m
+  [1mmain_entry_1[0m [92m{T_factti}                                        [0m
+
+[93mAnalysis results after 33 iterations of Widening[0m
+    main_exit_1 [92m{result}            [0m
+    loop_1_exit [92m{T_factti}          [0m
+          opt_5 [92m{T_factti, T_ilen, fact, i, n}[0m
+          opt_1 [92m{T_factti, fact, i, n}[0m
+          opt_4 [92m{T_factti, T_ip1, fact, n}[0m
+         stmt_4 [92m{T_factti, fact, i, n}[0m
+          opt_2 [92m{T_factti, i, n}    [0m
+   loop_1_entry [92m{fact, i, n}        [0m
+          opt_3 [92m{T_factti, T_ilen, fact, i, n}[0m
+         stmt_3 [92m{T_factti, fact, i, n}[0m
+         stmt_2 [92m{T_factti, fact, n} [0m
+         stmt_1 [92m{T_factti, n}       [0m
+   main_entry_1 [92m{T_factti}          [0m
+
+[93mRunning transformation:[0m [96mT5_1[0m
+[93mRunning analysis:[0m [96mVeryBusy (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mloop_1_exit[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96mresult = T_factti[0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{}                                      
+    [91m⊔ ⇒ [0m[92m{}                                                [0m
+
+[93mWidening Iteration 3[0m
+  [1mopt_3[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, loop_1_exit[0m[95m])[0m = [92m{}                                      
+    [91m⊔ ⇒ [0m[92m{}                                                [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{}                                      [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_2[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{1}                                     [0m <--[ [96m     i = 1     [0m ]-- [92m{i &lt; = n}                            [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{1}                                     
+    [91m⊔ ⇒ [0m[92m{1}                                               [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_1[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{1}                                     [0m <--[ [96m   fact = 1    [0m ]-- [92m{1}                                     [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{1}                                     
+    [91m⊔ ⇒ [0m[92m{1}                                               [0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_entry_1[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{1, 5}                                  [0m <--[ [96m     n = 5     [0m ]-- [92m{1}                                     [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{1, 5}                                  
+    [91m⊔ ⇒ [0m[92m{1, 5}                                            [0m
+
+[93mWidening Iteration 8[0m
+  [1mopt_5[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, loop_1_entry[0m[95m])[0m = [92m{}                                      
+    [91m⊔ ⇒ [0m[92m{}                                                [0m
+
+[93mWidening Iteration 9[0m
+  [1mopt_1[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{}                                      [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_4[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m   i = T_ip1   [0m ]-- [92m{i &lt; = n}                            [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{}                                      
+    [91m⊔ ⇒ [0m[92m{}                                                [0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_4[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{i + 1}                                 [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{}                                      [0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m{i + 1}                                 
+    [91m⊔ ⇒ [0m[92m{i + 1}                                           [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_2[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{i + 1}                                 [0m <--[ [96mfact = T_factti[0m ]-- [92m{i + 1}                                 [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m{i + 1}                                 
+    [91m⊔ ⇒ [0m[92m{i + 1}                                           [0m
+
+[93mWidening Iteration 13[0m
+  [1mloop_1_entry[0m [92m{1, 5, T_factti, T_ilen, T_ip1, fact, fact * i, i, i &lt; = n, i + 1, n, result}[0m
+    [95m⟵[0m     [92m{fact * i, i + 1}                       [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{i + 1}                                 [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{fact * i, i + 1}                       
+    [91m⊔ ⇒ [0m[92m{fact * i, i + 1}                                 [0m
+
+[93mWidening Iteration 14[0m
+  [1mopt_5[0m [92m{}                                                [0m
+
+[93mWidening Iteration 15[0m
+  [1mopt_3[0m [92m{}                                                [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_5[0m [92m{}                                                [0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_1[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_4[0m [92m{}                                                [0m
+
+[93mWidening Iteration 19[0m
+  [1mstmt_4[0m [92m{i + 1}                                           [0m
+
+[93mWidening Iteration 20[0m
+  [1mopt_2[0m [92m{i + 1}                                           [0m
+
+[93mWidening Iteration 21[0m
+  [1mloop_1_entry[0m [92m{fact * i, i + 1}                                 [0m
+
+[93mWidening Iteration 22[0m
+  [1mopt_3[0m [92m{}                                                [0m
+
+[93mWidening Iteration 23[0m
+  [1mstmt_3[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 24[0m
+  [1mstmt_2[0m [92m{1}                                               [0m
+
+[93mWidening Iteration 25[0m
+  [1mstmt_1[0m [92m{1}                                               [0m
+
+[93mWidening Iteration 26[0m
+  [1mmain_entry_1[0m [92m{1, 5}                                            [0m
+
+[93mAnalysis results after 26 iterations of Widening[0m
+    main_exit_1 [92m{}                  [0m
+    loop_1_exit [92m{}                  [0m
+          opt_5 [92m{}                  [0m
+          opt_1 [92m{i &lt; = n}        [0m
+          opt_4 [92m{}                  [0m
+         stmt_4 [92m{i + 1}             [0m
+          opt_2 [92m{i + 1}             [0m
+   loop_1_entry [92m{fact * i, i + 1}   [0m
+          opt_3 [92m{}                  [0m
+         stmt_3 [92m{i &lt; = n}        [0m
+         stmt_2 [92m{1}                 [0m
+         stmt_1 [92m{1}                 [0m
+   main_entry_1 [92m{1, 5}              [0m
+[93mRunning analysis:[0m [96mAvailExpr (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m{}                                                [0m
+
+[93mWidening Iteration 5[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{}                                      [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{i &lt; = n}                            [0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_5[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mresult = T_factti[0m ]-- [92m{i &lt; = n}                            [0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mopt_5[0m 
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{i &lt; = n}                            [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5, opt_3[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 9[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{fact * i, i &lt; = n}                  [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{i &lt; = n}                            [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{fact * i, i &lt; = n}                  
+    [91m⊔ ⇒ [0m[92m{fact * i, i &lt; = n}                            [0m
+
+[93mWidening Iteration 10[0m
+  [1mstmt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mfact = T_factti[0m ]-- [92m{fact * i, i &lt; = n}                  [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 11[0m
+  [1mopt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n, i + 1}                     [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{i &lt; = n}                            [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m{i &lt; = n, i + 1}                     
+    [91m⊔ ⇒ [0m[92m{i &lt; = n, i + 1}                               [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 13[0m
+  [1mloop_1_entry[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 14[0m
+  [1mopt_2[0m [92m{fact * i, i &lt; = n}                            [0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_4[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_4[0m [92m{i &lt; = n, i + 1}                               [0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_5[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt; = n}                            [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{}                                      [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{i &lt; = n}                            
+    [91m⊔ ⇒ [0m[92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 19[0m
+  [1mloop_1_exit[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 20[0m
+  [1mloop_1_entry[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 21[0m
+  [1mloop_1_exit[0m [92m{i &lt; = n}                                      [0m
+
+[93mWidening Iteration 22[0m
+  [1mmain_exit_1[0m [92m{i &lt; = n}                                      [0m
+
+[93mAnalysis results after 22 iterations of Widening[0m
+   main_entry_1 [92m{}                  [0m
+         stmt_1 [92m{}                  [0m
+         stmt_2 [92m{}                  [0m
+         stmt_3 [92m{}                  [0m
+          opt_3 [92m{i &lt; = n}        [0m
+   loop_1_entry [92m{i &lt; = n}        [0m
+          opt_2 [92m{fact * i, i &lt; = n}[0m
+         stmt_4 [92m{i &lt; = n}        [0m
+          opt_4 [92m{i &lt; = n, i + 1} [0m
+          opt_1 [92m{}                  [0m
+          opt_5 [92m{i &lt; = n}        [0m
+    loop_1_exit [92m{i &lt; = n}        [0m
+    main_exit_1 [92m{i &lt; = n}        [0m
+
+[93mRunning transformation:[0m [96mT5_2[0m
+
+[93mRunning transformation:[0m [96mT3[0m
+[93mRunning analysis:[0m [96mExprStores (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_2[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+
+[93mWidening Iteration 4[0m
+  [1mopt_7[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+
+[93mWidening Iteration 5[0m
+  [1mopt_8[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m  [94mopt_7[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_7[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_3[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m       ;       [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_8[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_8[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 7[0m
+  [1mopt_3[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_exit[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_5[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 9[0m
+  [1mmain_exit_1[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96mresult = T_factti[0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_10[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 11[0m
+  [1mopt_11[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96mT_factti = fact * i[0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_10[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_10[0m[95m])[0m = [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_12[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_11[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_11[0m[95m])[0m = [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 13[0m
+  [1mloop_1_entry[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m <--[ [96m       ;       [0m ]-- [92m(fact * i={}, i &lt; = n={}, i + 1={})  [0m  [94mopt_19[0m 
+    [95m⟵[0m     [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m <--[ [96m       ;       [0m ]-- [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m  [94mopt_12[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_19, opt_12[0m[95m])[0m = [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 14[0m
+  [1mopt_2[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m <--[ [96mT_factti = fact * i[0m ]-- [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_4[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m <--[ [96mfact = T_factti[0m ]-- [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_4[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_14[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96m   i = T_ip1   [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_15[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_14[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_14[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 19[0m
+  [1mopt_1[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96m       ;       [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_15[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_15[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 20[0m
+  [1mopt_5[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 21[0m
+  [1mloop_1_exit[0m [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+    [95m⟵[0m     [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_5[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 22[0m
+  [1mmain_exit_1[0m [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96mresult = T_factti[0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 23[0m
+  [1mopt_17[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5[0m[95m])[0m = [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 24[0m
+  [1mopt_18[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m <--[ [96mT_factti = fact * i[0m ]-- [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_17[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_17[0m[95m])[0m = [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 25[0m
+  [1mopt_19[0m [92m(fact * i={}, i &lt; = n={}, i + 1={})            [0m
+    [95m⟵[0m     [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m  [94mopt_18[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_18[0m[95m])[0m = [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})
+    [91m⊔ ⇒ [0m[92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 26[0m
+  [1mloop_1_entry[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 27[0m
+  [1mstmt_3[0m [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 28[0m
+  [1mopt_3[0m [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 29[0m
+  [1mloop_1_exit[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 30[0m
+  [1mmain_exit_1[0m [92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 31[0m
+  [1mopt_10[0m [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})      [0m
+
+[93mWidening Iteration 32[0m
+  [1mopt_11[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m
+
+[93mWidening Iteration 33[0m
+  [1mopt_12[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 34[0m
+  [1mloop_1_entry[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 35[0m
+  [1mopt_2[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 36[0m
+  [1mstmt_4[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 37[0m
+  [1mopt_4[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mWidening Iteration 38[0m
+  [1mopt_14[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 39[0m
+  [1mopt_15[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 40[0m
+  [1mopt_1[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 41[0m
+  [1mopt_5[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 42[0m
+  [1mopt_17[0m [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 43[0m
+  [1mopt_18[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+
+[93mWidening Iteration 44[0m
+  [1mopt_19[0m [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mAnalysis results after 44 iterations of Widening[0m
+   main_entry_1 [92m(fact * i={}, i &lt; = n={}, i + 1={})[0m
+         stmt_1 [92m(fact * i={}, i &lt; = n={}, i + 1={})[0m
+         stmt_2 [92m(fact * i={}, i &lt; = n={}, i + 1={})[0m
+          opt_7 [92m(fact * i={}, i &lt; = n={}, i + 1={})[0m
+          opt_8 [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m
+         stmt_3 [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m
+          opt_3 [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m
+    loop_1_exit [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+    main_exit_1 [92m(fact * i={T_factti, fact, result}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+         opt_10 [92m(fact * i={}, i &lt; = n={T_ilen}, i + 1={})[0m
+         opt_11 [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={})[0m
+         opt_12 [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+   loop_1_entry [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+          opt_2 [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+         stmt_4 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+          opt_4 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+         opt_14 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+         opt_15 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+          opt_1 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+          opt_5 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+         opt_17 [92m(fact * i={T_factti, fact}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+         opt_18 [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1, i})[0m
+         opt_19 [92m(fact * i={T_factti}, i &lt; = n={T_ilen}, i + 1={T_ip1})[0m
+
+[93mRunning transformation:[0m [96mT2[0m
+[93mRunning analysis:[0m [96mTrueLiveVar (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mopt_19[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mopt_18[0m [92m{}                                                [0m
+
+[93mWidening Iteration 3[0m
+  [1mopt_17[0m [92m{}                                                [0m
+
+[93mWidening Iteration 4[0m
+  [1mopt_5[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_ilen}                                [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mopt_17[0m 
+    [95m⟵[0m     [92m{T_ilen}                                [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_17, loop_1_exit[0m[95m])[0m = [92m{T_ilen}                                
+    [91m⊔ ⇒ [0m[92m{T_ilen}                                          [0m
+
+[93mWidening Iteration 5[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_ilen}                                [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 6[0m
+  [1mopt_15[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96m       ;       [0m ]-- [92m{i, n}                                  [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 7[0m
+  [1mopt_14[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{i, n}                                  [0m  [94mopt_15[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_15[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 8[0m
+  [1mopt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_ip1, n}                              [0m <--[ [96m   i = T_ip1   [0m ]-- [92m{i, n}                                  [0m  [94mopt_14[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_14[0m[95m])[0m = [92m{T_ip1, n}                              
+    [91m⊔ ⇒ [0m[92m{T_ip1, n}                                        [0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{T_ip1, n}                              [0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96mfact = T_factti[0m ]-- [92m{i, n}                                  [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 11[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{i, n}                                  [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_19[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96m       ;       [0m ]-- [92m{i, n}                                  [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 13[0m
+  [1mopt_18[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{i, n}                                  [0m  [94mopt_19[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_19[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 14[0m
+  [1mopt_17[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{i, n}                                  [0m  [94mopt_18[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_18[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 15[0m
+  [1mopt_5[0m [92m{T_ilen}                                          [0m
+    [95m⟵[0m     [92m{T_ilen}                                [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{T_ilen, i, n}                          [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{i, n}                                  [0m  [94mopt_17[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, opt_17[0m[95m])[0m = [92m{T_ilen, i, n}                          
+    [91m⊔ ⇒ [0m[92m{T_ilen, i, n}                                    [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_1[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_12[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96m       ;       [0m ]-- [92m{i, n}                                  [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_11[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{i, n}                                  [0m  [94mopt_12[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_12[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 19[0m
+  [1mopt_10[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{i, n}                                  [0m  [94mopt_11[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_11[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 20[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_ilen}                                [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{}                                      [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{T_ilen, i, n}                          [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{i, n}                                  [0m  [94mopt_10[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, opt_10[0m[95m])[0m = [92m{T_ilen, i, n}                          
+    [91m⊔ ⇒ [0m[92m{T_ilen, i, n}                                    [0m
+
+[93mWidening Iteration 21[0m
+  [1mstmt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_ilen, i, n}                          [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 22[0m
+  [1mopt_8[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96m       ;       [0m ]-- [92m{i, n}                                  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 23[0m
+  [1mopt_7[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i, n}                                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{i, n}                                  [0m  [94mopt_8[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_8[0m[95m])[0m = [92m{i, n}                                  
+    [91m⊔ ⇒ [0m[92m{i, n}                                            [0m
+
+[93mWidening Iteration 24[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{n}                                     [0m <--[ [96m     i = 1     [0m ]-- [92m{i, n}                                  [0m  [94mopt_7[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_7[0m[95m])[0m = [92m{n}                                     
+    [91m⊔ ⇒ [0m[92m{n}                                               [0m
+
+[93mWidening Iteration 25[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{n}                                     [0m <--[ [96m   fact = 1    [0m ]-- [92m{n}                                     [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{n}                                     
+    [91m⊔ ⇒ [0m[92m{n}                                               [0m
+
+[93mWidening Iteration 26[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 27[0m
+  [1mopt_1[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 28[0m
+  [1mopt_15[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 29[0m
+  [1mopt_14[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 30[0m
+  [1mopt_4[0m [92m{T_ip1, n}                                        [0m
+
+[93mWidening Iteration 31[0m
+  [1mstmt_4[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 32[0m
+  [1mopt_2[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 33[0m
+  [1mloop_1_entry[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 34[0m
+  [1mopt_12[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 35[0m
+  [1mopt_11[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 36[0m
+  [1mopt_10[0m [92m{i, n}                                            [0m
+
+[93mWidening Iteration 37[0m
+  [1mmain_exit_1[0m [92m{result}                                          [0m
+
+[93mWidening Iteration 38[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti}                              [0m <--[ [96mresult = T_factti[0m ]-- [92m{result}                                [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{T_factti}                              
+    [91m⊔ ⇒ [0m[92m{T_factti}                                        [0m
+
+[93mWidening Iteration 39[0m
+  [1mopt_3[0m [92m{T_ilen, i, n}                                    [0m
+    [95m⟵[0m     [92m{T_factti, T_ilen}                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{T_factti}                              [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{T_ilen, i, n}                          [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{i, n}                                  [0m  [94mopt_10[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, opt_10[0m[95m])[0m = [92m{T_factti, T_ilen, i, n}                
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ilen, i, n}                          [0m
+
+[93mWidening Iteration 40[0m
+  [1mstmt_3[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, T_ilen, i, n}                [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 41[0m
+  [1mopt_8[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96m       ;       [0m ]-- [92m{T_factti, i, n}                        [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 42[0m
+  [1mopt_7[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, i, n}                        [0m  [94mopt_8[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_8[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 43[0m
+  [1mstmt_2[0m [92m{n}                                               [0m
+    [95m⟵[0m     [92m{T_factti, n}                           [0m <--[ [96m     i = 1     [0m ]-- [92m{T_factti, i, n}                        [0m  [94mopt_7[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_7[0m[95m])[0m = [92m{T_factti, n}                           
+    [91m⊔ ⇒ [0m[92m{T_factti, n}                                     [0m
+
+[93mWidening Iteration 44[0m
+  [1mstmt_1[0m [92m{n}                                               [0m
+    [95m⟵[0m     [92m{T_factti, n}                           [0m <--[ [96m   fact = 1    [0m ]-- [92m{T_factti, n}                           [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{T_factti, n}                           
+    [91m⊔ ⇒ [0m[92m{T_factti, n}                                     [0m
+
+[93mWidening Iteration 45[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{T_factti}                              [0m <--[ [96m     n = 5     [0m ]-- [92m{T_factti, n}                           [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{T_factti}                              
+    [91m⊔ ⇒ [0m[92m{T_factti}                                        [0m
+
+[93mWidening Iteration 46[0m
+  [1mopt_5[0m [92m{T_ilen, i, n}                                    [0m
+    [95m⟵[0m     [92m{T_factti, T_ilen}                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{T_factti}                              [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{T_ilen, i, n}                          [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{i, n}                                  [0m  [94mopt_17[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, opt_17[0m[95m])[0m = [92m{T_factti, T_ilen, i, n}                
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ilen, i, n}                          [0m
+
+[93mWidening Iteration 47[0m
+  [1mopt_1[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, T_ilen, i, n}                [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 48[0m
+  [1mopt_15[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96m       ;       [0m ]-- [92m{T_factti, i, n}                        [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 49[0m
+  [1mopt_14[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, i, n}                        [0m  [94mopt_15[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_15[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 50[0m
+  [1mopt_4[0m [92m{T_ip1, n}                                        [0m
+    [95m⟵[0m     [92m{T_factti, T_ip1, n}                    [0m <--[ [96m   i = T_ip1   [0m ]-- [92m{T_factti, i, n}                        [0m  [94mopt_14[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_14[0m[95m])[0m = [92m{T_factti, T_ip1, n}                    
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ip1, n}                              [0m
+
+[93mWidening Iteration 51[0m
+  [1mstmt_4[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{T_factti, T_ip1, n}                    [0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 52[0m
+  [1mopt_2[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{T_factti, i, n}                        [0m <--[ [96mfact = T_factti[0m ]-- [92m{T_factti, i, n}                        [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m{T_factti, i, n}                        
+    [91m⊔ ⇒ [0m[92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 53[0m
+  [1mloop_1_entry[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{fact, i, n}                            [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{T_factti, i, n}                        [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{fact, i, n}                            
+    [91m⊔ ⇒ [0m[92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 54[0m
+  [1mopt_19[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{fact, i, n}                            [0m <--[ [96m       ;       [0m ]-- [92m{fact, i, n}                            [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{fact, i, n}                            
+    [91m⊔ ⇒ [0m[92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 55[0m
+  [1mopt_18[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{fact, i, n}                            [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{fact, i, n}                            [0m  [94mopt_19[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_19[0m[95m])[0m = [92m{fact, i, n}                            
+    [91m⊔ ⇒ [0m[92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 56[0m
+  [1mopt_17[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{fact, i, n}                            [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{fact, i, n}                            [0m  [94mopt_18[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_18[0m[95m])[0m = [92m{fact, i, n}                            
+    [91m⊔ ⇒ [0m[92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 57[0m
+  [1mopt_5[0m [92m{T_factti, T_ilen, i, n}                          [0m
+    [95m⟵[0m     [92m{T_factti, T_ilen}                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{T_factti}                              [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{T_ilen, fact, i, n}                    [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{fact, i, n}                            [0m  [94mopt_17[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, opt_17[0m[95m])[0m = [92m{T_factti, T_ilen, fact, i, n}          
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ilen, fact, i, n}                    [0m
+
+[93mWidening Iteration 58[0m
+  [1mopt_1[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, T_ilen, fact, i, n}          [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 59[0m
+  [1mopt_15[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96m       ;       [0m ]-- [92m{T_factti, fact, i, n}                  [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 60[0m
+  [1mopt_14[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, fact, i, n}                  [0m  [94mopt_15[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_15[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 61[0m
+  [1mopt_4[0m [92m{T_factti, T_ip1, n}                              [0m
+    [95m⟵[0m     [92m{T_factti, T_ip1, fact, n}              [0m <--[ [96m   i = T_ip1   [0m ]-- [92m{T_factti, fact, i, n}                  [0m  [94mopt_14[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_14[0m[95m])[0m = [92m{T_factti, T_ip1, fact, n}              
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ip1, fact, n}                        [0m
+
+[93mWidening Iteration 62[0m
+  [1mstmt_4[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{T_factti, T_ip1, fact, n}              [0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 63[0m
+  [1mopt_2[0m [92m{T_factti, i, n}                                  [0m
+
+[93mWidening Iteration 64[0m
+  [1mopt_12[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{fact, i, n}                            [0m <--[ [96m       ;       [0m ]-- [92m{fact, i, n}                            [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{fact, i, n}                            
+    [91m⊔ ⇒ [0m[92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 65[0m
+  [1mopt_11[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{fact, i, n}                            [0m <--[ [96m T_ip1 = i + 1 [0m ]-- [92m{fact, i, n}                            [0m  [94mopt_12[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_12[0m[95m])[0m = [92m{fact, i, n}                            
+    [91m⊔ ⇒ [0m[92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 66[0m
+  [1mopt_10[0m [92m{i, n}                                            [0m
+    [95m⟵[0m     [92m{fact, i, n}                            [0m <--[ [96mT_factti = fact * i[0m ]-- [92m{fact, i, n}                            [0m  [94mopt_11[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_11[0m[95m])[0m = [92m{fact, i, n}                            
+    [91m⊔ ⇒ [0m[92m{fact, i, n}                                      [0m
+
+[93mWidening Iteration 67[0m
+  [1mopt_3[0m [92m{T_factti, T_ilen, i, n}                          [0m
+    [95m⟵[0m     [92m{T_factti, T_ilen}                      [0m <--[ [96m  Neg(T_ilen)  [0m ]-- [92m{T_factti}                              [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{T_ilen, fact, i, n}                    [0m <--[ [96m  Pos(T_ilen)  [0m ]-- [92m{fact, i, n}                            [0m  [94mopt_10[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, opt_10[0m[95m])[0m = [92m{T_factti, T_ilen, fact, i, n}          
+    [91m⊔ ⇒ [0m[92m{T_factti, T_ilen, fact, i, n}                    [0m
+
+[93mWidening Iteration 68[0m
+  [1mstmt_3[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, T_ilen, fact, i, n}          [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 69[0m
+  [1mopt_8[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96m       ;       [0m ]-- [92m{T_factti, fact, i, n}                  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 70[0m
+  [1mopt_7[0m [92m{T_factti, i, n}                                  [0m
+    [95m⟵[0m     [92m{T_factti, fact, i, n}                  [0m <--[ [96mT_ilen = i &lt; = n[0m ]-- [92m{T_factti, fact, i, n}                  [0m  [94mopt_8[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_8[0m[95m])[0m = [92m{T_factti, fact, i, n}                  
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 71[0m
+  [1mstmt_2[0m [92m{T_factti, n}                                     [0m
+    [95m⟵[0m     [92m{T_factti, fact, n}                     [0m <--[ [96m     i = 1     [0m ]-- [92m{T_factti, fact, i, n}                  [0m  [94mopt_7[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_7[0m[95m])[0m = [92m{T_factti, fact, n}                     
+    [91m⊔ ⇒ [0m[92m{T_factti, fact, n}                               [0m
+
+[93mWidening Iteration 72[0m
+  [1mstmt_1[0m [92m{T_factti, n}                                     [0m
+
+[93mWidening Iteration 73[0m
+  [1mopt_3[0m [92m{T_factti, T_ilen, fact, i, n}                    [0m
+
+[93mWidening Iteration 74[0m
+  [1mstmt_3[0m [92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 75[0m
+  [1mopt_8[0m [92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 76[0m
+  [1mopt_7[0m [92m{T_factti, fact, i, n}                            [0m
+
+[93mWidening Iteration 77[0m
+  [1mstmt_2[0m [92m{T_factti, fact, n}                               [0m
+
+[93mWidening Iteration 78[0m
+  [1mstmt_1[0m [92m{T_factti, n}                                     [0m
+
+[93mWidening Iteration 79[0m
+  [1mmain_entry_1[0m [92m{T_factti}                                        [0m
+
+[93mAnalysis results after 79 iterations of Widening[0m
+         opt_19 [92m{fact, i, n}        [0m
+         opt_18 [92m{fact, i, n}        [0m
+         opt_17 [92m{fact, i, n}        [0m
+          opt_5 [92m{T_factti, T_ilen, fact, i, n}[0m
+          opt_1 [92m{T_factti, fact, i, n}[0m
+         opt_15 [92m{T_factti, fact, i, n}[0m
+         opt_14 [92m{T_factti, fact, i, n}[0m
+          opt_4 [92m{T_factti, T_ip1, fact, n}[0m
+         stmt_4 [92m{T_factti, fact, i, n}[0m
+          opt_2 [92m{T_factti, i, n}    [0m
+   loop_1_entry [92m{fact, i, n}        [0m
+         opt_12 [92m{fact, i, n}        [0m
+         opt_11 [92m{fact, i, n}        [0m
+         opt_10 [92m{fact, i, n}        [0m
+    main_exit_1 [92m{result}            [0m
+    loop_1_exit [92m{T_factti}          [0m
+          opt_3 [92m{T_factti, T_ilen, fact, i, n}[0m
+         stmt_3 [92m{T_factti, fact, i, n}[0m
+          opt_8 [92m{T_factti, fact, i, n}[0m
+          opt_7 [92m{T_factti, fact, i, n}[0m
+         stmt_2 [92m{T_factti, fact, n} [0m
+         stmt_1 [92m{T_factti, n}       [0m
+   main_entry_1 [92m{T_factti}          [0m
+
+[93mRunning transformation:[0m [96mT0[0m
+
+[92mTotal iterations:[0m 318

@@ -1,0 +1,56 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: true_liveness.c
+	Edge([92mmain_entry_1[0m
+[94m
+locals=[x, z]
+globals=[M, R, y][0m -> [92mstmt_1[0m [x = y + 1 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mstmt_2[0m [z = 2 * x : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mmain_exit_1[0m [M[R] = y : StoresCommand])
+
+[92mTransformations:[0m
+	[96mT2[0m:	 Delete assignments to variables that are not (truly) live
+	[96mT0[0m:	 Delete all skip commands
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT2[0m
+[93mRunning analysis:[0m [96mTrueLiveVar (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, y}                                  [0m <--[ [96m   M[R] = y    [0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{R, y}                                  
+    [91m⊔ ⇒ [0m[92m{R, y}                                            [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, y}                                  [0m <--[ [96m   z = 2 * x   [0m ]-- [92m{R, y}                                  [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{R, y}                                  
+    [91m⊔ ⇒ [0m[92m{R, y}                                            [0m
+
+[93mWidening Iteration 4[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, y}                                  [0m <--[ [96m   x = y + 1   [0m ]-- [92m{R, y}                                  [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{R, y}                                  
+    [91m⊔ ⇒ [0m[92m{R, y}                                            [0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_1[0m [92m{R, y}                                            [0m
+
+[93mWidening Iteration 6[0m
+  [1mmain_entry_1[0m [92m{R, y}                                            [0m
+
+[93mAnalysis results after 6 iterations of Widening[0m
+    main_exit_1 [92m{}                  [0m
+         stmt_2 [92m{R, y}              [0m
+         stmt_1 [92m{R, y}              [0m
+   main_entry_1 [92m{R, y}              [0m
+
+[93mRunning transformation:[0m [96mT0[0m
+
+[92mTotal iterations:[0m 6

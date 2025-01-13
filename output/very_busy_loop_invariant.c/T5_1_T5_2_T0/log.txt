@@ -1,0 +1,187 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: very_busy_loop_invariant.c
+	Edge([92mmain_entry_1[0m -> [92mstmt_1[0m [i = 0 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mmain_exit_1[0m [Neg(i &lt;  n) : NegCommand])
+	Edge([92mstmt_1[0m -> [92mloop_1_entry[0m [Pos(i &lt;  n) : PosCommand])
+	Edge([92mloop_1_entry[0m -> [92mstmt_2[0m [y = b + 3 : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mstmt_3[0m [A1 = A + i : AssignmentCommand])
+	Edge([92mstmt_3[0m -> [92mstores_1[0m [M[A1] = y : StoresCommand])
+	Edge([92mstores_1[0m -> [92mstmt_4[0m [i = i + 1 : AssignmentCommand])
+	Edge([92mstmt_4[0m -> [92mmain_exit_1[0m [Neg(i &lt;  n) : NegCommand])
+	Edge([92mstmt_4[0m -> [92mloop_1_entry[0m [Pos(i &lt;  n) : PosCommand])
+
+[92mTransformations:[0m
+	[96mT5_1[0m:	 Partial Redundancy Elimination, using very busy analysis
+	[96mT5_2[0m:	 Canonize all uses of expressions
+	[96mT0[0m:	 Delete all skip commands
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT5_1[0m
+[93mRunning analysis:[0m [96mVeryBusy (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_4[0m [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}     [0m
+    [95m⟵[0m     [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}[0m <--[ [96mPos(i &lt;  n) [0m ]-- [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}[0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m{i &lt;  n}                             [0m <--[ [96mNeg(i &lt;  n) [0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, main_exit_1[0m[95m])[0m = [92m{i &lt;  n}                             
+    [91m⊔ ⇒ [0m[92m{i &lt;  n}                                       [0m
+
+[93mWidening Iteration 3[0m
+  [1mstores_1[0m [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}     [0m
+    [95m⟵[0m     [92m{i + 1}                                 [0m <--[ [96m   i = i + 1   [0m ]-- [92m{i &lt;  n}                             [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m{i + 1}                                 
+    [91m⊔ ⇒ [0m[92m{i + 1}                                           [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}     [0m
+    [95m⟵[0m     [92m{i + 1}                                 [0m <--[ [96m   M[A1] = y   [0m ]-- [92m{i + 1}                                 [0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_1[0m[95m])[0m = [92m{i + 1}                                 
+    [91m⊔ ⇒ [0m[92m{i + 1}                                           [0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_2[0m [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}     [0m
+    [95m⟵[0m     [92m{A + i, i + 1}                          [0m <--[ [96m  A1 = A + i   [0m ]-- [92m{i + 1}                                 [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{A + i, i + 1}                          
+    [91m⊔ ⇒ [0m[92m{A + i, i + 1}                                    [0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_entry[0m [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}     [0m
+    [95m⟵[0m     [92m{A + i, b + 3, i + 1}                   [0m <--[ [96m   y = b + 3   [0m ]-- [92m{A + i, i + 1}                          [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{A + i, b + 3, i + 1}                   
+    [91m⊔ ⇒ [0m[92m{A + i, b + 3, i + 1}                             [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_1[0m [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}     [0m
+    [95m⟵[0m     [92m{A + i, b + 3, i &lt;  n, i + 1}        [0m <--[ [96mPos(i &lt;  n) [0m ]-- [92m{A + i, b + 3, i + 1}                   [0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m{i &lt;  n}                             [0m <--[ [96mNeg(i &lt;  n) [0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, main_exit_1[0m[95m])[0m = [92m{i &lt;  n}                             
+    [91m⊔ ⇒ [0m[92m{i &lt;  n}                                       [0m
+
+[93mWidening Iteration 8[0m
+  [1mmain_entry_1[0m [92m{0, A + i, A1, b + 3, i, i &lt;  n, i + 1, y}     [0m
+    [95m⟵[0m     [92m{0}                                     [0m <--[ [96m     i = 0     [0m ]-- [92m{i &lt;  n}                             [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{0}                                     
+    [91m⊔ ⇒ [0m[92m{0}                                               [0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_4[0m [92m{i &lt;  n}                                       [0m
+
+[93mWidening Iteration 10[0m
+  [1mstores_1[0m [92m{i + 1}                                           [0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_3[0m [92m{i + 1}                                           [0m
+
+[93mWidening Iteration 12[0m
+  [1mstmt_2[0m [92m{A + i, i + 1}                                    [0m
+
+[93mWidening Iteration 13[0m
+  [1mloop_1_entry[0m [92m{A + i, b + 3, i + 1}                             [0m
+
+[93mWidening Iteration 14[0m
+  [1mstmt_1[0m [92m{i &lt;  n}                                       [0m
+
+[93mWidening Iteration 15[0m
+  [1mmain_entry_1[0m [92m{0}                                               [0m
+
+[93mAnalysis results after 15 iterations of Widening[0m
+    main_exit_1 [92m{}                  [0m
+         stmt_4 [92m{i &lt;  n}         [0m
+       stores_1 [92m{i + 1}             [0m
+         stmt_3 [92m{i + 1}             [0m
+         stmt_2 [92m{A + i, i + 1}      [0m
+   loop_1_entry [92m{A + i, b + 3, i + 1}[0m
+         stmt_1 [92m{i &lt;  n}         [0m
+   main_entry_1 [92m{0}                 [0m
+[93mRunning analysis:[0m [96mAvailExpr (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 3[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{i &lt;  n}                             [0m <--[ [96mPos(i &lt;  n) [0m ]-- [92m{}                                      [0m  [94mstmt_1[0m 
+    [95m⟵[0m     [92m{i &lt;  n}                             [0m <--[ [96mPos(i &lt;  n) [0m ]-- [92m{}                                      [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1, stmt_4[0m[95m])[0m = [92m{i &lt;  n}                             
+    [91m⊔ ⇒ [0m[92m{i &lt;  n}                                       [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{b + 3, i &lt;  n}                      [0m <--[ [96m   y = b + 3   [0m ]-- [92m{i &lt;  n}                             [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{b + 3, i &lt;  n}                      
+    [91m⊔ ⇒ [0m[92m{b + 3, i &lt;  n}                                [0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A + i, b + 3, i &lt;  n}               [0m <--[ [96m  A1 = A + i   [0m ]-- [92m{b + 3, i &lt;  n}                      [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{A + i, b + 3, i &lt;  n}               
+    [91m⊔ ⇒ [0m[92m{A + i, b + 3, i &lt;  n}                         [0m
+
+[93mWidening Iteration 6[0m
+  [1mstores_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A + i, b + 3, i &lt;  n}               [0m <--[ [96m   M[A1] = y   [0m ]-- [92m{A + i, b + 3, i &lt;  n}               [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{A + i, b + 3, i &lt;  n}               
+    [91m⊔ ⇒ [0m[92m{A + i, b + 3, i &lt;  n}                         [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{b + 3}                                 [0m <--[ [96m   i = i + 1   [0m ]-- [92m{A + i, b + 3, i &lt;  n}               [0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_1[0m[95m])[0m = [92m{b + 3}                                 
+    [91m⊔ ⇒ [0m[92m{b + 3}                                           [0m
+
+[93mWidening Iteration 8[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{b + 3, i &lt;  n}                      [0m <--[ [96mNeg(i &lt;  n) [0m ]-- [92m{b + 3}                                 [0m  [94mstmt_4[0m 
+    [95m⟵[0m     [92m{i &lt;  n}                             [0m <--[ [96mNeg(i &lt;  n) [0m ]-- [92m{}                                      [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4, stmt_1[0m[95m])[0m = [92m{b + 3, i &lt;  n}                      
+    [91m⊔ ⇒ [0m[92m{b + 3, i &lt;  n}                                [0m
+
+[93mWidening Iteration 9[0m
+  [1mloop_1_entry[0m [92m{i &lt;  n}                                       [0m
+    [95m⟵[0m     [92m{i &lt;  n}                             [0m <--[ [96mPos(i &lt;  n) [0m ]-- [92m{}                                      [0m  [94mstmt_1[0m 
+    [95m⟵[0m     [92m{b + 3, i &lt;  n}                      [0m <--[ [96mPos(i &lt;  n) [0m ]-- [92m{b + 3}                                 [0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1, stmt_4[0m[95m])[0m = [92m{b + 3, i &lt;  n}                      
+    [91m⊔ ⇒ [0m[92m{b + 3, i &lt;  n}                                [0m
+
+[93mWidening Iteration 10[0m
+  [1mstmt_2[0m [92m{b + 3, i &lt;  n}                                [0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_2[0m [92m{b + 3, i &lt;  n}                                [0m
+
+[93mWidening Iteration 12[0m
+  [1mstmt_3[0m [92m{A + i, b + 3, i &lt;  n}                         [0m
+
+[93mWidening Iteration 13[0m
+  [1mstores_1[0m [92m{A + i, b + 3, i &lt;  n}                         [0m
+
+[93mWidening Iteration 14[0m
+  [1mstmt_4[0m [92m{b + 3}                                           [0m
+
+[93mWidening Iteration 15[0m
+  [1mmain_exit_1[0m [92m{b + 3, i &lt;  n}                                [0m
+
+[93mAnalysis results after 15 iterations of Widening[0m
+   main_entry_1 [92m{}                  [0m
+         stmt_1 [92m{}                  [0m
+   loop_1_entry [92m{b + 3, i &lt;  n}  [0m
+         stmt_2 [92m{b + 3, i &lt;  n}  [0m
+         stmt_3 [92m{A + i, b + 3, i &lt;  n}[0m
+       stores_1 [92m{A + i, b + 3, i &lt;  n}[0m
+         stmt_4 [92m{b + 3}             [0m
+    main_exit_1 [92m{b + 3, i &lt;  n}  [0m
+
+[93mRunning transformation:[0m [96mT5_2[0m
+
+[93mRunning transformation:[0m [96mT0[0m
+
+[92mTotal iterations:[0m 30

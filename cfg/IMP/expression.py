@@ -160,7 +160,7 @@ class BinExpression(Expression):
     right: Expression
 
     def string_to_html(self, s: str) -> str:
-        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        return s.replace("&", "&amp; ").replace("<", "&lt; ").replace(">", "&gt; ")
 
     @staticmethod
     def flip_op(op: str) -> str:

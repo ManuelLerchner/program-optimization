@@ -1,0 +1,219 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: superflous.c
+	Edge([92mmain_entry_1[0m
+[94m
+locals=[T, w, y, z]
+globals=[A, M, R, x, y][0m -> [92mstmt_1[0m [T = x + 1 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mstmt_2[0m [y = T : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mstores_1[0m [z = M[A] : LoadsCommand])
+	Edge([92mstores_1[0m -> [92mstores_2[0m [M[R] = y : StoresCommand])
+	Edge([92mstores_2[0m -> [92mstores_3[0m [w = M[A] : LoadsCommand])
+	Edge([92mstores_3[0m -> [92mmain_exit_1[0m [M[R] = w : StoresCommand])
+
+[92mTransformations:[0m
+	[96mT1.1[0m:	 Introduce temporary variables for expressions
+	[96mT3[0m:	 Substitute expressions with temporary variables if they are available
+	[96mT2[0m:	 Delete assignments to variables that are not (truly) live
+	[96mT0[0m:	 Delete all skip commands
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT1.1[0m
+
+[93mRunning transformation:[0m [96mT3[0m
+[93mRunning analysis:[0m [96mExprStores (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m(M[A]={}, x + 1={})                               [0m
+
+[93mWidening Iteration 2[0m
+  [1mopt_1[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={}, x + 1={T_xp1})                [0m <--[ [96m T_xp1 = x + 1 [0m ]-- [92m(M[A]={}, x + 1={})                     [0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m(M[A]={}, x + 1={T_xp1})                
+    [91m⊔ ⇒ [0m[92m(M[A]={}, x + 1={T_xp1})                          [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_1[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={}, x + 1={T, T_xp1})             [0m <--[ [96m   T = T_xp1   [0m ]-- [92m(M[A]={}, x + 1={T_xp1})                [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m(M[A]={}, x + 1={T, T_xp1})             
+    [91m⊔ ⇒ [0m[92m(M[A]={}, x + 1={T, T_xp1})                       [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_2[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={}, x + 1={T, T_xp1, y})          [0m <--[ [96m     y = T     [0m ]-- [92m(M[A]={}, x + 1={T, T_xp1})             [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m(M[A]={}, x + 1={T, T_xp1, y})          
+    [91m⊔ ⇒ [0m[92m(M[A]={}, x + 1={T, T_xp1, y})                    [0m
+
+[93mWidening Iteration 5[0m
+  [1mopt_2[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})     [0m <--[ [96m T_M_A = M[A]  [0m ]-- [92m(M[A]={}, x + 1={T, T_xp1, y})          [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})     
+    [91m⊔ ⇒ [0m[92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})               [0m
+
+[93mWidening Iteration 6[0m
+  [1mstores_1[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={T_M_A, z}, x + 1={T, T_xp1, y})  [0m <--[ [96m   z = T_M_A   [0m ]-- [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})     [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m(M[A]={T_M_A, z}, x + 1={T, T_xp1, y})  
+    [91m⊔ ⇒ [0m[92m(M[A]={T_M_A, z}, x + 1={T, T_xp1, y})            [0m
+
+[93mWidening Iteration 7[0m
+  [1mstores_2[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={}, x + 1={T, T_xp1, y})          [0m <--[ [96m   M[R] = y    [0m ]-- [92m(M[A]={T_M_A, z}, x + 1={T, T_xp1, y})  [0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_1[0m[95m])[0m = [92m(M[A]={}, x + 1={T, T_xp1, y})          
+    [91m⊔ ⇒ [0m[92m(M[A]={}, x + 1={T, T_xp1, y})                    [0m
+
+[93mWidening Iteration 8[0m
+  [1mopt_4[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})     [0m <--[ [96m T_M_A = M[A]  [0m ]-- [92m(M[A]={}, x + 1={T, T_xp1, y})          [0m  [94mstores_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_2[0m[95m])[0m = [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})     
+    [91m⊔ ⇒ [0m[92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})               [0m
+
+[93mWidening Iteration 9[0m
+  [1mstores_3[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={T_M_A, w}, x + 1={T, T_xp1, y})  [0m <--[ [96m   w = T_M_A   [0m ]-- [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})     [0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m(M[A]={T_M_A, w}, x + 1={T, T_xp1, y})  
+    [91m⊔ ⇒ [0m[92m(M[A]={T_M_A, w}, x + 1={T, T_xp1, y})            [0m
+
+[93mWidening Iteration 10[0m
+  [1mmain_exit_1[0m [92m(M[A]={}, x + 1={})                               [0m
+    [95m⟵[0m     [92m(M[A]={}, x + 1={T, T_xp1, y})          [0m <--[ [96m   M[R] = w    [0m ]-- [92m(M[A]={T_M_A, w}, x + 1={T, T_xp1, y})  [0m  [94mstores_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_3[0m[95m])[0m = [92m(M[A]={}, x + 1={T, T_xp1, y})          
+    [91m⊔ ⇒ [0m[92m(M[A]={}, x + 1={T, T_xp1, y})                    [0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_1[0m [92m(M[A]={}, x + 1={T, T_xp1})                       [0m
+
+[93mWidening Iteration 12[0m
+  [1mstmt_2[0m [92m(M[A]={}, x + 1={T, T_xp1, y})                    [0m
+
+[93mWidening Iteration 13[0m
+  [1mopt_2[0m [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})               [0m
+
+[93mWidening Iteration 14[0m
+  [1mstores_1[0m [92m(M[A]={T_M_A, z}, x + 1={T, T_xp1, y})            [0m
+
+[93mWidening Iteration 15[0m
+  [1mstores_2[0m [92m(M[A]={}, x + 1={T, T_xp1, y})                    [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_4[0m [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})               [0m
+
+[93mWidening Iteration 17[0m
+  [1mstores_3[0m [92m(M[A]={T_M_A, w}, x + 1={T, T_xp1, y})            [0m
+
+[93mWidening Iteration 18[0m
+  [1mmain_exit_1[0m [92m(M[A]={}, x + 1={T, T_xp1, y})                    [0m
+
+[93mAnalysis results after 18 iterations of Widening[0m
+   main_entry_1 [92m(M[A]={}, x + 1={}) [0m
+          opt_1 [92m(M[A]={}, x + 1={T_xp1})[0m
+         stmt_1 [92m(M[A]={}, x + 1={T, T_xp1})[0m
+         stmt_2 [92m(M[A]={}, x + 1={T, T_xp1, y})[0m
+          opt_2 [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})[0m
+       stores_1 [92m(M[A]={T_M_A, z}, x + 1={T, T_xp1, y})[0m
+       stores_2 [92m(M[A]={}, x + 1={T, T_xp1, y})[0m
+          opt_4 [92m(M[A]={T_M_A}, x + 1={T, T_xp1, y})[0m
+       stores_3 [92m(M[A]={T_M_A, w}, x + 1={T, T_xp1, y})[0m
+    main_exit_1 [92m(M[A]={}, x + 1={T, T_xp1, y})[0m
+
+[93mRunning transformation:[0m [96mT2[0m
+[93mRunning analysis:[0m [96mTrueLiveVar (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mstores_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, T_M_A}                              [0m <--[ [96m M[R] = T_M_A  [0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{R, T_M_A}                              
+    [91m⊔ ⇒ [0m[92m{R, T_M_A}                                        [0m
+
+[93mWidening Iteration 3[0m
+  [1mopt_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, T_M_A}                              [0m <--[ [96m   w = T_M_A   [0m ]-- [92m{R, T_M_A}                              [0m  [94mstores_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_3[0m[95m])[0m = [92m{R, T_M_A}                              
+    [91m⊔ ⇒ [0m[92m{R, T_M_A}                                        [0m
+
+[93mWidening Iteration 4[0m
+  [1mstores_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A, R}                                  [0m <--[ [96m T_M_A = M[A]  [0m ]-- [92m{R, T_M_A}                              [0m  [94mopt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_4[0m[95m])[0m = [92m{A, R}                                  
+    [91m⊔ ⇒ [0m[92m{A, R}                                            [0m
+
+[93mWidening Iteration 5[0m
+  [1mstores_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A, R, T_xp1}                           [0m <--[ [96m M[R] = T_xp1  [0m ]-- [92m{A, R}                                  [0m  [94mstores_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_2[0m[95m])[0m = [92m{A, R, T_xp1}                           
+    [91m⊔ ⇒ [0m[92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 6[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A, R, T_xp1}                           [0m <--[ [96m   z = T_M_A   [0m ]-- [92m{A, R, T_xp1}                           [0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_1[0m[95m])[0m = [92m{A, R, T_xp1}                           
+    [91m⊔ ⇒ [0m[92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A, R, T_xp1}                           [0m <--[ [96m T_M_A = M[A]  [0m ]-- [92m{A, R, T_xp1}                           [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{A, R, T_xp1}                           
+    [91m⊔ ⇒ [0m[92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 8[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A, R, T_xp1}                           [0m <--[ [96m   y = T_xp1   [0m ]-- [92m{A, R, T_xp1}                           [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{A, R, T_xp1}                           
+    [91m⊔ ⇒ [0m[92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 9[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A, R, T_xp1}                           [0m <--[ [96m   T = T_xp1   [0m ]-- [92m{A, R, T_xp1}                           [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{A, R, T_xp1}                           
+    [91m⊔ ⇒ [0m[92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 10[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{A, R, x}                               [0m <--[ [96m T_xp1 = x + 1 [0m ]-- [92m{A, R, T_xp1}                           [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{A, R, x}                               
+    [91m⊔ ⇒ [0m[92m{A, R, x}                                         [0m
+
+[93mWidening Iteration 11[0m
+  [1mopt_4[0m [92m{R, T_M_A}                                        [0m
+
+[93mWidening Iteration 12[0m
+  [1mstores_2[0m [92m{A, R}                                            [0m
+
+[93mWidening Iteration 13[0m
+  [1mstores_1[0m [92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 14[0m
+  [1mopt_2[0m [92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_2[0m [92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 16[0m
+  [1mstmt_1[0m [92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_1[0m [92m{A, R, T_xp1}                                     [0m
+
+[93mWidening Iteration 18[0m
+  [1mmain_entry_1[0m [92m{A, R, x}                                         [0m
+
+[93mAnalysis results after 18 iterations of Widening[0m
+    main_exit_1 [92m{}                  [0m
+       stores_3 [92m{R, T_M_A}          [0m
+          opt_4 [92m{R, T_M_A}          [0m
+       stores_2 [92m{A, R}              [0m
+       stores_1 [92m{A, R, T_xp1}       [0m
+          opt_2 [92m{A, R, T_xp1}       [0m
+         stmt_2 [92m{A, R, T_xp1}       [0m
+         stmt_1 [92m{A, R, T_xp1}       [0m
+          opt_1 [92m{A, R, T_xp1}       [0m
+   main_entry_1 [92m{A, R, x}           [0m
+
+[93mRunning transformation:[0m [96mT0[0m
+
+[92mTotal iterations:[0m 36

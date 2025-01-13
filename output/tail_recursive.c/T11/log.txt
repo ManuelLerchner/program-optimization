@@ -1,0 +1,24 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: tail_recursive.c
+	Edge([92mmain_entry_2[0m -> [92mstmt_5[0m [curr = 1 : AssignmentCommand])
+	Edge([92mstmt_5[0m -> [92mstmt_6[0m [i = 5 : AssignmentCommand])
+	Edge([92mstmt_6[0m -> [92mstmt_7[0m [fact() : FunCallCommand])
+	Edge([92mstmt_7[0m -> [92mstores_1[0m [M[17] = ret : StoresCommand])
+	Edge([92mstores_1[0m -> [92mmain_exit_2[0m [ret = 0 : AssignmentCommand])
+	Edge([92mfact_entry_1[0m -> [92mif_true_1[0m [Pos(i == 0) : PosCommand])
+	Edge([92mif_true_1[0m -> [92mfact_exit_1[0m [ret = curr : AssignmentCommand])
+	Edge([92mfact_entry_1[0m -> [92mif_false_1[0m [Neg(i == 0) : NegCommand])
+	Edge([92mif_false_1[0m -> [92mstmt_2[0m [curr = curr * i : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mstmt_3[0m [i = i - 1 : AssignmentCommand])
+	Edge([92mstmt_3[0m -> [92mfact_exit_1[0m [fact() : FunCallCommand])
+
+[92mTransformations:[0m
+	[96mT11[0m:	 Jump to tailecursive functions
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT11[0m
+
+[92mTotal iterations:[0m 0

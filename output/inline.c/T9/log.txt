@@ -1,0 +1,25 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: inline.c
+	Edge([92mmax_entry_1[0m -> [92mif_true_1[0m [Pos(v1 &gt;  v2) : PosCommand])
+	Edge([92mif_true_1[0m -> [92mmax_exit_1[0m [ret = v1 : AssignmentCommand])
+	Edge([92mmax_entry_1[0m -> [92mif_false_1[0m [Neg(v1 &gt;  v2) : NegCommand])
+	Edge([92mif_false_1[0m -> [92mmax_exit_1[0m [ret = v2 : AssignmentCommand])
+	Edge([92mmain_entry_2[0m
+[94m
+locals=[v1, v2]
+globals=[M, ret, v1, v2][0m -> [92mstmt_3[0m [v1 = 3 : AssignmentCommand])
+	Edge([92mstmt_3[0m -> [92mstmt_4[0m [v2 = 5 : AssignmentCommand])
+	Edge([92mstmt_4[0m -> [92mstmt_5[0m [max() : FunCallCommand])
+	Edge([92mstmt_5[0m -> [92mstores_1[0m [M[17] = ret : StoresCommand])
+	Edge([92mstores_1[0m -> [92mmain_exit_2[0m [ret = 0 : AssignmentCommand])
+
+[92mTransformations:[0m
+	[96mT9[0m:	 Inline function calls
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT9[0m
+
+[92mTotal iterations:[0m 0

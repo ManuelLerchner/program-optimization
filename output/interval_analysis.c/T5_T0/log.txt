@@ -1,0 +1,194 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: interval_analysis.c
+	Edge([92mmain_entry_1[0m
+[94m
+locals=[A1, i]
+globals=[A, M][0m -> [92mstmt_1[0m [i = 0 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mmain_exit_1[0m [Neg(i &lt;  5) : NegCommand])
+	Edge([92mstmt_1[0m -> [92mloop_1_entry[0m [Pos(i &lt;  5) : PosCommand])
+	Edge([92mloop_1_entry[0m -> [92mstmt_1[0m [Neg(0 &lt; = i) : NegCommand])
+	Edge([92mloop_1_entry[0m -> [92mif_true_1[0m [Pos(0 &lt; = i) : PosCommand])
+	Edge([92mif_true_1[0m -> [92mstmt_1[0m [Neg(i &lt;  5) : NegCommand])
+	Edge([92mif_true_1[0m -> [92mif_true_2[0m [Pos(i &lt;  5) : PosCommand])
+	Edge([92mif_true_2[0m -> [92mstmt_2[0m [A1 = A + i : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mstores_1[0m [M[A1] = i : StoresCommand])
+	Edge([92mstores_1[0m -> [92mstmt_1[0m [i = i + 1 : AssignmentCommand])
+
+[92mTransformations:[0m
+	[96mT5[0m:	 Perform interval analysis and delete unreachable nodes
+	[96mT0[0m:	 Delete all skip commands
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT5[0m
+[93mRunning analysis:[0m [96mIntervalAnalysis (analyses.use_widen=True, analyses.use_narrow=True)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m(A=⊤, A1=⊤, i=⊤)                                  [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m⊥                                       [0m <--[ [96mNeg(0 &lt; = i)[0m ]-- [92m⊥                                       [0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m⊥                                       [0m <--[ [96mNeg(i &lt;  5) [0m ]-- [92m⊥                                       [0m  [94mif_true_1[0m 
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m <--[ [96m     i = 0     [0m ]-- [92m(A=⊤, A1=⊤, i=⊤)                        [0m  [94mmain_entry_1[0m 
+    [95m⟵[0m     [92m⊥                                       [0m <--[ [96m   i = i + 1   [0m ]-- [92m⊥                                       [0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, if_true_1, main_entry_1, stores_1[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 0])                   
+    [91m⩏ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+
+[93mWidening Iteration 3[0m
+  [1mmain_exit_1[0m [92m⊥                                                 [0m
+
+[93mWidening Iteration 4[0m
+  [1mloop_1_entry[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m <--[ [96mPos(i &lt;  5) [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 0])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+
+[93mWidening Iteration 5[0m
+  [1mif_true_1[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m <--[ [96mPos(0 &lt; = i)[0m ]-- [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 0])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_1[0m [92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+
+[93mWidening Iteration 7[0m
+  [1mif_true_2[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m <--[ [96mPos(i &lt;  5) [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m  [94mif_true_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mif_true_1[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 0])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+
+[93mWidening Iteration 8[0m
+  [1mstmt_2[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m <--[ [96m  A1 = A + i   [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m  [94mif_true_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mif_true_2[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 0])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+
+[93mWidening Iteration 9[0m
+  [1mstores_1[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m <--[ [96m   M[A1] = i   [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 0])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+
+[93mWidening Iteration 10[0m
+  [1mstmt_1[0m [92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+    [95m⟵[0m     [92m⊥                                       [0m <--[ [96mNeg(0 &lt; = i)[0m ]-- [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m⊥                                       [0m <--[ [96mNeg(i &lt;  5) [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m  [94mif_true_1[0m 
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m <--[ [96m     i = 0     [0m ]-- [92m(A=⊤, A1=⊤, i=⊤)                        [0m  [94mmain_entry_1[0m 
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[1, 1])                   [0m <--[ [96m   i = i + 1   [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, if_true_1, main_entry_1, stores_1[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 1])                   
+    [91m⩏ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, inf])                           [0m
+
+[93mWidening Iteration 11[0m
+  [1mmain_exit_1[0m [92m⊥                                                 [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[5, inf])                 [0m <--[ [96mNeg(i &lt;  5) [0m ]-- [92m(A=⊤, A1=⊤, i=[0, inf])                 [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[5, inf])                 
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[5, inf])                           [0m
+
+[93mWidening Iteration 12[0m
+  [1mloop_1_entry[0m [92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m <--[ [96mPos(i &lt;  5) [0m ]-- [92m(A=⊤, A1=⊤, i=[0, inf])                 [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 4])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 13[0m
+  [1mif_true_1[0m [92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m <--[ [96mPos(0 &lt; = i)[0m ]-- [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 4])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 14[0m
+  [1mstmt_1[0m [92m(A=⊤, A1=⊤, i=[0, inf])                           [0m
+
+[93mWidening Iteration 15[0m
+  [1mif_true_2[0m [92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m <--[ [96mPos(i &lt;  5) [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m  [94mif_true_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mif_true_1[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 4])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 16[0m
+  [1mstmt_2[0m [92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m <--[ [96m  A1 = A + i   [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m  [94mif_true_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mif_true_2[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 4])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 17[0m
+  [1mstores_1[0m [92m(A=⊤, A1=⊤, i=[0, 0])                             [0m
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m <--[ [96m   M[A1] = i   [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 4])                   
+    [91m⊔ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 18[0m
+  [1mstmt_1[0m [92m(A=⊤, A1=⊤, i=[0, inf])                           [0m
+
+[93mWidening Iteration 19[0m
+  [1mstmt_1[0m [92m(A=⊤, A1=⊤, i=[0, inf])                           [0m
+
+[93mWidening Iteration 20[0m
+  [1mstmt_1[0m [92m(A=⊤, A1=⊤, i=[0, inf])                           [0m
+
+[93mWidening Iteration 21[0m
+  [1mloop_1_entry[0m [92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 22[0m
+  [1mif_true_1[0m [92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 23[0m
+  [1mif_true_2[0m [92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 24[0m
+  [1mstmt_2[0m [92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 25[0m
+  [1mstores_1[0m [92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mWidening Iteration 26[0m
+  [1mmain_exit_1[0m [92m(A=⊤, A1=⊤, i=[5, inf])                           [0m
+
+[93mAnalysis results after 26 iterations of Widening[0m
+   main_entry_1 [92m(A=⊤, A1=⊤, i=⊤)    [0m
+         stmt_1 [92m(A=⊤, A1=⊤, i=[0, inf])[0m
+   loop_1_entry [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+      if_true_1 [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+      if_true_2 [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+         stmt_2 [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+       stores_1 [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+    main_exit_1 [92m(A=⊤, A1=⊤, i=[5, inf])[0m
+
+[93mNarrowing Iteration 1[0m
+  [1mmain_entry_1[0m [92m(A=⊤, A1=⊤, i=⊤)                                  [0m
+
+[93mNarrowing Iteration 2[0m
+  [1mstmt_1[0m [92m(A=⊤, A1=⊤, i=[0, inf])                           [0m
+    [95m⟵[0m     [92m⊥                                       [0m <--[ [96mNeg(0 &lt; = i)[0m ]-- [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m⊥                                       [0m <--[ [96mNeg(i &lt;  5) [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m  [94mif_true_1[0m 
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[0, 0])                   [0m <--[ [96m     i = 0     [0m ]-- [92m(A=⊤, A1=⊤, i=⊤)                        [0m  [94mmain_entry_1[0m 
+    [95m⟵[0m     [92m(A=⊤, A1=⊤, i=[1, 5])                   [0m <--[ [96m   i = i + 1   [0m ]-- [92m(A=⊤, A1=⊤, i=[0, 4])                   [0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, if_true_1, main_entry_1, stores_1[0m[95m])[0m = [92m(A=⊤, A1=⊤, i=[0, 5])                   
+    [91m⩎ ⇒ [0m[92m(A=⊤, A1=⊤, i=[0, 5])                             [0m
+
+[93mNarrowing Iteration 3[0m
+  [1mmain_exit_1[0m [92m(A=⊤, A1=⊤, i=[5, inf])                           [0m
+
+[93mNarrowing Iteration 4[0m
+  [1mloop_1_entry[0m [92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mNarrowing Iteration 5[0m
+  [1mloop_1_entry[0m [92m(A=⊤, A1=⊤, i=[0, 4])                             [0m
+
+[93mAnalysis results after 5 iterations of Narrowing[0m
+   main_entry_1 [92m(A=⊤, A1=⊤, i=⊤)    [0m
+         stmt_1 [92m(A=⊤, A1=⊤, i=[0, 5])[0m
+   loop_1_entry [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+      if_true_1 [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+      if_true_2 [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+         stmt_2 [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+       stores_1 [92m(A=⊤, A1=⊤, i=[0, 4])[0m
+    main_exit_1 [92m(A=⊤, A1=⊤, i=[5, inf])[0m
+
+[93mRunning transformation:[0m [96mT0[0m
+
+[92mTotal iterations:[0m 31

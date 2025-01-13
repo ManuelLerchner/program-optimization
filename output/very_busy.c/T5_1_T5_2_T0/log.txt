@@ -1,0 +1,251 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: very_busy.c
+	Edge([92mmain_entry_1[0m -> [92mif_true_1[0m [Pos(x == 0) : PosCommand])
+	Edge([92mif_true_1[0m -> [92mskip_2[0m [; : SkipCommand])
+	Edge([92mskip_2[0m -> [92mloads_1[0m [x = M[a] : LoadsCommand])
+	Edge([92mloads_1[0m -> [92mskip_1[0m [; : SkipCommand])
+	Edge([92mmain_entry_1[0m -> [92mif_false_1[0m [Neg(x == 0) : NegCommand])
+	Edge([92mif_false_1[0m -> [92mskip_4[0m [; : SkipCommand])
+	Edge([92mskip_4[0m -> [92mstmt_1[0m [y1 = x + 1 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mskip_1[0m [; : SkipCommand])
+	Edge([92mskip_1[0m -> [92mstmt_2[0m [y2 = x + 1 : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mmain_exit_1[0m [M[x] = y1 + y2 : StoresCommand])
+
+[92mTransformations:[0m
+	[96mT5_1[0m:	 Partial Redundancy Elimination, using very busy analysis
+	[96mT5_2[0m:	 Canonize all uses of expressions
+	[96mT0[0m:	 Delete all skip commands
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT5_1[0m
+[93mRunning analysis:[0m [96mVeryBusy (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mloads_1[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+
+[93mWidening Iteration 2[0m
+  [1mskip_2[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{M[a], a, y1, y1 + y2, y2}              [0m <--[ [96m   x = M[a]    [0m ]-- [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}[0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloads_1[0m[95m])[0m = [92m{M[a], a, y1, y1 + y2, y2}              
+    [91m⊔ ⇒ [0m[92m{M[a], a, y1, y1 + y2, y2}                        [0m
+
+[93mWidening Iteration 3[0m
+  [1mif_true_1[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{M[a], a, y1, y1 + y2, y2}              [0m <--[ [96m       ;       [0m ]-- [92m{M[a], a, y1, y1 + y2, y2}              [0m  [94mskip_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_2[0m[95m])[0m = [92m{M[a], a, y1, y1 + y2, y2}              
+    [91m⊔ ⇒ [0m[92m{M[a], a, y1, y1 + y2, y2}                        [0m
+
+[93mWidening Iteration 4[0m
+  [1mmain_entry_1[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}[0m <--[ [96m  Neg(x == 0)  [0m ]-- [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}[0m  [94mif_false_1[0m 
+    [95m⟵[0m     [92m{M[a], a, x == 0, y1, y1 + y2, y2}      [0m <--[ [96m  Pos(x == 0)  [0m ]-- [92m{M[a], a, y1, y1 + y2, y2}              [0m  [94mif_true_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mif_false_1, if_true_1[0m[95m])[0m = [92m{M[a], a, x == 0, y1, y1 + y2, y2}      
+    [91m⊔ ⇒ [0m[92m{M[a], a, x == 0, y1, y1 + y2, y2}                [0m
+
+[93mWidening Iteration 5[0m
+  [1mif_true_1[0m [92m{M[a], a, y1, y1 + y2, y2}                        [0m
+
+[93mWidening Iteration 6[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_2[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{y1 + y2}                               [0m <--[ [96mM[x] = y1 + y2 [0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{y1 + y2}                               
+    [91m⊔ ⇒ [0m[92m{y1 + y2}                                         [0m
+
+[93mWidening Iteration 8[0m
+  [1mskip_1[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{x + 1}                                 [0m <--[ [96m  y2 = x + 1   [0m ]-- [92m{y1 + y2}                               [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{x + 1}                                 
+    [91m⊔ ⇒ [0m[92m{x + 1}                                           [0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_1[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{x + 1}                                 [0m <--[ [96m       ;       [0m ]-- [92m{x + 1}                                 [0m  [94mskip_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_1[0m[95m])[0m = [92m{x + 1}                                 
+    [91m⊔ ⇒ [0m[92m{x + 1}                                           [0m
+
+[93mWidening Iteration 10[0m
+  [1mskip_4[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{x + 1}                                 [0m <--[ [96m  y1 = x + 1   [0m ]-- [92m{x + 1}                                 [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{x + 1}                                 
+    [91m⊔ ⇒ [0m[92m{x + 1}                                           [0m
+
+[93mWidening Iteration 11[0m
+  [1mif_false_1[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{x + 1}                                 [0m <--[ [96m       ;       [0m ]-- [92m{x + 1}                                 [0m  [94mskip_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_4[0m[95m])[0m = [92m{x + 1}                                 
+    [91m⊔ ⇒ [0m[92m{x + 1}                                           [0m
+
+[93mWidening Iteration 12[0m
+  [1mmain_entry_1[0m [92m{M[a], a, x == 0, y1, y1 + y2, y2}                [0m
+    [95m⟵[0m     [92m{x + 1, x == 0}                         [0m <--[ [96m  Neg(x == 0)  [0m ]-- [92m{x + 1}                                 [0m  [94mif_false_1[0m 
+    [95m⟵[0m     [92m{M[a], a, x == 0, y1, y1 + y2, y2}      [0m <--[ [96m  Pos(x == 0)  [0m ]-- [92m{M[a], a, y1, y1 + y2, y2}              [0m  [94mif_true_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mif_false_1, if_true_1[0m[95m])[0m = [92m{x == 0}                                
+    [91m⊔ ⇒ [0m[92m{x == 0}                                          [0m
+
+[93mWidening Iteration 13[0m
+  [1mloads_1[0m [92m{M[a], a, x, x + 1, x == 0, y1, y1 + y2, y2}      [0m
+    [95m⟵[0m     [92m{x + 1}                                 [0m <--[ [96m       ;       [0m ]-- [92m{x + 1}                                 [0m  [94mskip_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_1[0m[95m])[0m = [92m{x + 1}                                 
+    [91m⊔ ⇒ [0m[92m{x + 1}                                           [0m
+
+[93mWidening Iteration 14[0m
+  [1mskip_2[0m [92m{M[a], a, y1, y1 + y2, y2}                        [0m
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m   x = M[a]    [0m ]-- [92m{x + 1}                                 [0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloads_1[0m[95m])[0m = [92m{}                                      
+    [91m⊔ ⇒ [0m[92m{}                                                [0m
+
+[93mWidening Iteration 15[0m
+  [1mif_true_1[0m [92m{M[a], a, y1, y1 + y2, y2}                        [0m
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m       ;       [0m ]-- [92m{}                                      [0m  [94mskip_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_2[0m[95m])[0m = [92m{}                                      
+    [91m⊔ ⇒ [0m[92m{}                                                [0m
+
+[93mWidening Iteration 16[0m
+  [1mmain_entry_1[0m [92m{x == 0}                                          [0m
+
+[93mWidening Iteration 17[0m
+  [1mskip_1[0m [92m{x + 1}                                           [0m
+
+[93mWidening Iteration 18[0m
+  [1mstmt_1[0m [92m{x + 1}                                           [0m
+
+[93mWidening Iteration 19[0m
+  [1mskip_4[0m [92m{x + 1}                                           [0m
+
+[93mWidening Iteration 20[0m
+  [1mif_false_1[0m [92m{x + 1}                                           [0m
+
+[93mWidening Iteration 21[0m
+  [1mmain_entry_1[0m [92m{x == 0}                                          [0m
+
+[93mAnalysis results after 21 iterations of Widening[0m
+        loads_1 [92m{x + 1}             [0m
+         skip_2 [92m{}                  [0m
+      if_true_1 [92m{}                  [0m
+    main_exit_1 [92m{}                  [0m
+         stmt_2 [92m{y1 + y2}           [0m
+         skip_1 [92m{x + 1}             [0m
+         stmt_1 [92m{x + 1}             [0m
+         skip_4 [92m{x + 1}             [0m
+     if_false_1 [92m{x + 1}             [0m
+   main_entry_1 [92m{x == 0}            [0m
+[93mRunning analysis:[0m [96mAvailExpr (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mif_false_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x == 0}                                [0m <--[ [96m  Neg(x == 0)  [0m ]-- [92m{}                                      [0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m{x == 0}                                
+    [91m⊔ ⇒ [0m[92m{x == 0}                                          [0m
+
+[93mWidening Iteration 3[0m
+  [1mskip_4[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x == 0}                                [0m <--[ [96m       ;       [0m ]-- [92m{x == 0}                                [0m  [94mif_false_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mif_false_1[0m[95m])[0m = [92m{x == 0}                                
+    [91m⊔ ⇒ [0m[92m{x == 0}                                          [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x + 1, x == 0}                         [0m <--[ [96m  y1 = x + 1   [0m ]-- [92m{x == 0}                                [0m  [94mskip_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_4[0m[95m])[0m = [92m{x + 1, x == 0}                         
+    [91m⊔ ⇒ [0m[92m{x + 1, x == 0}                                   [0m
+
+[93mWidening Iteration 5[0m
+  [1mskip_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x + 1, x == 0}                         [0m <--[ [96m       ;       [0m ]-- [92m{x + 1, x == 0}                         [0m  [94mstmt_1[0m 
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m       ;       [0m ]-- [92m{}                                      [0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1, loads_1[0m[95m])[0m = [92m{x + 1, x == 0}                         
+    [91m⊔ ⇒ [0m[92m{x + 1, x == 0}                                   [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x + 1, x == 0}                         [0m <--[ [96m  y2 = x + 1   [0m ]-- [92m{x + 1, x == 0}                         [0m  [94mskip_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_1[0m[95m])[0m = [92m{x + 1, x == 0}                         
+    [91m⊔ ⇒ [0m[92m{x + 1, x == 0}                                   [0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x + 1, x == 0, y1 + y2}                [0m <--[ [96mM[x] = y1 + y2 [0m ]-- [92m{x + 1, x == 0}                         [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{x + 1, x == 0, y1 + y2}                
+    [91m⊔ ⇒ [0m[92m{x + 1, x == 0, y1 + y2}                          [0m
+
+[93mWidening Iteration 8[0m
+  [1mskip_4[0m [92m{x == 0}                                          [0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_1[0m [92m{x + 1, x == 0}                                   [0m
+
+[93mWidening Iteration 10[0m
+  [1mskip_1[0m [92m{x + 1, x == 0}                                   [0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_2[0m [92m{x + 1, x == 0}                                   [0m
+
+[93mWidening Iteration 12[0m
+  [1mmain_exit_1[0m [92m{x + 1, x == 0, y1 + y2}                          [0m
+
+[93mWidening Iteration 13[0m
+  [1mif_true_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x == 0}                                [0m <--[ [96m  Pos(x == 0)  [0m ]-- [92m{}                                      [0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m{x == 0}                                
+    [91m⊔ ⇒ [0m[92m{x == 0}                                          [0m
+
+[93mWidening Iteration 14[0m
+  [1mskip_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x == 0}                                [0m <--[ [96m       ;       [0m ]-- [92m{x == 0}                                [0m  [94mif_true_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mif_true_1[0m[95m])[0m = [92m{x == 0}                                
+    [91m⊔ ⇒ [0m[92m{x == 0}                                          [0m
+
+[93mWidening Iteration 15[0m
+  [1mloads_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{M[a]}                                  [0m <--[ [96m   x = M[a]    [0m ]-- [92m{x == 0}                                [0m  [94mskip_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_2[0m[95m])[0m = [92m{M[a]}                                  
+    [91m⊔ ⇒ [0m[92m{M[a]}                                            [0m
+
+[93mWidening Iteration 16[0m
+  [1mskip_1[0m [92m{x + 1, x == 0}                                   [0m
+    [95m⟵[0m     [92m{x + 1, x == 0}                         [0m <--[ [96m       ;       [0m ]-- [92m{x + 1, x == 0}                         [0m  [94mstmt_1[0m 
+    [95m⟵[0m     [92m{M[a]}                                  [0m <--[ [96m       ;       [0m ]-- [92m{M[a]}                                  [0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1, loads_1[0m[95m])[0m = [92m{M[a], x + 1, x == 0}                   
+    [91m⊔ ⇒ [0m[92m{M[a], x + 1, x == 0}                             [0m
+
+[93mWidening Iteration 17[0m
+  [1mstmt_2[0m [92m{x + 1, x == 0}                                   [0m
+    [95m⟵[0m     [92m{M[a], x + 1, x == 0}                   [0m <--[ [96m  y2 = x + 1   [0m ]-- [92m{M[a], x + 1, x == 0}                   [0m  [94mskip_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mskip_1[0m[95m])[0m = [92m{M[a], x + 1, x == 0}                   
+    [91m⊔ ⇒ [0m[92m{M[a], x + 1, x == 0}                             [0m
+
+[93mWidening Iteration 18[0m
+  [1mmain_exit_1[0m [92m{x + 1, x == 0, y1 + y2}                          [0m
+
+[93mWidening Iteration 19[0m
+  [1mskip_2[0m [92m{x == 0}                                          [0m
+
+[93mWidening Iteration 20[0m
+  [1mloads_1[0m [92m{M[a]}                                            [0m
+
+[93mAnalysis results after 20 iterations of Widening[0m
+   main_entry_1 [92m{}                  [0m
+     if_false_1 [92m{x == 0}            [0m
+         skip_4 [92m{x == 0}            [0m
+         stmt_1 [92m{x + 1, x == 0}     [0m
+         skip_1 [92m{M[a], x + 1, x == 0}[0m
+         stmt_2 [92m{M[a], x + 1, x == 0}[0m
+    main_exit_1 [92m{x + 1, x == 0, y1 + y2}[0m
+      if_true_1 [92m{x == 0}            [0m
+         skip_2 [92m{x == 0}            [0m
+        loads_1 [92m{M[a]}              [0m
+
+[93mRunning transformation:[0m [96mT5_2[0m
+
+[93mRunning transformation:[0m [96mT0[0m
+
+[92mTotal iterations:[0m 41

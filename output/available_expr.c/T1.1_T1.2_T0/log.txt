@@ -1,0 +1,153 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: available_expr.c
+	Edge([92mmain_entry_1[0m
+[94m
+locals=[w, x, z]
+globals=[M, y][0m -> [92mstmt_1[0m [x = y + 3 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mstmt_2[0m [x = 7 : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mstmt_3[0m [z = y + 3 : AssignmentCommand])
+	Edge([92mstmt_3[0m -> [92mstores_1[0m [z = M[i] : LoadsCommand])
+	Edge([92mstores_1[0m -> [92mstores_2[0m [x = M[i] : LoadsCommand])
+	Edge([92mstores_2[0m -> [92mstores_3[0m [M[i] = 3 : StoresCommand])
+	Edge([92mstores_3[0m -> [92mmain_exit_1[0m [w = M[i] : LoadsCommand])
+
+[92mTransformations:[0m
+	[96mT1.1[0m:	 Introduce temporary variables for expressions
+	[96mT1.2[0m:	 Delete assignments to temporary variables if the expression is already available
+	[96mT0[0m:	 Delete all skip commands
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT1.1[0m
+
+[93mRunning transformation:[0m [96mT1.2[0m
+[93mRunning analysis:[0m [96mAvailExpr (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{y + 3}                                 [0m <--[ [96m T_yp3 = y + 3 [0m ]-- [92m{}                                      [0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m{y + 3}                                 
+    [91m⊔ ⇒ [0m[92m{y + 3}                                           [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{y + 3}                                 [0m <--[ [96m   x = T_yp3   [0m ]-- [92m{y + 3}                                 [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{y + 3}                                 
+    [91m⊔ ⇒ [0m[92m{y + 3}                                           [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{y + 3}                                 [0m <--[ [96m     x = 7     [0m ]-- [92m{y + 3}                                 [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{y + 3}                                 
+    [91m⊔ ⇒ [0m[92m{y + 3}                                           [0m
+
+[93mWidening Iteration 5[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{y + 3}                                 [0m <--[ [96m T_yp3 = y + 3 [0m ]-- [92m{y + 3}                                 [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{y + 3}                                 
+    [91m⊔ ⇒ [0m[92m{y + 3}                                           [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{y + 3}                                 [0m <--[ [96m   z = T_yp3   [0m ]-- [92m{y + 3}                                 [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{y + 3}                                 
+    [91m⊔ ⇒ [0m[92m{y + 3}                                           [0m
+
+[93mWidening Iteration 7[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{M[i], y + 3}                           [0m <--[ [96m T_M_i = M[i]  [0m ]-- [92m{y + 3}                                 [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m{M[i], y + 3}                           
+    [91m⊔ ⇒ [0m[92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 8[0m
+  [1mstores_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{M[i], y + 3}                           [0m <--[ [96m   z = T_M_i   [0m ]-- [92m{M[i], y + 3}                           [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{M[i], y + 3}                           
+    [91m⊔ ⇒ [0m[92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 9[0m
+  [1mopt_5[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{M[i], y + 3}                           [0m <--[ [96m T_M_i = M[i]  [0m ]-- [92m{M[i], y + 3}                           [0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_1[0m[95m])[0m = [92m{M[i], y + 3}                           
+    [91m⊔ ⇒ [0m[92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 10[0m
+  [1mstores_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{M[i], y + 3}                           [0m <--[ [96m   x = T_M_i   [0m ]-- [92m{M[i], y + 3}                           [0m  [94mopt_5[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_5[0m[95m])[0m = [92m{M[i], y + 3}                           
+    [91m⊔ ⇒ [0m[92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 11[0m
+  [1mstores_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{y + 3}                                 [0m <--[ [96m   M[i] = 3    [0m ]-- [92m{M[i], y + 3}                           [0m  [94mstores_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_2[0m[95m])[0m = [92m{y + 3}                                 
+    [91m⊔ ⇒ [0m[92m{y + 3}                                           [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_7[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{M[i], y + 3}                           [0m <--[ [96m T_M_i = M[i]  [0m ]-- [92m{y + 3}                                 [0m  [94mstores_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_3[0m[95m])[0m = [92m{M[i], y + 3}                           
+    [91m⊔ ⇒ [0m[92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 13[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{M[i], y + 3}                           [0m <--[ [96m   w = T_M_i   [0m ]-- [92m{M[i], y + 3}                           [0m  [94mopt_7[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_7[0m[95m])[0m = [92m{M[i], y + 3}                           
+    [91m⊔ ⇒ [0m[92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 14[0m
+  [1mstmt_1[0m [92m{y + 3}                                           [0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_2[0m [92m{y + 3}                                           [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_2[0m [92m{y + 3}                                           [0m
+
+[93mWidening Iteration 17[0m
+  [1mstmt_3[0m [92m{y + 3}                                           [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_3[0m [92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 19[0m
+  [1mstores_1[0m [92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 20[0m
+  [1mopt_5[0m [92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 21[0m
+  [1mstores_2[0m [92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 22[0m
+  [1mstores_3[0m [92m{y + 3}                                           [0m
+
+[93mWidening Iteration 23[0m
+  [1mopt_7[0m [92m{M[i], y + 3}                                     [0m
+
+[93mWidening Iteration 24[0m
+  [1mmain_exit_1[0m [92m{M[i], y + 3}                                     [0m
+
+[93mAnalysis results after 24 iterations of Widening[0m
+   main_entry_1 [92m{}                  [0m
+          opt_1 [92m{y + 3}             [0m
+         stmt_1 [92m{y + 3}             [0m
+         stmt_2 [92m{y + 3}             [0m
+          opt_2 [92m{y + 3}             [0m
+         stmt_3 [92m{y + 3}             [0m
+          opt_3 [92m{M[i], y + 3}       [0m
+       stores_1 [92m{M[i], y + 3}       [0m
+          opt_5 [92m{M[i], y + 3}       [0m
+       stores_2 [92m{M[i], y + 3}       [0m
+       stores_3 [92m{y + 3}             [0m
+          opt_7 [92m{M[i], y + 3}       [0m
+    main_exit_1 [92m{M[i], y + 3}       [0m
+
+[93mRunning transformation:[0m [96mT0[0m
+
+[92mTotal iterations:[0m 24

@@ -25,7 +25,7 @@ class Transformation_SSA_Prep(SingleStepTransformation):
 
     def transform(self, cfg: CFG, analyses_results: dict[Analysis, dict[CFG.Node, Any]]) -> CFG:
 
-        for node in cfg.get_nodes().copy():
+        for node in sorted(cfg.get_nodes().copy(), key=lambda x: x.name):
             if node.is_start:
                 new_node = cfg.make_opt_node()
                 n_name = new_node.name
@@ -41,11 +41,11 @@ class Transformation_SSA_Prep(SingleStepTransformation):
 
                 cfg.add_edge(new_node, node, SkipCommand())
 
-        for node in cfg.get_nodes().copy():
+        for node in sorted(cfg.get_nodes().copy(), key=lambda x: x.name):
 
             incoming_edges = cfg.get_incoming(node)
             if len(incoming_edges) > 1:
-                for edge in incoming_edges:
+                for edge in sorted(incoming_edges, key=lambda x: x.source.name):
                     if type(edge.command) == SkipCommand:
                         continue
 

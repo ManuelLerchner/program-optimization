@@ -71,9 +71,9 @@ class CFG:
                 [f"{key.name()}={key.lattice.show(value)}" for key, value in sorted(self.annotations.items(), key=lambda x: str(x[0]))])
 
             if self.locals:
-                values += f"<br/>locals=[{', '.join(self.locals)}]"
+                values += f"<br/>locals=[{', '.join(sorted(self.locals, key=lambda x: str(x)))}]"
             if self.globals:
-                values += f"<br/>globals=[{', '.join(self.globals)}]"
+                values += f"<br/>globals=[{', '.join(sorted(self.globals, key=lambda x: str(x)))}]"
 
             return f"{self.name}<br/>{values}" if self.annotations or self.locals else f"{self.name}"
 
@@ -223,7 +223,7 @@ class CFG:
 
             sorted_nodes.append(current_node)
 
-            for e in sorted(self.get_outgoing(current_node), key=lambda x: str(x.dest)):
+            for e in sorted(self.get_outgoing(current_node), key=lambda x: str(x)):
                 dfs_node(e.dest)
 
         for node in self.get_nodes():
@@ -243,11 +243,11 @@ class CFG:
 
             visited_nodes.add(current_node)
 
-            for e in sorted(self.get_outgoing(current_node), key=lambda x: str(x.dest)):
+            for e in sorted(self.get_outgoing(current_node), key=lambda x: str(x)):
                 dfs_node(e.dest)
                 sorted_edges.append(e)
 
-        for node in self.get_nodes():
+        for node in sorted(self.get_nodes(), key=lambda x: str(x)):
             if node.is_start:
                 dfs_node(node)
 
@@ -267,7 +267,7 @@ class CFG:
 
         nodes = self.sort_nodes('forward')
 
-        for node in nodes:
+        for node in sorted(nodes, key=lambda x: str(x)):
 
             if node.is_start:
                 dot.node(node.name, label="<"+str(node) + ">",
@@ -287,7 +287,7 @@ class CFG:
             dot.node(node.name, label="<"+str(node) + ">",
                      style="filled", fillcolor=fillcolor)
 
-        for edge in self.edges:
+        for edge in sorted(self.edges, key=lambda x: str(x)):
             # set label to empty string
             src = edge.source
             dest = edge.dest

@@ -5,8 +5,7 @@ from typing import Any, List, Literal
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
 from optimizer.solver.worklist import WorklistSolver
-from transformations.transformation import (SingleStepTransformation,
-                                            TransformationFixpoint)
+from transformations.transformation import TransformationFixpoint
 from util.bcolors import BColors
 
 
@@ -40,11 +39,12 @@ class Optimizer:
     def optimize(self) -> CFG:
         folder = f"{self.output_path}{self.cfg.filename}/{
             "_".join([t.name() for t in self.transformations])}"
+
         sys.stdout = open(f"{folder}/log.txt", "w")
+
         self.summarize()
 
         analyses_results: dict[Analysis, dict[CFG.Node, Any]] = {}
-
 
         self.cfg.render(f"{folder}/initial")
 

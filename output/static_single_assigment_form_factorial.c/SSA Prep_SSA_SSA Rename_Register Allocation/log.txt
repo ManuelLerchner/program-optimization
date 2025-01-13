@@ -1,0 +1,682 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: static_single_assigment_form_factorial.c
+	Edge([92mmain_entry_1[0m -> [92mloads_1[0m [x = M[i] : LoadsCommand])
+	Edge([92mloads_1[0m -> [92mstmt_1[0m [y = 1 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mloop_1_exit[0m [Neg(x &gt;  1) : NegCommand])
+	Edge([92mloop_1_exit[0m -> [92mmain_exit_1[0m [M[R] = y : StoresCommand])
+	Edge([92mstmt_1[0m -> [92mloop_1_entry[0m [Pos(x &gt;  1) : PosCommand])
+	Edge([92mloop_1_entry[0m -> [92mstmt_2[0m [y = y * x : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mstmt_1[0m [x = x - 1 : AssignmentCommand])
+
+[92mTransformations:[0m
+	[96mSSA Prep[0m:	 Prepares Transforms the CFG to SSA form
+	[96mSSA[0m:	 Transforms the CFG to SSA form
+	[96mSSA Rename[0m:	 Renames variables to SSA form
+	[96mRegister Allocation[0m:	 Determine a suitable register allocation
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mSSA Prep[0m
+
+[93mRunning transformation:[0m [96mSSA[0m
+[93mRunning analysis:[0m [96mReachingDefinitions (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 2[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m <--[ [96m       ;       [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 3[0m
+  [1mloads_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m <--[ [96m   x = M[i]    [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 4[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m <--[ [96m     y = 1     [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloads_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{}                                      [0m <--[ [96m       ;       [0m ]-- [92m{}                                      [0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m <--[ [96m       ;       [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_2[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m <--[ [96mNeg(x &gt;  1) [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m <--[ [96m   M[R] = y    [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m <--[ [96mPos(x &gt;  1) [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'stmt_2')}[0m <--[ [96m   y = y * x   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m <--[ [96m   x = x - 1   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'stmt_2')}[0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m <--[ [96m       ;       [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m <--[ [96m       ;       [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_2[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 12[0m
+  [1mloop_1_exit[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m <--[ [96mNeg(x &gt;  1) [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 13[0m
+  [1mmain_exit_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m <--[ [96m   M[R] = y    [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 14[0m
+  [1mloop_1_entry[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m <--[ [96mPos(x &gt;  1) [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_2[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'stmt_2')}[0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m <--[ [96m   y = y * x   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_3[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 17[0m
+  [1mloads_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_2[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 19[0m
+  [1mstmt_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 20[0m
+  [1mloop_1_entry[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 21[0m
+  [1mstmt_2[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 22[0m
+  [1mopt_3[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 23[0m
+  [1mloop_1_exit[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 24[0m
+  [1mmain_exit_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+
+[93mAnalysis results after 24 iterations of Widening[0m
+   main_entry_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+          opt_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+        loads_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+          opt_2 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+         stmt_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+   loop_1_entry [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+         stmt_2 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+          opt_3 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+    loop_1_exit [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+    main_exit_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (x, 'opt_3'), (y, 'opt_2'), (y, 'stmt_2')}[0m
+[93mRunning analysis:[0m [96mLiveVar (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, y}                                  [0m <--[ [96m   M[R] = y    [0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{R, y}                                  
+    [91m⊔ ⇒ [0m[92m{R, y}                                            [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96mNeg(x &gt;  1) [0m ]-- [92m{R, y}                                  [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{x}                                     [0m <--[ [96mPos(x &gt;  1) [0m ]-- [92m{}                                      [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, loop_1_entry[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 4[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96m       ;       [0m ]-- [92m{R, x, y}                               [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96m   x = x - 1   [0m ]-- [92m{R, x, y}                               [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96m   y = y * x   [0m ]-- [92m{R, x, y}                               [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_1[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 8[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96m       ;       [0m ]-- [92m{R, x, y}                               [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 9[0m
+  [1mloads_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x}                                  [0m <--[ [96m     y = 1     [0m ]-- [92m{R, x, y}                               [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{R, x}                                  
+    [91m⊔ ⇒ [0m[92m{R, x}                                            [0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, i}                                  [0m <--[ [96m   x = M[i]    [0m ]-- [92m{R, x}                                  [0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloads_1[0m[95m])[0m = [92m{R, i}                                  
+    [91m⊔ ⇒ [0m[92m{R, i}                                            [0m
+
+[93mWidening Iteration 11[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, i}                                  [0m <--[ [96m       ;       [0m ]-- [92m{R, i}                                  [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{R, i}                                  
+    [91m⊔ ⇒ [0m[92m{R, i}                                            [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_3[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 13[0m
+  [1mstmt_2[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 14[0m
+  [1mloop_1_entry[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_1[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_2[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 17[0m
+  [1mloads_1[0m [92m{R, x}                                            [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_1[0m [92m{R, i}                                            [0m
+
+[93mWidening Iteration 19[0m
+  [1mmain_entry_1[0m [92m{R, i}                                            [0m
+
+[93mAnalysis results after 19 iterations of Widening[0m
+    main_exit_1 [92m{}                  [0m
+    loop_1_exit [92m{R, y}              [0m
+          opt_3 [92m{R, x, y}           [0m
+         stmt_2 [92m{R, x, y}           [0m
+   loop_1_entry [92m{R, x, y}           [0m
+         stmt_1 [92m{R, x, y}           [0m
+          opt_2 [92m{R, x, y}           [0m
+        loads_1 [92m{R, x}              [0m
+          opt_1 [92m{R, i}              [0m
+   main_entry_1 [92m{R, i}              [0m
+
+[93mRunning transformation:[0m [96mSSA[0m
+[93mRunning analysis:[0m [96mReachingDefinitions (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 2[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m <--[ [96m               [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 3[0m
+  [1mloads_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m <--[ [96m   x = M[i]    [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 4[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m <--[ [96m     y = 1     [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloads_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(x, 'stmt_1'), (y, 'stmt_1')}          [0m <--[ [96m  x=x || y=y   [0m ]-- [92m{}                                      [0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m <--[ [96m  x=x || y=y   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_2[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m <--[ [96mNeg(x &gt;  1) [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m <--[ [96m   M[R] = y    [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m <--[ [96mPos(x &gt;  1) [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m <--[ [96m   y = y * x   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m <--[ [96m   x = x - 1   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 12[0m
+  [1mloads_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 13[0m
+  [1mopt_2[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 14[0m
+  [1mstmt_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 15[0m
+  [1mloop_1_entry[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 16[0m
+  [1mstmt_2[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_3[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 18[0m
+  [1mloop_1_exit[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 19[0m
+  [1mmain_exit_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mAnalysis results after 19 iterations of Widening[0m
+   main_entry_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+          opt_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+        loads_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+          opt_2 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+         stmt_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+   loop_1_entry [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+         stmt_2 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m
+          opt_3 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+    loop_1_exit [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+    main_exit_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+[93mRunning analysis:[0m [96mLiveVar (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, y}                                  [0m <--[ [96m   M[R] = y    [0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{R, y}                                  
+    [91m⊔ ⇒ [0m[92m{R, y}                                            [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96mNeg(x &gt;  1) [0m ]-- [92m{R, y}                                  [0m  [94mloop_1_exit[0m 
+    [95m⟵[0m     [92m{x}                                     [0m <--[ [96mPos(x &gt;  1) [0m ]-- [92m{}                                      [0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit, loop_1_entry[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 4[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96m  x=x || y=y   [0m ]-- [92m{R, x, y}                               [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96m   x = x - 1   [0m ]-- [92m{R, x, y}                               [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96m   y = y * x   [0m ]-- [92m{R, x, y}                               [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_1[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 8[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x, y}                               [0m <--[ [96m  x=x || y=y   [0m ]-- [92m{R, x, y}                               [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{R, x, y}                               
+    [91m⊔ ⇒ [0m[92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 9[0m
+  [1mloads_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, x}                                  [0m <--[ [96m     y = 1     [0m ]-- [92m{R, x, y}                               [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{R, x}                                  
+    [91m⊔ ⇒ [0m[92m{R, x}                                            [0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, i}                                  [0m <--[ [96m   x = M[i]    [0m ]-- [92m{R, x}                                  [0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloads_1[0m[95m])[0m = [92m{R, i}                                  
+    [91m⊔ ⇒ [0m[92m{R, i}                                            [0m
+
+[93mWidening Iteration 11[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R, i}                                  [0m <--[ [96m               [0m ]-- [92m{R, i}                                  [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{R, i}                                  
+    [91m⊔ ⇒ [0m[92m{R, i}                                            [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_3[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 13[0m
+  [1mstmt_2[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 14[0m
+  [1mloop_1_entry[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_1[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_2[0m [92m{R, x, y}                                         [0m
+
+[93mWidening Iteration 17[0m
+  [1mloads_1[0m [92m{R, x}                                            [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_1[0m [92m{R, i}                                            [0m
+
+[93mWidening Iteration 19[0m
+  [1mmain_entry_1[0m [92m{R, i}                                            [0m
+
+[93mAnalysis results after 19 iterations of Widening[0m
+    main_exit_1 [92m{}                  [0m
+    loop_1_exit [92m{R, y}              [0m
+          opt_3 [92m{R, x, y}           [0m
+         stmt_2 [92m{R, x, y}           [0m
+   loop_1_entry [92m{R, x, y}           [0m
+         stmt_1 [92m{R, x, y}           [0m
+          opt_2 [92m{R, x, y}           [0m
+        loads_1 [92m{R, x}              [0m
+          opt_1 [92m{R, i}              [0m
+   main_entry_1 [92m{R, i}              [0m
+
+[93mRunning transformation:[0m [96mSSA Rename[0m
+[93mRunning analysis:[0m [96mReachingDefinitions (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 2[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m <--[ [96m               [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 3[0m
+  [1mloads_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m <--[ [96m   x = M[i]    [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 4[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m <--[ [96m     y = 1     [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloads_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(x, 'stmt_1'), (y, 'stmt_1')}          [0m <--[ [96m  x=x || y=y   [0m ]-- [92m{}                                      [0m  [94mopt_3[0m 
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m <--[ [96m  x=x || y=y   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3, opt_2[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m <--[ [96mNeg(x &gt;  1) [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m <--[ [96m   M[R] = y    [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_exit[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 8[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m <--[ [96mPos(x &gt;  1) [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m <--[ [96m   y = y * x   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m  [94mloop_1_entry[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m <--[ [96m   x = x - 1   [0m ]-- [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}
+    [91m⊔ ⇒ [0m[92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 12[0m
+  [1mloads_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+
+[93mWidening Iteration 13[0m
+  [1mopt_2[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+
+[93mWidening Iteration 14[0m
+  [1mstmt_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 15[0m
+  [1mloop_1_entry[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 16[0m
+  [1mstmt_2[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 17[0m
+  [1mopt_3[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+
+[93mWidening Iteration 18[0m
+  [1mloop_1_exit[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mWidening Iteration 19[0m
+  [1mmain_exit_1[0m [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mAnalysis results after 19 iterations of Widening[0m
+   main_entry_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+          opt_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'main_entry_1'), (y, 'main_entry_1')}[0m
+        loads_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'main_entry_1')}[0m
+          opt_2 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'loads_1'), (y, 'opt_2')}[0m
+         stmt_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+   loop_1_entry [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+         stmt_2 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_2')}[0m
+          opt_3 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'opt_3'), (y, 'stmt_2')}[0m
+    loop_1_exit [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+    main_exit_1 [92m{(R, 'main_entry_1'), (i, 'main_entry_1'), (x, 'stmt_1'), (y, 'stmt_1')}[0m
+
+[93mRunning transformation:[0m [96mRegister Allocation[0m
+[93mRunning analysis:[0m [96mLiveVar (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_exit_1[0m [92m{}                                                [0m
+
+[93mWidening Iteration 2[0m
+  [1mloop_1_exit[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R_main_entry_1, y_stmt_1}              [0m <--[ [96mM[R_main_entry_1] = y_stmt_1[0m ]-- [92m{}                                      [0m  [94mmain_exit_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_exit_1[0m[95m])[0m = [92m{R_main_entry_1, y_stmt_1}              
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, y_stmt_1}                        [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{x_stmt_1}                              [0m <--[ [96mPos(x_stmt_1 &gt;  1)[0m ]-- [92m{}                                      [0m  [94mloop_1_entry[0m 
+    [95m⟵[0m     [92m{R_main_entry_1, x_stmt_1, y_stmt_1}    [0m <--[ [96mNeg(x_stmt_1 &gt;  1)[0m ]-- [92m{R_main_entry_1, y_stmt_1}              [0m  [94mloop_1_exit[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloop_1_entry, loop_1_exit[0m[95m])[0m = [92m{R_main_entry_1, x_stmt_1, y_stmt_1}    
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, x_stmt_1, y_stmt_1}              [0m
+
+[93mWidening Iteration 4[0m
+  [1mopt_3[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R_main_entry_1, x_opt_3, y_stmt_2}     [0m <--[ [96mx_stmt_1=x_opt_3 || y_stmt_1=y_stmt_2[0m ]-- [92m{R_main_entry_1, x_stmt_1, y_stmt_1}    [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{R_main_entry_1, x_opt_3, y_stmt_2}     
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, x_opt_3, y_stmt_2}               [0m
+
+[93mWidening Iteration 5[0m
+  [1mstmt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R_main_entry_1, x_stmt_1, y_stmt_2}    [0m <--[ [96mx_opt_3 = x_stmt_1 - 1[0m ]-- [92m{R_main_entry_1, x_opt_3, y_stmt_2}     [0m  [94mopt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_3[0m[95m])[0m = [92m{R_main_entry_1, x_stmt_1, y_stmt_2}    
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, x_stmt_1, y_stmt_2}              [0m
+
+[93mWidening Iteration 6[0m
+  [1mloop_1_entry[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R_main_entry_1, x_stmt_1, y_stmt_1}    [0m <--[ [96my_stmt_2 = y_stmt_1 * x_stmt_1[0m ]-- [92m{R_main_entry_1, x_stmt_1, y_stmt_2}    [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m{R_main_entry_1, x_stmt_1, y_stmt_1}    
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, x_stmt_1, y_stmt_1}              [0m
+
+[93mWidening Iteration 7[0m
+  [1mstmt_1[0m [92m{R_main_entry_1, x_stmt_1, y_stmt_1}              [0m
+
+[93mWidening Iteration 8[0m
+  [1mopt_2[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R_main_entry_1, x_loads_1, y_opt_2}    [0m <--[ [96mx_stmt_1=x_loads_1 || y_stmt_1=y_opt_2[0m ]-- [92m{R_main_entry_1, x_stmt_1, y_stmt_1}    [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m{R_main_entry_1, x_loads_1, y_opt_2}    
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, x_loads_1, y_opt_2}              [0m
+
+[93mWidening Iteration 9[0m
+  [1mloads_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R_main_entry_1, x_loads_1}             [0m <--[ [96m  y_opt_2 = 1  [0m ]-- [92m{R_main_entry_1, x_loads_1, y_opt_2}    [0m  [94mopt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_2[0m[95m])[0m = [92m{R_main_entry_1, x_loads_1}             
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, x_loads_1}                       [0m
+
+[93mWidening Iteration 10[0m
+  [1mopt_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R_main_entry_1, i_main_entry_1}        [0m <--[ [96mx_loads_1 = M[i_main_entry_1][0m ]-- [92m{R_main_entry_1, x_loads_1}             [0m  [94mloads_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mloads_1[0m[95m])[0m = [92m{R_main_entry_1, i_main_entry_1}        
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, i_main_entry_1}                  [0m
+
+[93mWidening Iteration 11[0m
+  [1mmain_entry_1[0m [92m{}                                                [0m
+    [95m⟵[0m     [92m{R_main_entry_1, i_main_entry_1}        [0m <--[ [96m               [0m ]-- [92m{R_main_entry_1, i_main_entry_1}        [0m  [94mopt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mopt_1[0m[95m])[0m = [92m{R_main_entry_1, i_main_entry_1}        
+    [91m⊔ ⇒ [0m[92m{R_main_entry_1, i_main_entry_1}                  [0m
+
+[93mWidening Iteration 12[0m
+  [1mopt_3[0m [92m{R_main_entry_1, x_opt_3, y_stmt_2}               [0m
+
+[93mWidening Iteration 13[0m
+  [1mstmt_2[0m [92m{R_main_entry_1, x_stmt_1, y_stmt_2}              [0m
+
+[93mWidening Iteration 14[0m
+  [1mloop_1_entry[0m [92m{R_main_entry_1, x_stmt_1, y_stmt_1}              [0m
+
+[93mWidening Iteration 15[0m
+  [1mstmt_1[0m [92m{R_main_entry_1, x_stmt_1, y_stmt_1}              [0m
+
+[93mWidening Iteration 16[0m
+  [1mopt_2[0m [92m{R_main_entry_1, x_loads_1, y_opt_2}              [0m
+
+[93mWidening Iteration 17[0m
+  [1mloads_1[0m [92m{R_main_entry_1, x_loads_1}                       [0m
+
+[93mWidening Iteration 18[0m
+  [1mopt_1[0m [92m{R_main_entry_1, i_main_entry_1}                  [0m
+
+[93mWidening Iteration 19[0m
+  [1mmain_entry_1[0m [92m{R_main_entry_1, i_main_entry_1}                  [0m
+
+[93mAnalysis results after 19 iterations of Widening[0m
+    main_exit_1 [92m{}                  [0m
+    loop_1_exit [92m{R_main_entry_1, y_stmt_1}[0m
+          opt_3 [92m{R_main_entry_1, x_opt_3, y_stmt_2}[0m
+         stmt_2 [92m{R_main_entry_1, x_stmt_1, y_stmt_2}[0m
+   loop_1_entry [92m{R_main_entry_1, x_stmt_1, y_stmt_1}[0m
+         stmt_1 [92m{R_main_entry_1, x_stmt_1, y_stmt_1}[0m
+          opt_2 [92m{R_main_entry_1, x_loads_1, y_opt_2}[0m
+        loads_1 [92m{R_main_entry_1, x_loads_1}[0m
+          opt_1 [92m{R_main_entry_1, i_main_entry_1}[0m
+   main_entry_1 [92m{R_main_entry_1, i_main_entry_1}[0m
+
+=====================================================================================================================
+                                                 Interference Graph                                                  
+=====================================================================================================================
+┌────────────────┬────────────────┬────────────────┬───────────┬─────────┬──────────┬──────────┬──────────┬─────────┐
+│    Variable    │ R_main_entry_1 │ i_main_entry_1 │ x_loads_1 │ y_opt_2 │ x_stmt_1 │ y_stmt_1 │ y_stmt_2 │ x_opt_3 │
+├────────────────┼────────────────┼────────────────┼───────────┼─────────┼──────────┼──────────┼──────────┼─────────┤
+│ R_main_entry_1 │                │       ×        │     ×     │    ×    │    ×     │    ×     │    ×     │    ×    │
+│ i_main_entry_1 │       ×        │                │           │         │          │          │          │         │
+│   x_loads_1    │       ×        │                │           │    ×    │          │          │          │         │
+│    y_opt_2     │       ×        │                │     ×     │         │          │          │          │         │
+│    x_stmt_1    │       ×        │                │           │         │          │    ×     │    ×     │         │
+│    y_stmt_1    │       ×        │                │           │         │    ×     │          │          │         │
+│    y_stmt_2    │       ×        │                │           │         │    ×     │          │          │    ×    │
+│    x_opt_3     │       ×        │                │           │         │          │          │    ×     │         │
+└────────────────┴────────────────┴────────────────┴───────────┴─────────┴──────────┴──────────┴──────────┴─────────┘
+
+================================================================================================================================
+                                                          Live Ranges                                                           
+================================================================================================================================
+┌────────────────┬──────────────┬───────┬─────────┬───────┬────────┬──────────────┬────────┬───────┬─────────────┬─────────────┐
+│    Variable    │ main_entry_1 │ opt_1 │ loads_1 │ opt_2 │ stmt_1 │ loop_1_entry │ stmt_2 │ opt_3 │ loop_1_exit │ main_exit_1 │
+├────────────────┼──────────────┼───────┼─────────┼───────┼────────┼──────────────┼────────┼───────┼─────────────┼─────────────┤
+│ R_main_entry_1 │     [1]      │  [1]  │   [1]   │  [1]  │  [1]   │     [1]      │  [1]   │  [1]  │     [1]     │             │
+│ i_main_entry_1 │     [0]      │  [0]  │         │       │        │              │        │       │             │             │
+│   x_loads_1    │              │       │   [0]   │  [0]  │        │              │        │       │             │             │
+│    x_opt_3     │              │       │         │       │        │              │        │  [2]  │             │             │
+│    x_stmt_1    │              │       │         │       │  [2]   │     [2]      │  [2]   │       │             │             │
+│    y_opt_2     │              │       │         │  [2]  │        │              │        │       │             │             │
+│    y_stmt_1    │              │       │         │       │  [0]   │     [0]      │        │       │     [0]     │             │
+│    y_stmt_2    │              │       │         │       │        │              │  [0]   │  [0]  │             │             │
+└────────────────┴──────────────┴───────┴─────────┴───────┴────────┴──────────────┴────────┴───────┴─────────────┴─────────────┘
+
+[92mTotal iterations:[0m 119

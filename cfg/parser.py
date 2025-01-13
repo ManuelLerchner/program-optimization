@@ -61,9 +61,9 @@ class Parser:
 
             self.cfg.add_edge(out, exit_node, SkipCommand())
 
-            entry_node.locals = self.locals[name] if self.locals.get(
+            entry_node.locals = sorted(self.locals[name], key=lambda x: str(x)) if self.locals.get(
                 name) is not None else set()
-            entry_node.globals = self.globals.keys()
+            entry_node.globals = sorted(self.globals, key=lambda x: str(x))
             self.current_function = previous_function
 
             return exit_node

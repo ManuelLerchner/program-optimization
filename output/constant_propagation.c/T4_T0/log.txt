@@ -1,0 +1,89 @@
+[92mOptimizer configuration:[0m
+[92mCFG:[0m
+Filename: constant_propagation.c
+	Edge([92mmain_entry_1[0m
+[94m
+locals=[u, x, y, z]
+globals=[A, M, x, y][0m -> [92mstmt_1[0m [x = 23 : AssignmentCommand])
+	Edge([92mstmt_1[0m -> [92mstmt_2[0m [y = 42 : AssignmentCommand])
+	Edge([92mstmt_2[0m -> [92mstmt_3[0m [u = 42 : AssignmentCommand])
+	Edge([92mstmt_3[0m -> [92mstores_1[0m [M[u] = x * y : StoresCommand])
+	Edge([92mstores_1[0m -> [92mstmt_4[0m [z = M[u] + 1 : AssignmentCommand])
+	Edge([92mstmt_4[0m -> [92mmain_exit_1[0m [M[u] = z : StoresCommand])
+
+[92mTransformations:[0m
+	[96mT4[0m:	 Perform constant propagation and delete unreachable nodes
+	[96mT0[0m:	 Delete all skip commands
+[92mWiden strategy:[0m loop_separator
+[92mMax narrow iterations:[0m 5
+[92mDebug:[0m True
+
+[93mRunning transformation:[0m [96mT4[0m
+[93mRunning analysis:[0m [96mConstantPropagation (analyses.use_widen=False, analyses.use_narrow=False)[0m
+
+[93mWidening Iteration 1[0m
+  [1mmain_entry_1[0m [92m(D=(M=⊤, u=⊤, x=⊤, y=⊤, z=⊤), M=())               [0m
+
+[93mWidening Iteration 2[0m
+  [1mstmt_1[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(M=⊤, u=⊤, x=23, y=⊤, z=⊤), M=())    [0m <--[ [96m    x = 23     [0m ]-- [92m(D=(M=⊤, u=⊤, x=⊤, y=⊤, z=⊤), M=())     [0m  [94mmain_entry_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mmain_entry_1[0m[95m])[0m = [92m(D=(M=⊤, u=⊤, x=23, y=⊤, z=⊤), M=())    
+    [91m⊔ ⇒ [0m[92m(D=(M=⊤, u=⊤, x=23, y=⊤, z=⊤), M=())              [0m
+
+[93mWidening Iteration 3[0m
+  [1mstmt_2[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(M=⊤, u=⊤, x=23, y=42, z=⊤), M=())   [0m <--[ [96m    y = 42     [0m ]-- [92m(D=(M=⊤, u=⊤, x=23, y=⊤, z=⊤), M=())    [0m  [94mstmt_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_1[0m[95m])[0m = [92m(D=(M=⊤, u=⊤, x=23, y=42, z=⊤), M=())   
+    [91m⊔ ⇒ [0m[92m(D=(M=⊤, u=⊤, x=23, y=42, z=⊤), M=())             [0m
+
+[93mWidening Iteration 4[0m
+  [1mstmt_3[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=())  [0m <--[ [96m    u = 42     [0m ]-- [92m(D=(M=⊤, u=⊤, x=23, y=42, z=⊤), M=())   [0m  [94mstmt_2[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_2[0m[95m])[0m = [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=())  
+    [91m⊔ ⇒ [0m[92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=())            [0m
+
+[93mWidening Iteration 5[0m
+  [1mstores_1[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=(42=966))[0m <--[ [96m M[u] = x * y  [0m ]-- [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=())  [0m  [94mstmt_3[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_3[0m[95m])[0m = [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=(42=966))
+    [91m⊔ ⇒ [0m[92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=(42=966))      [0m
+
+[93mWidening Iteration 6[0m
+  [1mstmt_4[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=966))[0m <--[ [96m z = M[u] + 1  [0m ]-- [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=(42=966))[0m  [94mstores_1[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstores_1[0m[95m])[0m = [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=966))
+    [91m⊔ ⇒ [0m[92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=966))    [0m
+
+[93mWidening Iteration 7[0m
+  [1mmain_exit_1[0m [92m(D=⊥, M=⊥)                                        [0m
+    [95m⟵[0m     [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=967))[0m <--[ [96m   M[u] = z    [0m ]-- [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=966))[0m  [94mstmt_4[0m 
+    [95m⟶ ⊔ f([[0m[0m[94mstmt_4[0m[95m])[0m = [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=967))
+    [91m⊔ ⇒ [0m[92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=967))    [0m
+
+[93mWidening Iteration 8[0m
+  [1mstmt_2[0m [92m(D=(M=⊤, u=⊤, x=23, y=42, z=⊤), M=())             [0m
+
+[93mWidening Iteration 9[0m
+  [1mstmt_3[0m [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=())            [0m
+
+[93mWidening Iteration 10[0m
+  [1mstores_1[0m [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=(42=966))      [0m
+
+[93mWidening Iteration 11[0m
+  [1mstmt_4[0m [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=966))    [0m
+
+[93mWidening Iteration 12[0m
+  [1mmain_exit_1[0m [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=967))    [0m
+
+[93mAnalysis results after 12 iterations of Widening[0m
+   main_entry_1 [92m(D=(M=⊤, u=⊤, x=⊤, y=⊤, z=⊤), M=())[0m
+         stmt_1 [92m(D=(M=⊤, u=⊤, x=23, y=⊤, z=⊤), M=())[0m
+         stmt_2 [92m(D=(M=⊤, u=⊤, x=23, y=42, z=⊤), M=())[0m
+         stmt_3 [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=())[0m
+       stores_1 [92m(D=(M=⊤, u=42, x=23, y=42, z=⊤), M=(42=966))[0m
+         stmt_4 [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=966))[0m
+    main_exit_1 [92m(D=(M=⊤, u=42, x=23, y=42, z=967), M=(42=967))[0m
+
+[93mRunning transformation:[0m [96mT0[0m
+
+[92mTotal iterations:[0m 12
