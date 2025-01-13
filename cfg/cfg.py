@@ -71,9 +71,11 @@ class CFG:
                 [f"{key.name()}={key.lattice.show(value)}" for key, value in sorted(self.annotations.items(), key=lambda x: str(x[0]))])
 
             if self.locals:
-                values += f"<br/>locals=[{', '.join(sorted(self.locals, key=lambda x: str(x)))}]"
+                values += f"<br/>locals=[{
+                    ', '.join(sorted(self.locals, key=lambda x: str(x)))}]"
             if self.globals:
-                values += f"<br/>globals=[{', '.join(sorted(self.globals, key=lambda x: str(x)))}]"
+                values += f"<br/>globals=[{
+                    ', '.join(sorted(self.globals, key=lambda x: str(x)))}]"
 
             return f"{self.name}<br/>{values}" if self.annotations or self.locals else f"{self.name}"
 
@@ -265,9 +267,8 @@ class CFG:
     def to_dot(self):
         dot = graphviz.Digraph()
 
-        nodes = self.sort_nodes('forward')
-
-        for node in sorted(nodes, key=lambda x: str(x)):
+        nodes = self.sort_nodes("forward")
+        for node in nodes:
 
             if node.is_start:
                 dot.node(node.name, label="<"+str(node) + ">",
@@ -287,7 +288,7 @@ class CFG:
             dot.node(node.name, label="<"+str(node) + ">",
                      style="filled", fillcolor=fillcolor)
 
-        for edge in sorted(self.edges, key=lambda x: str(x)):
+        for edge in self.topo_sort_edges():
             # set label to empty string
             src = edge.source
             dest = edge.dest
