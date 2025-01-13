@@ -19,12 +19,9 @@ class WorklistSolver(Solver):
         lattice = analysis.lattice
 
         node = worklist.pop(0)
-        print(f"  {BColors.BOLD}{node.name}{BColors.ENDC} {BColors.OKGREEN}{
-            lattice.show(states[node]):<50}{BColors.ENDC}")
-
-        # if (analysis.direction == 'forward' and node.is_start) or (
-        #         analysis.direction == 'backward' and node.is_end):
-        #     return worklist
+        if self.debug:
+            print(f"  {BColors.BOLD}{node.name}{BColors.ENDC} {BColors.OKGREEN}{
+                lattice.show(states[node]):<50}{BColors.ENDC}")
 
         if analysis.direction == 'forward':
             edges = analysis.cfg.get_incoming(node)

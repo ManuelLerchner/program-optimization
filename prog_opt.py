@@ -5,12 +5,12 @@ import argcomplete
 from analyses.analysis import Analysis
 from cfg.parser import Parser
 from optimizer.optimizer import Optimizer
-from transformations import Transformation, Transformation_Blank
+from transformations import SingleStepTransformation, Transformation_Blank
 
-available_transformations: dict[str, Transformation] = {
-    x.name(): x for x in Transformation.__subclasses__()}
+available_transformations: dict[str, SingleStepTransformation] = {
+    x.name(): x for x in SingleStepTransformation.__subclasses__()}
 
-available_analyses: dict[str, Transformation] = {
+available_analyses: dict[str, SingleStepTransformation] = {
     x.name(): x for x in Analysis.__subclasses__()}
 
 
@@ -69,7 +69,7 @@ argcomplete.autocomplete(parser)
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    trs: list[Transformation] = [
+    trs: list[SingleStepTransformation] = [
         available_transformations[name]() if name in available_transformations
         else Transformation_Blank(available_analyses[name]()) for name in args.t
     ]

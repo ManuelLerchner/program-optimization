@@ -8,10 +8,10 @@ from analyses.interval import (DIntervalLatticeElement, IntervalAnalysis,
 from cfg.cfg import CFG
 from cfg.IMP.command import NegCommand, PosCommand, SkipCommand
 from lattices.interval_lattice import IntervalLattice
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_5_0(Transformation):
+class Transformation_5_0(SingleStepTransformation):
     def __init__(self, widen: bool = True) -> None:
         self.IA = IntervalAnalysis(widen)
 

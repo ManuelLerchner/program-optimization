@@ -3,15 +3,15 @@
 from typing import Any
 
 from analyses.analysis import Analysis
-from analyses.interval import IntervalAnalysis, abstract_eval_interval, DIntervalLatticeElement
+from analyses.interval import (DIntervalLatticeElement, IntervalAnalysis,
+                               abstract_eval_interval)
 from cfg.cfg import CFG
-from cfg.IMP.command import (NegCommand,
-                             PosCommand, SkipCommand)
+from cfg.IMP.command import NegCommand, PosCommand, SkipCommand
 from lattices.interval_lattice import IntervalLattice
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_5(Transformation):
+class Transformation_5(SingleStepTransformation):
     def __init__(self, widen: bool) -> None:
         self.IA = IntervalAnalysis(widen)
 

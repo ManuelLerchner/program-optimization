@@ -2,18 +2,18 @@
 
 from typing import Any
 
-from analyses.expression_stores import ExprStores
 from analyses.analysis import Analysis
+from analyses.expression_stores import ExprStores
 from cfg.cfg import CFG
 from cfg.IMP.command import (AssignmentCommand, LoadsCommand, PosCommand,
                              StoresCommand)
 from cfg.IMP.expression import ID, Expression, UnaryExpression
 from lattices.powerset import Powerset
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 from transformations.transformation_1_1 import Transformation_1_1
 
 
-class Transformation_3(Transformation):
+class Transformation_3(SingleStepTransformation):
     def __init__(self):
         self.ES = ExprStores()
 

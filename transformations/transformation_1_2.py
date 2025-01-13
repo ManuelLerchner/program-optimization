@@ -8,10 +8,10 @@ from cfg.cfg import CFG
 from cfg.IMP.command import AssignmentCommand, LoadsCommand, SkipCommand
 from cfg.IMP.expression import ID, Expression, MemoryExpression
 from lattices.powerset import Powerset
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_1_2(Transformation):
+class Transformation_1_2(SingleStepTransformation):
 
     def __init__(self):
         self.AE = AvailableExpressions()

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from ast import Set
 from dataclasses import dataclass
 
 from pycparser import c_ast
@@ -12,6 +13,14 @@ class Expression(ABC):
 
     @abstractmethod
     def is_worthwile_storing(self) -> bool:
+        pass
+
+    @abstractmethod
+    def rename(self, old_name: str, new_name: str):
+        pass
+
+    @abstractmethod
+    def color(self, old_name: str, new_name: str):
         pass
 
 
@@ -67,13 +76,23 @@ class Constant(Expression):
     def __hash__(self):
         return hash(self.value)
 
+    def rename(self, old_name: str, new_name: str):
+        pass
+
+    def color(self, old_name: str, new_name: str):
+        pass
+
 
 @dataclass
 class ID(Expression):
     name: str
+    col: str = "black"
 
     def __str__(self):
-        return self.name
+        if self.col == "black":
+            return self.name
+        else:
+            return f"<font color='{self.col}'>{self.name}</font>"
 
     def __repr__(self):
         return self.name
@@ -92,11 +111,19 @@ class ID(Expression):
     def __hash__(self):
         return hash(self.name)
 
+    def rename(self, old_name: str, new_name: str):
+        if self.name == old_name:
+            self.name = new_name
+
+    def color(self, old_name: str, new_name: str):
+        if self.name == old_name:
+            self.col = new_name
+
 
 @dataclass
 class UnaryExpression(Expression):
     op: str
-    expr: c_ast.Node
+    expr: Expression
 
     def __str__(self):
         return f"{self.op} {self.expr}"
@@ -119,12 +146,21 @@ class UnaryExpression(Expression):
     def __hash__(self):
         return hash(self.op) + hash(self.expr)
 
+    def rename(self, old_name: str, new_name: str):
+        self.expr.rename(old_name, new_name)
+
+    def color(self, old_name: str, new_name: str):
+        self.expr.color(old_name, new_name)
+
 
 @ dataclass
 class BinExpression(Expression):
-    left: c_ast.Node
+    left: Expression
     op: str
-    right: c_ast.Node
+    right: Expression
+
+    def string_to_html(self, s: str) -> str:
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     @staticmethod
     def flip_op(op: str) -> str:
@@ -142,7 +178,7 @@ class BinExpression(Expression):
         raise ValueError(f"Unknown operator: {op}")
 
     def __str__(self):
-        return f"{self.left} {self.op} {self.right}"
+        return f"{self.left} {self.string_to_html(self.op)} {self.right}"
 
     def __repr__(self):
         return f"{self.left} {self.op} {self.right}"
@@ -161,6 +197,14 @@ class BinExpression(Expression):
             return False
 
         return self.left == other.left and self.op == other.op and self.right == other.right
+
+    def rename(self, old_name: str, new_name: str):
+        self.left.rename(old_name, new_name)
+        self.right.rename(old_name, new_name)
+
+    def color(self, old_name: str, new_name: str):
+        self.left.color(old_name, new_name)
+        self.right.color(old_name, new_name)
 
 
 @dataclass
@@ -189,6 +233,14 @@ class MemoryExpression(Expression):
 
         return self.array == other.array and self.expr == other.expr
 
+    def rename(self, old_name: str, new_name: str):
+        self.array.rename(old_name, new_name)
+        self.expr.rename(old_name, new_name)
+
+    def color(self, old_name: str, new_name: str):
+        self.array.color(old_name, new_name)
+        self.expr.color(old_name, new_name)
+
 
 @dataclass
 class FuncCall(Expression):
@@ -213,6 +265,14 @@ class FuncCall(Expression):
     def __hash__(self):
         return hash(self.name) + hash(self.args)
 
+    def rename(self, old_name: str, new_name: str):
+        for arg in self.args:
+            arg.rename(old_name, new_name)
+
+    def color(self, old_name: str, new_name: str):
+        for arg in self.args:
+            arg.color(old_name, new_name)
+
 
 def convertToExpr(expr: c_ast.Node) -> Expression:
     if isinstance(expr, c_ast.ID):
@@ -232,5 +292,20 @@ def convertToExpr(expr: c_ast.Node) -> Expression:
             return FuncCall(expr.name.name, expr.args)
     elif isinstance(expr, c_ast.ArrayRef):
         return MemoryExpression(convertToExpr(expr.name), convertToExpr(expr.subscript))
+
+    raise ValueError(f"Unknown expression type: {expr}")
+
+
+def variables_in_expression(expr: Expression) -> set[Expression]:
+    if isinstance(expr, ID):
+        return {expr}
+    elif isinstance(expr, BinExpression):
+        return variables_in_expression(expr.left) | variables_in_expression(expr.right)
+    elif isinstance(expr, UnaryExpression):
+        return variables_in_expression(expr.expr)
+    elif isinstance(expr, Constant):
+        return set()
+    elif isinstance(expr, MemoryExpression):
+        return variables_in_expression(expr.expr) | variables_in_expression(expr.array)
 
     raise ValueError(f"Unknown expression type: {expr}")

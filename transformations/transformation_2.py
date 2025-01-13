@@ -2,16 +2,16 @@
 
 from typing import Any
 
-from analyses.true_live_variables import TrueLiveVariables
 from analyses.analysis import Analysis
+from analyses.true_live_variables import TrueLiveVariables
 from cfg.cfg import CFG
 from cfg.IMP.command import AssignmentCommand, LoadsCommand, SkipCommand
 from cfg.IMP.expression import Expression
 from lattices.powerset import Powerset
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_2(Transformation):
+class Transformation_2(SingleStepTransformation):
 
     def __init__(self):
         self.LV = TrueLiveVariables()

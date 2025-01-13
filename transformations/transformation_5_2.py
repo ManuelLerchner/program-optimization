@@ -5,16 +5,16 @@ from typing import Any, Set
 from analyses.analysis import Analysis
 from analyses.available_expr import AvailableExpressions
 from analyses.very_busy import VeryBusyAnalysis
-from cfg.IMP.expression import ID, BinExpression, Expression, UnaryExpression
 from cfg.cfg import CFG
-from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand, PosCommand,
-                             SkipCommand, StoresCommand)
+from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
+                             PosCommand, SkipCommand, StoresCommand)
+from cfg.IMP.expression import ID, BinExpression, Expression, UnaryExpression
 from lattices.interval_lattice import IntervalLattice
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 from transformations.transformation_1_1 import Transformation_1_1
 
 
-class Transformation_5_2(Transformation):
+class Transformation_5_2(SingleStepTransformation):
     def __init__(self) -> None:
         pass
 

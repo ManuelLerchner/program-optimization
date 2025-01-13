@@ -1,13 +1,10 @@
 
-from typing import Set
 import typing
+from typing import Tuple
 
-from analyses.analysis import Analysis, NodeSensitiveAnalysis
-from analyses.live_variables import variables_in_expression
-from cfg.IMP.expression import ID, BinExpression, Constant, Expression, UnaryExpression
-from analyses.gen_kill_analysis import GenKill
+from analyses.analysis import NodeSensitiveAnalysis
 from cfg.cfg import CFG
-from lattices.complete_lattice import CompleteLattice
+from cfg.IMP.expression import (ID, Expression)
 from lattices.powerset import FlippedPowerset, Powerset
 
 

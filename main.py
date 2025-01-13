@@ -11,6 +11,14 @@ from transformations.transformation_5_0 import Transformation_5_0
 from transformations.transformation_5_1 import Transformation_5_1
 from transformations.transformation_5_2 import Transformation_5_2
 from transformations.transformation_6 import Transformation_6
+from transformations.transformation_9 import Transformation_9
+from transformations.transformation_11 import Transformation_11
+from transformations.transformation_SSA_1_Prep import Transformation_SSA_Prep
+from transformations.transformation_SSA_2_Calc import Transformation_SSA
+from transformations.transformation_SSA_3_Rename import \
+    Transformation_SSA_Rename
+from transformations.transformation_SSA_4_register_allocation import \
+    Register_Allocation
 
 fullPipeline = [
     Transformation_4(), Transformation_5_0(), Transformation_6(), Transformation_1_1(), Transformation_1_2(
@@ -65,6 +73,18 @@ def test():
 
     Optimizer(Parser('examples/factorial.c').parse(),
               fullPipeline, debug=True).optimize()
+
+    Optimizer(Parser('examples/inline.c').parse(),
+              [Transformation_9()], debug=True).optimize()
+
+    Optimizer(Parser('examples/tail_recursive.c').parse(),
+              [Transformation_11()], debug=True).optimize()
+
+    Optimizer(Parser('examples/static_single_assigment_form.c').parse(),
+              [Transformation_SSA_Prep(), Transformation_SSA(), Transformation_SSA_Rename(), Register_Allocation()], debug=True).optimize()
+
+    Optimizer(Parser('examples/static_single_assigment_form_factorial.c').parse(),
+              [Transformation_SSA_Prep(), Transformation_SSA(), Transformation_SSA_Rename(), Register_Allocation()], debug=True).optimize()
 
 
 if __name__ == "__main__":

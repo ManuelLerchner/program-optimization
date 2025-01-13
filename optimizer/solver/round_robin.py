@@ -19,7 +19,8 @@ class RoundRobinSolver(Solver):
 
         changed = False
         for node in states:
-            if (analysis.direction == 'forward' and node.is_start) or (analysis.direction == 'backward' and node.is_end):
+            if (analysis.direction == 'forward' and len(analysis.cfg.get_incoming(node)) == 0
+                    or (analysis.direction == 'backward' and len(analysis.cfg.get_outgoing(node)) == 0)):
                 continue
 
             if analysis.direction == 'forward':
@@ -91,7 +92,7 @@ class RoundRobinSolver(Solver):
         analysis.lattice = analysis.create_lattice(cfg)
 
         states: defaultdict[CFG.Node, T] = defaultdict(
-            lambda: analysis.lattice.bot(), {n: analysis.lattice.bot() for n in sort_nodes(analysis.direction, cfg)})
+            lambda: analysis.lattice.bot(), {n: analysis.lattice.bot() for n in cfg.sort_nodes(analysis.direction)})
 
         for n in states:
             start = analysis.lattice.top()

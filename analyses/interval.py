@@ -1,5 +1,6 @@
 
 from typing import DefaultDict
+import typing
 
 from analyses.analysis import NodeInsensitiveAnalysis
 from cfg.cfg import CFG
@@ -186,6 +187,7 @@ class IntervalAnalysis(NodeInsensitiveAnalysis[DIntervalLatticeElement]):
                 var, new_op, subexpr = (expr.left, expr.op, expr.right) if isinstance(
                     expr.left, ID) else (expr.right, BinExpression.flip_op(expr.op), expr.left)
 
+                var=typing.cast(ID,var)
                 sub_expr_interval = abstract_eval_interval(subexpr, A)
 
                 assert sub_expr_interval != "⊥"
@@ -220,6 +222,8 @@ class IntervalAnalysis(NodeInsensitiveAnalysis[DIntervalLatticeElement]):
             if type(expr) == BinExpression:
                 var, new_op, subexpr = (expr.left, expr.op, expr.right) if isinstance(
                     expr.left, ID) else (expr.right, BinExpression.flip_op(expr.op), expr.left)
+
+                var = typing.cast(ID, var)
 
                 sub_expr_interval = abstract_eval_interval(subexpr, A)
 

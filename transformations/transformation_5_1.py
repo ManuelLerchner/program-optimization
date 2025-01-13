@@ -6,13 +6,13 @@ from analyses.analysis import Analysis
 from analyses.available_expr import AvailableExpressions
 from analyses.very_busy import VeryBusyAnalysis
 from cfg.cfg import CFG
-from cfg.IMP.command import (AssignmentCommand, Command, SkipCommand)
+from cfg.IMP.command import AssignmentCommand, Command, SkipCommand
 from cfg.IMP.expression import Expression
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 from transformations.transformation_1_1 import Transformation_1_1
 
 
-class Transformation_5_1(Transformation):
+class Transformation_5_1(SingleStepTransformation):
     def __init__(self) -> None:
         self.VB = VeryBusyAnalysis()
         self.AA = AvailableExpressions()
@@ -38,7 +38,7 @@ class Transformation_5_1(Transformation):
 
         to_insert: list[Command]
         for node in nodes:
-            if len(cfg.get_outgoing(node)) == 0:
+            if node.is_end:
                 to_insert = sorted([AssignmentCommand(Transformation_1_1.introduce_register(
                     expr), expr) for expr in B[node]], key=lambda x: str(x))
 

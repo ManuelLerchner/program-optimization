@@ -1,10 +1,10 @@
 
 from typing import DefaultDict, Dict
 
-from analyses.analysis import Analysis, NodeInsensitiveAnalysis
+from analyses.analysis import NodeInsensitiveAnalysis
+from cfg.cfg import CFG
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
                                 MemoryExpression, UnaryExpression)
-from cfg.cfg import CFG
 from lattices.combined_lattice import CombinedLattice
 from lattices.d_lattice import (DLattice, DLatticeElement, IntegerLattice,
                                 IntegerLatticeElement)
@@ -113,8 +113,7 @@ class ConstantPropagation(NodeInsensitiveAnalysis[Dict[str, DLatticeElement]]):
         if abstract_eval_expr(lhs, A, M) == "⊤":
             M = DLattice(set()).top()
         else:
-            M.update({ID(str(abstract_eval_expr(lhs, A, M)))
-                     : abstract_eval_expr(rhs, A, M)})
+            M.update({ID(str(abstract_eval_expr(lhs, A, M))): abstract_eval_expr(rhs, A, M)})
 
         return {"D": A, "M": M}
 
@@ -133,6 +132,9 @@ class ConstantPropagation(NodeInsensitiveAnalysis[Dict[str, DLatticeElement]]):
             return {"D": A, "M": M}
         else:
             if type(expr) == BinExpression and expr.op == '==':
+                if not isinstance(expr.left, ID):
+                    raise Exception(
+                        "Left side of the expression must be a variable")
                 A.update({expr.left: IntegerLattice.meet(
                     A[expr.left], abstract_eval_expr(expr.right, A, M))})
 
@@ -153,6 +155,9 @@ class ConstantPropagation(NodeInsensitiveAnalysis[Dict[str, DLatticeElement]]):
             return {"D": "⊥", "M": M}
         else:
             if type(expr) == BinExpression and expr.op == '!=':
+                if not isinstance(expr.left, ID):
+                    raise Exception(
+                        "Left side of the expression must be a variable")
                 A.update({expr.left: IntegerLattice.meet(
                     A[expr.left], abstract_eval_expr(expr.right, A, M))})
 

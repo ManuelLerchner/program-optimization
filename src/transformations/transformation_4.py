@@ -2,17 +2,18 @@
 
 from typing import Any
 
-from analyses.constant_propagation import ConstantPropagation, abstract_eval_expr
 from analyses.analysis import Analysis
+from analyses.constant_propagation import (ConstantPropagation,
+                                           abstract_eval_expr)
 from cfg.cfg import CFG
-from cfg.IMP.command import (AssignmentCommand, NegCommand,
-                             PosCommand, SkipCommand)
+from cfg.IMP.command import (AssignmentCommand, NegCommand, PosCommand,
+                             SkipCommand)
 from cfg.IMP.expression import Constant
 from lattices.d_lattice import DLatticeElement, IntegerLattice
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_4(Transformation):
+class Transformation_4(SingleStepTransformation):
     def __init__(self):
         self.CP = ConstantPropagation()
 

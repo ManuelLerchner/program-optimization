@@ -1,10 +1,13 @@
+from collections import defaultdict
 from typing import Optional
 
 from pycparser import c_ast, c_parser
 
 from cfg.cfg import CFG
-from cfg.IMP.command import (AllocCommand, AssignmentCommand, BlockReadCommand, BlockWriteCommand, LoadsCommand, NegCommand,
-                             PosCommand, SkipCommand, StoresCommand)
+from cfg.IMP.command import (AllocCommand, AssignmentCommand, BlockReadCommand,
+                             BlockWriteCommand, FunCallCommand, LoadsCommand,
+                             NegCommand, PosCommand, SkipCommand,
+                             StoresCommand)
 from cfg.IMP.expression import convertToExpr
 from transformations.transformation_0 import Transformation_0
 
@@ -14,6 +17,11 @@ class Parser:
         self.filename = filename
         self.cfg = CFG()
         self.node_counter = 0
+        self.current_function = None
+        self.curr_continue = None
+        self.curr_break = None
+        self.locals = defaultdict(set)
+        self.globals = defaultdict(None)
 
     def parse(self) -> CFG:
         with open(self.filename) as f:
@@ -44,10 +52,19 @@ class Parser:
         if isinstance(ast_node, c_ast.FuncDef):
             name = ast_node.decl.name
 
+            previous_function = self.current_function
+            self.current_function = name
+
             entry_node, exit_node = self.cfg.make_function_nodes(name)
+            assert entry_node is not None
             out = self.visit(ast_node.body, entry_node, exit_node)
 
             self.cfg.add_edge(out, exit_node, SkipCommand())
+
+            entry_node.locals = self.locals[name] if self.locals.get(
+                name) is not None else set()
+            entry_node.globals = self.globals.keys()
+            self.current_function = previous_function
 
             return exit_node
 
@@ -55,8 +72,7 @@ class Parser:
             current = entry_node
             for stmt in ast_node.block_items or []:
                 out = self.visit(stmt, current, exit_node)
-                if out is not None:
-                    current = out
+                current = out
 
             # self.cfg.add_edge(current, exit_node, SkipCommand())
 
@@ -84,7 +100,8 @@ class Parser:
             else:
                 self.cfg.add_edge(false_entry, combine_node, SkipCommand())
 
-            self.cfg.add_edge(out_true, combine_node, SkipCommand())
+            if out_true is not None:
+                self.cfg.add_edge(out_true, combine_node, SkipCommand())
 
             return combine_node
 
@@ -120,7 +137,10 @@ class Parser:
 
         elif isinstance(ast_node, c_ast.Decl):
             if ast_node.init is None:
+                self.globals[ast_node.name] = None
                 return None
+
+            self.locals[self.current_function].add(ast_node.name)
 
             if (type(ast_node.init) == c_ast.ArrayRef):
                 if ast_node.init.name.name == "M":
@@ -157,7 +177,16 @@ class Parser:
 
             cond_expr = convertToExpr(ast_node.cond)
 
+            old_continue = self.curr_continue
+            old_break = self.curr_break
+
+            self.curr_continue = loop_entry
+            self.curr_break = loop_exit
+
             out = self.visit(ast_node.stmt, loop_entry, loop_exit)
+
+            self.curr_continue = old_continue
+            self.curr_break = old_break
 
             if entry_node is not None:
                 entry_node.is_loop_separator = True
@@ -174,7 +203,16 @@ class Parser:
         elif isinstance(ast_node, c_ast.DoWhile):
             loop_entry, loop_exit = self.cfg.make_loop_nodes()
 
+            old_continue = self.curr_continue
+            old_break = self.curr_break
+
+            self.curr_continue = loop_entry
+            self.curr_break = loop_exit
+
             out = self.visit(ast_node.stmt, loop_entry, loop_exit)
+
+            self.curr_continue = old_continue
+            self.curr_break = old_break
 
             if entry_node is not None:
                 entry_node.is_loop_separator = True
@@ -194,5 +232,19 @@ class Parser:
                               SkipCommand(cfg_keep=True))
 
             return skip_node
+
+        elif isinstance(ast_node, c_ast.FuncCall):
+            node = self.cfg.make_stmt_node()
+            self.cfg.add_edge(entry_node, node,
+                              FunCallCommand(ast_node.name.name))
+            return node
+
+        elif isinstance(ast_node, c_ast.Break):
+            self.cfg.add_edge(entry_node, self.curr_break, SkipCommand())
+            return None
+
+        elif isinstance(ast_node, c_ast.Continue):
+            self.cfg.add_edge(entry_node, self.curr_continue, SkipCommand())
+            return None
 
         raise NotImplementedError(ast_node)

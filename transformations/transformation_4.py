@@ -10,10 +10,10 @@ from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
                              PosCommand, SkipCommand, StoresCommand)
 from cfg.IMP.expression import Constant
 from lattices.d_lattice import DLatticeElement, IntegerLattice
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_4(Transformation):
+class Transformation_4(SingleStepTransformation):
     def __init__(self):
         self.CP = ConstantPropagation()
 

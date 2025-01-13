@@ -1,12 +1,13 @@
 
 from abc import ABC, abstractmethod
+from ast import Tuple
 from typing import Literal
 
 from cfg.cfg import CFG
 from cfg.IMP.command import (AssignmentCommand, Command, LoadsCommand,
-                             NegCommand, PosCommand, SkipCommand,
+                             NegCommand, ParallelAssigmentCommand, PosCommand, SkipCommand,
                              StoresCommand)
-from cfg.IMP.expression import Expression
+from cfg.IMP.expression import ID, Expression
 from lattices.complete_lattice import CompleteLattice
 
 
@@ -82,6 +83,12 @@ class NodeInsensitiveAnalysis[T](Analysis[T], ABC):
         """
         pass
 
+    def ParallelAssigment(self, ass: list[tuple[ID, Expression]], A: T) -> T:
+        """
+        var1=expr1 || var2=expr2 || ... || varn=exprn
+        """
+        raise NotImplementedError
+
     def transfer(self, X: T, u: CFG.Node, command: Command, v: CFG.Node) -> T:
         A = self.lattice.copy(X)
 
@@ -97,6 +104,8 @@ class NodeInsensitiveAnalysis[T](Analysis[T], ABC):
             return self.Pos(command.expr, A)
         elif type(command) == NegCommand:
             return self.Neg(command.expr, A)
+        elif type(command) == ParallelAssigmentCommand:
+            return self.ParallelAssigment(command.assignments, A)
 
         raise ValueError(f"Unknown command type: {command}")
 
@@ -111,47 +120,53 @@ class NodeSensitiveAnalysis[T](Analysis[T], ABC):
         self.use_widen = use_widen
         self.use_narrow = use_narrow
 
-    @abstractmethod
+    @ abstractmethod
     def skip(self, x: T, u: CFG.Node, v: CFG.Node) -> T:
         """
         ;
         """
         pass
 
-    @abstractmethod
+    @ abstractmethod
     def assignment(self, lhs: Expression, rhs: Expression, A: T, u: CFG.Node, v: CFG.Node) -> T:
         """
         lhs = rhs
         """
         pass
 
-    @abstractmethod
+    @ abstractmethod
     def loads(self, lhs: Expression, rhs: Expression, A: T, u: CFG.Node, v: CFG.Node) -> T:
         """
         lhs = M[rhs]
         """
         pass
 
-    @abstractmethod
+    @ abstractmethod
     def stores(self, lhs: Expression, rhs: Expression, A: T, u: CFG.Node, v: CFG.Node) -> T:
         """
         M[lhs] = rhs
         """
         pass
 
-    @abstractmethod
+    @ abstractmethod
     def Pos(self, expr: Expression, A: T, u: CFG.Node, v: CFG.Node) -> T:
         """
         Pos(expr)
         """
         pass
 
-    @abstractmethod
+    @ abstractmethod
     def Neg(self, expr: Expression, A: T, u: CFG.Node, v: CFG.Node) -> T:
         """
         Neg(expr)
         """
         pass
+
+    def ParallelAssigment(self, ass: list[tuple[ID, Expression]], A: T, u: CFG.Node, v: CFG.Node) -> T:
+        """
+        var1=expr1 || var2=expr2 || ... || varn=exprn
+        """
+        raise NotImplementedError
 
     def transfer(self, X: T,  u: CFG.Node, command: Command, v: CFG.Node) -> T:
         A = self.lattice.copy(X)
@@ -168,5 +183,7 @@ class NodeSensitiveAnalysis[T](Analysis[T], ABC):
             return self.Pos(command.expr, A, u, v)
         elif type(command) == NegCommand:
             return self.Neg(command.expr, A, u, v)
+        elif type(command) == ParallelAssigmentCommand:
+            return self.ParallelAssigment(command.assignments, A, u, v)
 
         raise ValueError(f"Unknown command type: {command}")

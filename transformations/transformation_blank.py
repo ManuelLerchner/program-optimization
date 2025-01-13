@@ -4,11 +4,10 @@ from typing import Any
 
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
-from cfg.IMP.command import SkipCommand
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_Blank(Transformation):
+class Transformation_Blank(SingleStepTransformation):
 
     def __init__(self, analysis: Analysis):
         self.analysis = analysis

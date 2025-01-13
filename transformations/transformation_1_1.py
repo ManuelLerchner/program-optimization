@@ -8,10 +8,10 @@ from cfg.cfg import CFG
 from cfg.IMP.command import (AssignmentCommand, LoadsCommand, NegCommand,
                              PosCommand, StoresCommand)
 from cfg.IMP.expression import ID, Expression, MemoryExpression
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_1_1(Transformation):
+class Transformation_1_1(SingleStepTransformation):
 
     @staticmethod
     def introduce_register(expr: Expression) -> ID:

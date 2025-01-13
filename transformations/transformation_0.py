@@ -5,10 +5,10 @@ from typing import Any
 from analyses.analysis import Analysis
 from cfg.cfg import CFG
 from cfg.IMP.command import SkipCommand
-from transformations.transformation import Transformation
+from transformations.transformation import SingleStepTransformation
 
 
-class Transformation_0(Transformation):
+class Transformation_0(SingleStepTransformation):
 
     def __init__(self, force=False) -> None:
         self.force = force
@@ -37,7 +37,7 @@ class Transformation_0(Transformation):
                 return u
             else:
                 n = skip.pop()
-                if n.command.cfg_keep:
+                if type(n.command) == SkipCommand and n.command.cfg_keep:
                     return u
                 else:
                     return next(n.dest)

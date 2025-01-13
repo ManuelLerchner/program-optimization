@@ -66,3 +66,12 @@ class GenKill[T](NodeInsensitiveAnalysis[Set[T]]):
     def Neg(self, expr: Expression, A:  set[T]) -> set[T]:
         gen, kill = self.gen_kill_Neg(expr, A)
         return self.lattice.join(self.lattice.diff(A, kill), gen)
+
+    def ParallelAssigment(self, ass, A):
+        g, k = set(), set()
+        for l, r in ass:
+            g_n, k_n = self.gen_kill_assignment(l, r, A)
+            g = g | g_n
+            k = k | k_n
+
+        return self.lattice.join(self.lattice.diff(A, k), g)

@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from cfg.IMP.expression import Expression
+from cfg.IMP.expression import ID, Expression
 
 
 class Command:
@@ -47,7 +47,7 @@ class LoadsCommand(Command):
         self.expr = expr
 
     def __str__(self) -> str:
-        return f"{self.var} = M[{self.expr}]"
+        return f"{self.var} = M[ {self.expr} ]"
 
 
 class StoresCommand(Command):
@@ -149,3 +149,27 @@ class BlockWriteCommand(Command):
 
     def __str__(self) -> str:
         return f"{self.x}[{self.e}] = {self.var}"
+
+
+class FunCallCommand(Command):
+    """
+    fun()
+    """
+
+    def __init__(self, fun: Expression):
+        self.fun = fun
+
+    def __str__(self) -> str:
+        return f"{self.fun}()"
+
+
+class ParallelAssigmentCommand(Command):
+    """
+    var1=expr1 || var2=expr2 || ... || varn=exprn
+    """
+
+    def __init__(self, assignments: list[tuple[ID, Expression]]):
+        self.assignments = assignments
+
+    def __str__(self) -> str:
+        return " || ".join([f"{var}={expr}" for var, expr in self.assignments])

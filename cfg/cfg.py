@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Any, Literal, Set
 import graphviz
 
 from cfg.IMP.command import (AssignmentCommand, Command, LoadsCommand,
-                             NegCommand, PosCommand, SkipCommand,
-                             StoresCommand)
+                             NegCommand, ParallelAssigmentCommand, PosCommand,
+                             SkipCommand, StoresCommand)
 from cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
                                 MemoryExpression, UnaryExpression)
 from util.bcolors import BColors
@@ -42,6 +42,12 @@ def get_expressions_command(expr: Command) -> Set[Expression]:
         return {expr.expr}
     elif isinstance(expr, NegCommand):
         return {expr.expr}
+    elif isinstance(expr, ParallelAssigmentCommand):
+        xs, ys = [], []
+        for l, r in expr.assignments:
+            xs.append(l)
+            ys.append(r)
+        return set(xs + ys)
     else:
         raise Exception("Unknown command")
 
@@ -56,24 +62,37 @@ class CFG:
             self.is_end = False
             self.is_loop_separator = False
             self.age = 0
+            self.temperature = float('inf')
+            self.locals: set[str] = set()
+            self.globals: set[str] = set()
 
         def __str__(self):
-            values = "\n".join(
+            values = "<br/>".join(
                 [f"{key.name()}={key.lattice.show(value)}" for key, value in sorted(self.annotations.items(), key=lambda x: str(x[0]))])
 
-            return f"{self.name}\n{values}" if self.annotations else self.name
+            if self.locals:
+                values += f"<br/>locals=[{', '.join(self.locals)}]"
+            if self.globals:
+                values += f"<br/>globals=[{', '.join(self.globals)}]"
+
+            return f"{self.name}<br/>{values}" if self.annotations or self.locals else f"{self.name}"
 
         def __repr__(self):
             values = "\n".join(
                 [f"{key.name()}={key.lattice.show(value)}" for key, value in sorted(self.annotations.items(), key=lambda x: str(x[0]))])
 
-            return f"{BColors.OKGREEN}{self.name}{BColors.ENDC}\n{BColors.OKBLUE}{values}{BColors.ENDC}" if self.annotations else f"{BColors.OKGREEN}{self.name}{BColors.ENDC}"
+            if self.locals:
+                values += f"\nlocals=[{', '.join(map(str, self.locals))}]"
+            if self.globals:
+                values += f"\nglobals=[{', '.join(map(str, self.globals))}]"
+
+            return f"{BColors.OKGREEN}{self.name}{BColors.ENDC}\n{BColors.OKBLUE}{values}{BColors.ENDC}" if self.annotations or self.locals else f"{BColors.OKGREEN}{self.name}{BColors.ENDC}"
 
         def __hash__(self):
-            return hash(self.name)
+            return hash(self.name) + hash(self.is_start) + hash(self.is_end) + hash(self.is_loop_separator) + hash(self.age) + hash(self.temperature) + hash(str(self.locals))
 
         def __eq__(self, other):
-            return self.name == other.name
+            return self.name == other.name and self.is_start == other.is_start and self.is_end == other.is_end and self.is_loop_separator == other.is_loop_separator and self.age == other.age and self.temperature == other.temperature and self.locals == other.locals
 
     class Edge:
         def __init__(self, source, dest, command: Command):
@@ -101,12 +120,15 @@ class CFG:
         self.block_read_counter = 0
         self.block_write_counter = 0
         self.optimization_counter = 0
+        self.copy_counter = 0
 
     def make_function_nodes(self, name: str):
         self.function_counter += 1
-        entry = CFG.Node(f"{name}{self.function_counter}_entry")
+        entry = CFG.Node(f"{name}_entry_{self.function_counter}")
+
         entry.is_start = True
-        exit = CFG.Node(f"{name}{self.function_counter}_exit")
+        exit = CFG.Node(f"{name}_exit_{self.function_counter}")
+
         exit.is_end = True
 
         return entry, exit
@@ -157,12 +179,16 @@ class CFG:
         self.optimization_counter += 1
         return CFG.Node(f"opt_{self.optimization_counter}")
 
+    def make_copy_node(self):
+        self.copy_counter += 1
+        return CFG.Node(f"copy_{self.copy_counter}")
+
     def add_edge(self, source: Node, dest: Node, command: Command):
         edge = CFG.Edge(source, dest, command)
 
         self.edges.append(edge)
 
-    def get_nodes(self):
+    def get_nodes(self) -> set[Node]:
         nodes = set()
         for edge in self.edges:
             nodes.add(edge.source)
@@ -244,21 +270,21 @@ class CFG:
         for node in nodes:
 
             if node.is_start:
-                dot.node(node.name, label=str(node),
+                dot.node(node.name, label="<"+str(node) + ">",
                          shape='box', style="filled", fillcolor='green')
                 continue
             elif node.is_end:
-                dot.node(node.name, label=str(node),
+                dot.node(node.name, label="<"+str(node) + ">",
                          shape='box', style="filled", fillcolor='green')
                 continue
 
-            if len(self.get_outgoing(node)) == 2:
-                dot.node(node.name, label=str(node),
+            if len(self.get_outgoing(node)) >= 2:
+                dot.node(node.name, label="<"+str(node) + ">",
                          shape='diamond', style="filled", fillcolor='yellow')
                 continue
 
             fillcolor = 'orange' if node.age == 0 else 'white'
-            dot.node(node.name, label=str(node),
+            dot.node(node.name, label="<"+str(node) + ">",
                      style="filled", fillcolor=fillcolor)
 
         for edge in self.edges:
@@ -268,7 +294,7 @@ class CFG:
 
             linecolor = 'red' if edge.age == 0 else 'black'
 
-            dot.edge(src.name, dest.name, label=str(edge.command),
+            dot.edge(src.name, dest.name, label="<"+str(edge.command) + ">",
                      color=linecolor, fontcolor=linecolor)
 
         for node in nodes:
@@ -304,3 +330,44 @@ class CFG:
 
     def render(self, filename):
         self.to_dot().render(filename, format='png', cleanup=True)
+
+    def find_node(self, name: str) -> Node | None:
+        for node in self.get_nodes():
+            if name in node.name:
+                return node
+
+        return None
+
+    def duplicate_subgraph(self, start: Node, end: Node) -> tuple[Node, Node]:
+
+        visited = set()
+
+        node_mappping = {}
+
+        start_copy = self.make_copy_node()
+        end_copy = self.make_copy_node()
+
+        node_mappping[start] = start_copy
+        node_mappping[end] = end_copy
+
+        def dfs(node: CFG.Node):
+
+            for edge in self.get_outgoing(node):
+                if edge in visited:
+                    continue
+
+                visited.add(edge)
+
+                if edge.source not in node_mappping:
+                    node_mappping[edge.source] = self.make_copy_node()
+                if edge.dest not in node_mappping:
+                    node_mappping[edge.dest] = self.make_copy_node()
+
+                self.add_edge(node_mappping[edge.source],
+                              node_mappping[edge.dest], edge.command)
+
+                dfs(edge.dest)
+
+        dfs(start)
+
+        return start_copy, end_copy
