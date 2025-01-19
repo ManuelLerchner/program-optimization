@@ -2,6 +2,7 @@
 from typing import Generic, TypeVar
 
 from src.lattices.complete_lattice import CompleteLattice
+from src.util.bcolors import BColors
 
 A = TypeVar('A')
 T = TypeVar('T', bound=CompleteLattice)
@@ -35,3 +36,9 @@ class CombinedLattice(Generic[A, T], CompleteLattice[dict[A, T]]):
 
     def show(self,  a: dict[A, T]) -> str:
         return f"({', '.join([f'{k}={self.entries[k].show(v)}' for k, v in sorted(a.items(), key=lambda x: str(x[0]))])})"
+
+    def join_symbol(self) -> str:
+        return f"{BColors.BOLD}{next(iter(self.entries.values())).join_symbol()}{BColors.ENDC}"
+
+    def geq_symbol(self):
+        return f"{BColors.BOLD}{next(iter(self.entries.values())).geq_symbol()}{BColors.ENDC}"

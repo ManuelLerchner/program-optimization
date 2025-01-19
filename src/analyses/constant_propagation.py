@@ -1,6 +1,7 @@
 
 from typing import DefaultDict, Dict
 
+from src.cfg.IMP.command import AssignmentCommand, Command, LoadsCommand, NegCommand, ParallelAssigmentCommand, PosCommand, SkipCommand, StoresCommand
 from src.analyses.analysis import NodeInsensitiveAnalysis
 from src.cfg.cfg import CFG
 from src.cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
@@ -71,7 +72,7 @@ def abstract_eval_expr(expr: Expression, A: DefaultDict[ID, IntegerLatticeElemen
 
 class ConstantPropagation(NodeInsensitiveAnalysis[Dict[str, DLatticeElement]]):
     def __init__(self):
-        super().__init__('forward', "top")
+        super().__init__('forward', "must")
 
     def create_lattice(self, cfg):
         return CombinedLattice({"D": DLattice(cfg.get_all_vars()), "M": DLattice({})})
@@ -162,3 +163,22 @@ class ConstantPropagation(NodeInsensitiveAnalysis[Dict[str, DLatticeElement]]):
                     A[expr.left], abstract_eval_expr(expr.right, A, M))})
 
             return {"D": A, "M": M}
+
+    def format_equation(self, A: CFG.Node, c: Command) -> str:
+        if type(c) == SkipCommand:
+            return f"{self.wrap_name(A)}"
+        elif type(c) == AssignmentCommand:
+            return f"({self.wrap_name(A)} ⊕ ({c.lvalue} := eval({c.expr}, {self.wrap_name(A)})"
+        elif type(c) == LoadsCommand:
+            return f"({self.wrap_name(A)} ⊕ ({c.var} := eval({c.expr}, {self.wrap_name(A)})"
+        elif type(c) == StoresCommand:
+            return f"({self.wrap_name(A)} ⊕ store({c.lhs}, {c.rhs}, {self.wrap_name(A)})"
+        elif type(c) == PosCommand:
+            return f"({self.wrap_name(A)} ⊕ Pos({c.expr}, {self.wrap_name(A)})"
+        elif type(c) == NegCommand:
+            return f"({self.wrap_name(A)} ⊕ Neg({c.expr}, {self.wrap_name(A)})"
+        elif type(c) == ParallelAssigmentCommand:
+            return "||".join([f"({self.wrap_name
+                                  (A)} ⊕ ({x[0]} := eval({x[1]}, {self.wrap_name(A)})" for x in c.assignments])
+
+        raise ValueError(f"Unknown command type: {c}")

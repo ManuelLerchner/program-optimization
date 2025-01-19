@@ -31,6 +31,7 @@ class Transformation_5_0(SingleStepTransformation):
         Transformation 4
         bot -> delete[node]
         """
+        return cfg
 
         D: dict[CFG.Node, DIntervalLatticeElement] = analyses_results[self.IA]
 

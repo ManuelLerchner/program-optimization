@@ -2,6 +2,7 @@
 import typing
 from typing import Tuple
 
+from src.cfg.IMP.command import Command, ParallelAssigmentCommand, SkipCommand, AssignmentCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand
 from src.analyses.analysis import NodeSensitiveAnalysis
 from src.cfg.cfg import CFG
 from src.cfg.IMP.expression import ID, Expression
@@ -82,3 +83,28 @@ class ReachingDefinitionsAnalysis(NodeSensitiveAnalysis[Powerset[Tuple[ID, str]]
                 A.add((lh, v.name))
 
         return A
+
+    @staticmethod
+    def hd(a: tuple):
+        x, y = a
+        return x
+
+    def format_equation(self, A: CFG.Node, c: Command, B: CFG.Node) -> str:
+        if type(c) == SkipCommand:
+            return f"{self.wrap_name(A)}"
+        elif type(c) == AssignmentCommand:
+            return f"({self.wrap_name(A)} - DEFS({c.lvalue}) ∪ ({{({c.lvalue},{B.name})}})"
+        elif type(c) == LoadsCommand:
+            return f"({self.wrap_name(A)} - DEFS({c.var}) ∪ ({{({c.expr},{B.name})}})"
+        elif type(c) == LoadsCommand:
+            return f"{self.wrap_name(A)}"
+        elif type(c) == StoresCommand:
+            return f"{self.wrap_name(A)}"
+        elif type(c) == PosCommand:
+            return f"{self.wrap_name(A)}"
+        elif type(c) == NegCommand:
+            return f"{self.wrap_name(A)}"
+        elif type(c) == ParallelAssigmentCommand:
+            return f"({self.wrap_name(A)} - DEFS({''.join(map(str, map(self.hd, c.assignments)))} ∪ {''.join(map(lambda a: f"({self.hd(a)},{B.name})", c.assignments))})"
+
+        raise ValueError(f"Unknown command type: {c}")

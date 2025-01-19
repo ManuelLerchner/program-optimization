@@ -53,6 +53,12 @@ class IntegerLattice(CompleteLattice[IntegerLatticeElement]):
     def show(a: IntegerLatticeElement) -> str:
         return str(a)
 
+    def join_symbol(self) -> str:
+        return "⊔"
+
+    def geq_symbol(self) -> str:
+        return "≥"
+
 
 class DLattice(AllVariableLattice[IntegerLatticeElement]):
 

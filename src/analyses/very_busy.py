@@ -1,6 +1,7 @@
 
 import typing
 
+from src.cfg.IMP.command import Command, AssignmentCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand, SkipCommand, ParallelAssigmentCommand
 from src.analyses.analysis import NodeInsensitiveAnalysis
 from src.analyses.live_variables import variables_in_expression
 from src.cfg.cfg import CFG
@@ -12,7 +13,7 @@ from src.lattices.powerset import FlippedPowerset
 class VeryBusyAnalysis(NodeInsensitiveAnalysis[FlippedPowerset[Expression]]):
 
     def __init__(self):
-        super().__init__('backward', 'bot')
+        super().__init__('backward', 'must')
 
     @staticmethod
     def name():
@@ -60,3 +61,21 @@ class VeryBusyAnalysis(NodeInsensitiveAnalysis[FlippedPowerset[Expression]]):
         if not isinstance(expr, ID):
             A.add(expr)
         return A
+
+    def format_equation(self, A: CFG.Node, c: Command) -> str:
+        if type(c) == SkipCommand:
+            return f"{self.wrap_name(A)}"
+        elif type(c) == AssignmentCommand:
+            return f"({self.wrap_name(A)} - ExprsWith({c.lvalue})) ∪ {c.expr}"
+        elif type(c) == LoadsCommand:
+            return f"({self.wrap_name(A)} - ExprsWith({c.var})) ∪ {c.expr}"
+        elif type(c) == StoresCommand:
+            return f"{self.wrap_name(A)} ∪ {c.lhs} ∪ {c.rhs}"
+        elif type(c) == PosCommand:
+            return f"{self.wrap_name(A)} ∪ {c.expr}"
+        elif type(c) == NegCommand:
+            return f"{self.wrap_name(A)} ∪ {c.expr}"
+        elif type(c) == ParallelAssigmentCommand:
+            return " || ".join([f"({self.wrap_name(A)} - ExprsWith({x[0]})) ∪ {x[1]}" for x in c.assignments])
+
+        raise ValueError(f"Unknown command type: {c}")

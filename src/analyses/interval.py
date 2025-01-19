@@ -2,6 +2,7 @@
 import typing
 from typing import DefaultDict
 
+from src.cfg.IMP.command import AssignmentCommand, Command, LoadsCommand, NegCommand, ParallelAssigmentCommand, PosCommand, SkipCommand, StoresCommand
 from src.analyses.analysis import NodeInsensitiveAnalysis
 from src.cfg.cfg import CFG
 from src.cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
@@ -29,14 +30,14 @@ def binary_interval_arithmetic(op: str, a: Interval, b: Interval) -> Interval:
             return (IntervalLattice.top())
         return (min(l1 / l2, l1 / u2, u1 / l2, u1 / u2), max(l1 / l2, l1 / u2, u1 / l2, u1 / u2))
     if op == '==':
-        if l1 == l2 and u1 == u2:
+        if l1 == l2 and u1 == u2 and l1 != float("-inf") and u1 != float("inf"):
             return (1, 1)
         elif u1 < l2 or u2 < l1:
             return (0, 0)
         else:
             return (0, 1)
     if op == '!=':
-        if l1 == l2 and u1 == u2:
+        if l1 == l2 and u1 == u2 and l1 != float("-inf") and u1 != float("inf"):
             return (0, 0)
         elif u1 < l2 or u2 < l1:
             return (1, 1)
@@ -72,16 +73,22 @@ def binary_interval_arithmetic(op: str, a: Interval, b: Interval) -> Interval:
             return (0, 1)
 
     if op == '&&':
+        if l1 == u1 and l2 == u2 and l1 == 1 and l2 == 1:
+            return (1, 1)
         if l1 == 0 and u1 == 0:
             return (0, 0)
         if l2 == 0 and u2 == 0:
             return (0, 0)
-        return (1, 1)
+        return (0, 1)
 
     if op == '||':
-        if l1 == 0 and u1 == 0 and l2 == 0 and u2 == 0:
+        if l1 == u1 and l2 == u2 and l1 == 0 and l2 == 0:
             return (0, 0)
-        return (1, 1)
+        if l1 == 1 and u1 == 1:
+            return (1, 1)
+        if l2 == 1 and u2 == 1:
+            return (1, 1)
+        return (0, 1)
 
     if op == '%':
         if l2 == 0 and u2 == 0:
@@ -135,7 +142,7 @@ def abstract_eval_interval(expr: Expression, A: DefaultDict[ID, Interval]) -> In
 class IntervalAnalysis(NodeInsensitiveAnalysis[DIntervalLatticeElement]):
 
     def __init__(self, widen: bool) -> None:
-        super().__init__('forward', "may", use_widen=True, use_narrow=True)
+        super().__init__('forward', "must", use_widen=True, use_narrow=True)
         self.widen = widen
 
     def create_lattice(self, cfg):
@@ -246,3 +253,21 @@ class IntervalAnalysis(NodeInsensitiveAnalysis[DIntervalLatticeElement]):
                         A[var], (sub_expr_interval[0], float("inf")))})
 
             return A
+
+    def format_equation(self, A: CFG.Node, c: Command) -> str:
+        if type(c) == SkipCommand:
+            return f"{self.wrap_name(A)}"
+        elif type(c) == AssignmentCommand:
+            return f"({self.wrap_name(A)} ⊕ ({c.lvalue} := eval({c.expr})"
+        elif type(c) == LoadsCommand:
+            return f"({self.wrap_name(A)} ⊕ ({c.var} := ⊤)"
+        elif type(c) == StoresCommand:
+            return f"({self.wrap_name(A)})"
+        elif type(c) == PosCommand:
+            return f"(eval({c.expr}) == [0, 0] ) ? ⊥ : {self.wrap_name(A)}"
+        elif type(c) == NegCommand:
+            return f"( [0, 0] ⊑ eval({c.expr}) ) ? ⊥ : {self.wrap_name(A)}"
+        elif type(c) == ParallelAssigmentCommand:
+            return "||".join([f"VARS({x[0]})" for x in c.assignments])
+
+        raise ValueError(f"Unknown command type: {c}")

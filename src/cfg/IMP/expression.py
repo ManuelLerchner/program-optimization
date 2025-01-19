@@ -5,6 +5,10 @@ from dataclasses import dataclass
 from pycparser import c_ast
 
 
+def string_to_html(s: str) -> str:
+    return s.replace("&&", "&amp;&amp; ").replace("<", "&lt; ").replace(">", "&gt; ")
+
+
 class Expression(ABC):
 
     @abstractmethod
@@ -48,7 +52,7 @@ def op_to_shortstring(op: str):
     elif op == ">=":
         return "ge"
 
-    raise ValueError(f"Unknown operator: {op}")
+    return op
 
 
 @dataclass
@@ -89,10 +93,7 @@ class ID(Expression):
     col: str = "black"
 
     def __str__(self):
-        if self.col == "black":
-            return self.name
-        else:
-            return f"<font color='{self.col}'>{self.name}</font>"
+        return self.name
 
     def __repr__(self):
         return self.name
@@ -103,7 +104,7 @@ class ID(Expression):
         return self.name == other.name
 
     def to_short_string(self) -> str:
-        return self.name
+        return string_to_html(self.name)
 
     def is_worthwile_storing(self) -> bool:
         return False
@@ -138,7 +139,7 @@ class UnaryExpression(Expression):
         return self.op == other.op and self.expr == other.expr
 
     def to_short_string(self) -> str:
-        return f"{op_to_shortstring(self.op)}{self.expr.to_short_string()}"
+        return string_to_html(f"{op_to_shortstring(self.op)}{self.expr.to_short_string()}")
 
     def is_worthwile_storing(self) -> bool:
         return True
@@ -159,9 +160,6 @@ class BinExpression(Expression):
     op: str
     right: Expression
 
-    def string_to_html(self, s: str) -> str:
-        return s.replace("&", "&amp; ").replace("<", "&lt; ").replace(">", "&gt; ")
-
     @staticmethod
     def flip_op(op: str) -> str:
         if op == "<":
@@ -178,7 +176,7 @@ class BinExpression(Expression):
         raise ValueError(f"Unknown operator: {op}")
 
     def __str__(self):
-        return f"{self.left} {self.string_to_html(self.op)} {self.right}"
+        return string_to_html(f"{self.left} {(self.op)} {self.right}")
 
     def __repr__(self):
         return f"{self.left} {self.op} {self.right}"
@@ -187,7 +185,7 @@ class BinExpression(Expression):
         return hash(self.left) + hash(self.op) + hash(self.right)
 
     def to_short_string(self) -> str:
-        return f"{self.left.to_short_string()}{op_to_shortstring(self.op)}{self.right.to_short_string()}"
+        return string_to_html(f"{self.left.to_short_string()}{op_to_shortstring(self.op)}{self.right.to_short_string()}")
 
     def is_worthwile_storing(self) -> bool:
         return True
@@ -219,7 +217,7 @@ class MemoryExpression(Expression):
         return f"{self.array}[{self.expr}]"
 
     def to_short_string(self) -> str:
-        return f"{self.array.to_short_string()}_{self.expr.to_short_string()}"
+        return string_to_html(f"{self.array.to_short_string()}_{self.expr.to_short_string()}")
 
     def __hash__(self):
         return hash(self.array) + hash(self.expr)
@@ -257,7 +255,7 @@ class FuncCall(Expression):
         return self.name == other.name and self.args == other.args
 
     def to_short_string(self) -> str:
-        return f"{self.name}({', '.join(map(str, self.args))})"
+        return string_to_html(f"{self.name}({', '.join(map(str, self.args))})")
 
     def is_worthwile_storing(self) -> bool:
         return True

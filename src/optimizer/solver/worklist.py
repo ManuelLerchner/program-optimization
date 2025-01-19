@@ -45,7 +45,7 @@ class WorklistSolver(Solver):
                         str(edge.command):^15}{BColors.ENDC} ]-- {BColors.OKGREEN}{
                         lattice.show(states[edge.source]):<40}{BColors.ENDC}  {BColors.OKBLUE}{edge.source.name}{BColors.ENDC} ")
 
-                print(f"    {BColors.HEADER}⟶ {'⊔'} f([{BColors.ENDC}{BColors.ENDC}{BColors.OKBLUE}{', '.join([e.source.name for e in edges])}{BColors.ENDC}{BColors.HEADER}]){BColors.ENDC} = {BColors.OKGREEN}{
+                print(f"    {BColors.HEADER}⟶ {analysis.lattice.join_symbol()} f([{BColors.ENDC}{BColors.ENDC}{BColors.OKBLUE}{', '.join([e.source.name for e in edges])}{BColors.ENDC}{BColors.HEADER}]){BColors.ENDC} = {BColors.OKGREEN}{
                     lattice.show(incoming):<40}")
 
                 print(f"    {BColors.FAIL}{comb_name} ⇒ {BColors.ENDC}{BColors.OKGREEN}{
@@ -57,6 +57,12 @@ class WorklistSolver(Solver):
                 e.source for e in analysis.cfg.get_incoming(node)]
 
             worklist = new + worklist
+
+        if node.name in ["stmt_8", "stmt_6", "stmt_4", "skip_2", "skip_7", "if_true_10", "stmt_17"]:
+            pass
+
+        if node.name == "skip_6":
+            pass
 
         return worklist
 
@@ -84,8 +90,11 @@ class WorklistSolver(Solver):
         return iterations
 
     def solve[T](self, cfg: CFG, analysis: Analysis[T]) -> Tuple[dict[CFG.Node, T], int]:
+
         analysis.lattice = analysis.create_lattice(cfg)
         worklist = cfg.sort_nodes(analysis.direction)
+
+        super().printEquationSystem(cfg, analysis)
 
         states: defaultdict[CFG.Node, T] = defaultdict(
             lambda: analysis.lattice.bot(), {n: analysis.lattice.bot() for n in worklist})
@@ -100,9 +109,9 @@ class WorklistSolver(Solver):
         # forward
         def comb(node: CFG.Node):
             if analysis.use_widen and ((self.widen_strategy == 'loop_separator' and node.is_loop_separator) or self.widen_strategy == 'always'):
-                return ("⩏", analysis.lattice.widen,)
+                return ("∇", analysis.lattice.widen)
             else:
-                return ("⊔", analysis.lattice.join)
+                return (analysis.lattice.join_symbol(), analysis.lattice.join)
 
         iter += self.find_fixpoint("Widening", states,
                                    worklist[::], analysis, comb)
@@ -111,9 +120,9 @@ class WorklistSolver(Solver):
             # backward
             def comb(node: CFG.Node):
                 if analysis.use_narrow and ((self.widen_strategy == 'loop_separator' and node.is_loop_separator) or self.widen_strategy == 'always'):
-                    return ("⩎", analysis.lattice.narrow)
+                    return ("Δ", analysis.lattice.narrow)
                 else:
-                    return ("⊔", analysis.lattice.join)
+                    return (analysis.lattice.join_symbol(), analysis.lattice.join)
 
             iter += self.find_fixpoint("Narrowing", states, worklist[::],
                                        analysis, comb, self.max_narrow_iterations)

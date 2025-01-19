@@ -2,18 +2,19 @@
 import typing
 from typing import Dict
 
+from src.cfg.IMP.command import Command, SkipCommand, AssignmentCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand, ParallelAssigmentCommand
 from src.analyses.analysis import NodeInsensitiveAnalysis
 from src.cfg.cfg import CFG
 from src.cfg.IMP.expression import (ID, BinExpression, Constant, Expression,
                                     MemoryExpression, UnaryExpression)
 from src.lattices.combined_lattice import CombinedLattice
-from src.lattices.powerset import Powerset
+from src.lattices.powerset import FlippedPowerset, Powerset
 
 
-class ExprStores(NodeInsensitiveAnalysis[Dict[Expression, Powerset[ID]]]):
+class ExprStores(NodeInsensitiveAnalysis[Dict[Expression, FlippedPowerset[ID]]]):
 
     def __init__(self):
-        super().__init__('forward', 'bot')
+        super().__init__('forward', 'must')
 
     def create_lattice(self, cfg):
         expressions = cfg.get_all_expressions()
@@ -22,10 +23,10 @@ class ExprStores(NodeInsensitiveAnalysis[Dict[Expression, Powerset[ID]]]):
         ids = list(expr for expr in expressions if isinstance(expr, ID))
 
         return CombinedLattice[Expression, Powerset[ID]](
-            {expr: Powerset[ID](set(ids)) for expr in exprs})
+            {expr: FlippedPowerset[ID](set(ids)) for expr in exprs})
 
     def start_node(self, cfg: CFG):
-        return self.lattice.bot()
+        return self.lattice.top()
 
     @staticmethod
     def name():
@@ -87,3 +88,6 @@ class ExprStores(NodeInsensitiveAnalysis[Dict[Expression, Powerset[ID]]]):
                 A[e] = typing.cast(Powerset[ID], {})
 
         return A
+
+    def format_equation(self, A: CFG.Node, c: Command) -> str:
+        return "Not implemented"

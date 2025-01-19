@@ -90,6 +90,12 @@ class IntervalLattice(CompleteLattice[Interval]):
 
         return f"[{a[0]}, {a[1]}]"
 
+    def join_symbol(self) -> str:
+        return "⊔"
+
+    def geq_symbol(self) -> str:
+        return "≥"
+
 
 DIntervalLatticeElement = Union[DefaultDict[ID, Interval], Literal["⊥"]]
 

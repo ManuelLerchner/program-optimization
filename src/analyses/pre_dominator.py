@@ -1,6 +1,7 @@
 
 import typing
 
+from src.cfg.IMP.command import Command, AssignmentCommand, LoadsCommand, ParallelAssigmentCommand, SkipCommand, StoresCommand, PosCommand, NegCommand
 from src.analyses.analysis import NodeSensitiveAnalysis
 from src.cfg.cfg import CFG
 from src.cfg.IMP.expression import Expression
@@ -10,7 +11,7 @@ from src.lattices.powerset import FlippedPowerset, Powerset
 class PredominatorAnalysis(NodeSensitiveAnalysis[Powerset[str]]):
 
     def __init__(self):
-        super().__init__('forward', "may")
+        super().__init__('forward', "must")
 
     @staticmethod
     def name():
@@ -50,3 +51,6 @@ class PredominatorAnalysis(NodeSensitiveAnalysis[Powerset[str]]):
         A.add(v.name)
 
         return A
+
+    def format_equation(self, A: CFG.Node, c: Command, B: CFG.Node) -> str:
+        return f"{self.wrap_name(A)} ∪ {B.name}"

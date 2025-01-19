@@ -69,3 +69,9 @@ class AllVariableLattice[T](CompleteLattice[Union[DefaultDict[ID, T], Literal["â
             return "âŠ¥"
 
         return f"({', '.join([f'{k}={self.lattice.show(v)}' for k, v in sorted(a.items(), key=lambda x: str(x[0]))])})"
+
+    def join_symbol(self) -> str:
+        return self.lattice.join_symbol()
+
+    def geq_symbol(self):
+        return self.lattice.geq_symbol()

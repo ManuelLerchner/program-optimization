@@ -39,6 +39,12 @@ class Powerset[T](CompleteLattice[Set[T]], Set[T]):
     def show(self, a: Set[T]) -> str:
         return f"{{{', '.join([str(x) for x in sorted(a, key=str)])}}}"
 
+    def join_symbol(self) -> str:
+        return "U"
+
+    def geq_symbol(self) -> str:
+        return "⊇"
+
 
 class FlippedPowerset[T](Powerset[T]):
 
@@ -58,4 +64,10 @@ class FlippedPowerset[T](Powerset[T]):
         return a.union(b)
 
     def leq(self, a:  Set[T], b: Set[T]) -> bool:
-        return b.issubset(a)
+        return a.issuperset(b)
+
+    def join_symbol(self) -> str:
+        return "∩"
+
+    def geq_symbol(self) -> str:
+        return "⊆"

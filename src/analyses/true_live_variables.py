@@ -1,6 +1,7 @@
 
 from typing import Set
 
+from src.cfg.IMP.command import Command, SkipCommand, AssignmentCommand, LoadsCommand, StoresCommand, PosCommand, NegCommand, ParallelAssigmentCommand
 from src.analyses.gen_kill_analysis import GenKill
 from src.analyses.live_variables import variables_in_expression
 from src.cfg.cfg import CFG
@@ -11,7 +12,7 @@ from src.lattices.powerset import Powerset
 class TrueLiveVariables(GenKill[Expression]):
 
     def __init__(self):
-        super().__init__('backward', 'bot')
+        super().__init__('backward', 'may')
 
     @staticmethod
     def name():
@@ -53,3 +54,35 @@ class TrueLiveVariables(GenKill[Expression]):
 
     def gen_kill_Neg(self, expr: Expression, A) -> tuple[Set[Expression], Set[Expression]]:
         return variables_in_expression(expr), set()
+
+    def gen_string(self,  A: CFG.Node, c: Command) -> str:
+        if type(c) == SkipCommand:
+            return "∅"
+        elif type(c) == AssignmentCommand:
+            return f"({c.lvalue} ∈ {self.wrap_name(A)} ? VARS({c.expr}) : ∅)"
+        elif type(c) == LoadsCommand:
+            return f"({c.var} ∈ {self.wrap_name(A)} ? VARS({c.expr}) : ∅)"
+        elif type(c) == StoresCommand:
+            return f"VARS({c.lhs}) ∪ VARS({c.rhs})"
+        elif type(c) == PosCommand:
+            return f"VARS({c.expr})"
+        elif type(c) == NegCommand:
+            return f"VARS({c.expr})"
+
+        raise ValueError(f"Unknown command type: {c}")
+
+    def kill_string(self,  A: CFG.Node, c: Command) -> str:
+        if type(c) == SkipCommand:
+            return "∅"
+        elif type(c) == AssignmentCommand:
+            return f"{c.lvalue}"
+        elif type(c) == LoadsCommand:
+            return f"{c.var}"
+        elif type(c) == StoresCommand:
+            return f"∅"
+        elif type(c) == PosCommand:
+            return f"{c.expr}"
+        elif type(c) == NegCommand:
+            return f"{c.expr}"
+
+        raise ValueError(f"Unknown command type: {c}")

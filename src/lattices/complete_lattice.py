@@ -40,3 +40,11 @@ class CompleteLattice[T](ABC):
     @abstractmethod
     def show(self, a: T) -> str:
         pass
+
+    @abstractmethod
+    def join_symbol(self) -> str:
+        pass
+
+    @abstractmethod
+    def geq_symbol(self) -> str:
+        pass

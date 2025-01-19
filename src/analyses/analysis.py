@@ -1,4 +1,5 @@
 
+import inspect
 from abc import ABC, abstractmethod
 from typing import Literal
 
@@ -8,6 +9,7 @@ from src.cfg.IMP.command import (AssignmentCommand, Command, LoadsCommand,
                                  PosCommand, SkipCommand, StoresCommand)
 from src.cfg.IMP.expression import ID, Expression
 from src.lattices.complete_lattice import CompleteLattice
+from src.util.bcolors import BColors
 
 
 class Analysis[T](ABC):
@@ -36,6 +38,13 @@ class Analysis[T](ABC):
     @abstractmethod
     def transfer(self, X: T, u: CFG.Node, command: Command, v: CFG.Node) -> T:
         pass
+
+    @abstractmethod
+    def get_equation(self, u: CFG.Node, incoming: list[CFG.Edge]) -> str:
+        pass
+
+    def wrap_name(self, x: CFG.Node) -> str:
+        return f"{BColors.BOLD}{self.name()}({BColors.ENDC}{x.name}{BColors.BOLD}){BColors.ENDC}"
 
 
 class NodeInsensitiveAnalysis[T](Analysis[T], ABC):
@@ -107,6 +116,23 @@ class NodeInsensitiveAnalysis[T](Analysis[T], ABC):
             return self.ParallelAssigment(command.assignments, A)
 
         raise ValueError(f"Unknown command type: {command}")
+
+    @abstractmethod
+    def format_equation(self, A: CFG.Node, c: Command) -> str:
+        pass
+
+    def get_equation(self, u: CFG.Node, incoming: list[CFG.Edge]) -> str:
+        if (self.direction == 'forward' and u.is_start) or (self.direction == 'backward' and u.is_end):
+            eq = [self.lattice.show(self.start_node(self.cfg))]
+        else:
+            eq = ["("+self.format_equation(e.source, e.command)+")" for e in incoming]
+
+        src = self.wrap_name(u)
+
+        s = f"{src} {self.lattice.geq_symbol()} {
+            f" {self.lattice.join_symbol()} ".join(eq)}"
+
+        return s
 
 
 class NodeSensitiveAnalysis[T](Analysis[T], ABC):
@@ -186,3 +212,21 @@ class NodeSensitiveAnalysis[T](Analysis[T], ABC):
             return self.ParallelAssigment(command.assignments, A, u, v)
 
         raise ValueError(f"Unknown command type: {command}")
+
+    @ abstractmethod
+    def format_equation(self, A: CFG.Node, c: Command, B: CFG.Node) -> str:
+        pass
+
+    def get_equation(self, u: CFG.Node, incoming: list[CFG.Edge]) -> str:
+        if (self.direction == 'forward' and u.is_start) or (self.direction == 'backward' and u.is_end):
+            eq = [self.lattice.show(self.start_node(self.cfg))]
+        else:
+            eq = ["("+self.format_equation(e.source, e.command, u)+")"
+                  for e in incoming]
+
+        src = self.wrap_name(u)
+
+        s = f"{src} {self.lattice.geq_symbol()} {
+            f" {self.lattice.join_symbol()} ".join(eq)}"
+
+        return s
